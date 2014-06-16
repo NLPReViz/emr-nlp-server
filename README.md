@@ -4,14 +4,11 @@ emr-nlp-server provides the backend service for the [emr-vis-web](https://github
 
 ## Getting Started
 
-To get started, install the pre-requisites, clone emr-nlp-server and then launch the service as described below:
+To get started, install the pre-requisites, get the emr-nlp-server application and then launch the service as described below:
 
 ### Prerequisites
 
-1. You need git to clone the emr-nlp-server repository. You can get it from
-[http://git-scm.com/](http://git-scm.com/). 
-
-2. You must have Java Development Kit (JDK) 1.7 to build or Java Runtime (JRE) 1.7 to run this project. To confirm that you have the right version of JRE installed, run `$ java -version` and verify that the output is similar to:
+1. You must have Java Development Kit (JDK) 1.7 to build or Java Runtime (JRE) 1.7 to run this project. To confirm that you have the right version of JRE installed, run `$ java -version` and verify that the output is similar to:
 
     ```
     java version "1.7.0_51"
@@ -21,11 +18,11 @@ To get started, install the pre-requisites, clone emr-nlp-server and then launch
     
     If you don't have the JDK installed or have one of the previous version you may get it from the [Oracle Technology Network](http://www.oracle.com/technetwork/java/index.html).
 
-3. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with homebrew you may use `$ brew install tomcat` to get it.
+2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with homebrew you may use `$ brew install tomcat` to get it.
 
-4. To be able to build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit](http://www.eclipse.org/egit/download/) plugin. This step is required only if you plan to build from the source.
+3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source.
 
-### Clone emr-nlp-server
+### Get emr-nlp-server application
 
 #### _Option A:_ Use .war file to run the project
 
