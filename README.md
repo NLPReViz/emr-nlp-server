@@ -22,7 +22,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source.
 
-### Get emr-nlp-server application
+### Get the emr-nlp-server application
 
 #### _Option A:_ Use the pre-built .war file to run the project
 
