@@ -64,25 +64,28 @@ public class FeedbackSpan_Model extends Feedback_Model implements IFeedbackTextF
 //        String _highlightType = highlightType.toString();
         feedbackLine.append(_highlightType).append(",");
         
-        // find the corresponding variable value, i.e. a variable value feedback line 
-        // has the same session ID, varID              
-        String varValueLineID = "-1";
-        for(int i = feedbackTable.length - 1; i >= 0; i--) {
-            String[] feedbackRow = feedbackTable[i];
-            // if userID = "" then we use the latest variable value
-            if(TextFileFeedbackManager.getFeedbackType(feedbackRow) == TextFileFeedbackManager.FeedbackType.VariableValue &&
-                    (feedbackRow[2].equals("") || userID.equals(feedbackRow[2])) && 
-                    feedbackRow[4].equals(m_docId) && 
-                    feedbackRow[5].equals(m_classifierId)) {
-                varValueLineID = feedbackRow[0];
-                break;
-            }
-        }
-        if (varValueLineID.equals("-1")) {
-            throw new UnsupportedOperationException("There is no variable value for this highlight span feedback in session " + sessionID);
-        }
-        
-        feedbackLine.append(m_docValue);
+//      // old version, span feedback doesn't have its own class value but get from variable value
+//      // find the corresponding variable value, i.e. a variable value feedback line 
+//      // has the same session ID, varID              
+//      String varValueLineID = "-1";
+//      for(int i = feedbackTable.length - 1; i >= 0; i--) {
+//          String[] feedbackRow = feedbackTable[i];
+//          // if userID = "" then we use the latest variable value
+//          if(TextFileFeedbackManager.getFeedbackType(feedbackRow) == TextFileFeedbackManager.FeedbackType.VariableValue &&
+//                  (feedbackRow[2].equals("") || userID.equals(feedbackRow[2])) && 
+//                  feedbackRow[4].equals(m_docId) && 
+//                  feedbackRow[5].equals(m_classifierId)) {
+//              varValueLineID = feedbackRow[0];
+//              break;
+//          }
+//      }
+//      if (varValueLineID.equals("-1")) {
+//          throw new UnsupportedOperationException("There is no variable value for this highlight span feedback in session " + sessionID);
+//      }
+//      // get the class value at varValueLineID (haven't implemented)
+      
+      // get the class value of this span feedback
+      feedbackLine.append(m_docValue);
         
         return feedbackLine.toString();
 	}
