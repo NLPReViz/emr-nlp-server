@@ -24,7 +24,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 ### Get emr-nlp-server application
 
-#### _Option A:_ Use .war file to run the project
+#### _Option A:_ Use the pre-built .war file to run the project
 
 1. Download [emr-nlp-server.war](https://github.com/trivedigaurav/emr-nlp-server/blob/master/emr-nlp-server.war).
 
