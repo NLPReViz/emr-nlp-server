@@ -99,15 +99,16 @@ public class WordTree_Controller {
 			}
 		}
 		
-		Map<String, Object> branchMap = new HashMap<>();
-		branchMap.put("lefts", leftList);
-		branchMap.put("rights", rightList);
+//		Map<String, Object> branchMap = new HashMap<>();
+//		branchMap.put("lefts", leftList);
+//		branchMap.put("rights", rightList);
 		
 		Map<String, Object> treeMap = new HashMap<>();
 		treeMap.put("matches", matchCount);
 		treeMap.put("total", reportIDList.size());
 		treeMap.put("query", rootWord);
-		treeMap.put("sentences", branchMap);
+		treeMap.put("lefts", leftList);
+		treeMap.put("rights", rightList);
 		
 		return treeMap;
 	}
