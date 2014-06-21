@@ -18,7 +18,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
     
     If you don't have the JDK installed or have one of the previous version you may get it from the [Oracle Technology Network](http://www.oracle.com/technetwork/java/index.html).
 
-2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with homebrew you may use `$ brew install tomcat` to get it.
+2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with [homebrew][homebrew] you may use `$ brew install tomcat` to get it.
 
 3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source.
 
@@ -48,3 +48,5 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 2. Start the Tomcat server using `$ catalina run` or `$ catalina start`. Note that the _data_ directory must reside in the same directory you start the server from. So, if you are using Eclipse to launch the server on build it must be present where the Eclipse executable is running from. 
 
 Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) to setup the front-end application.
+
+[homebrew]: http://brew.sh/
