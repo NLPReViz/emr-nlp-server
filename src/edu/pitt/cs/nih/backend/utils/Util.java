@@ -246,6 +246,10 @@ public class Util {
      * @throws Exception
      */
     public static String[][] loadTable(String fileName) throws Exception {
+        return loadTable(fileName, ",");
+    }
+    
+    public static String[][] loadTable(String fileName, String splitter) throws Exception {
         String text = loadTextFile(fileName);
         String[][] table;
         if (text.equals("")) {
@@ -255,7 +259,7 @@ public class Util {
             table = new String[lines.length][];
             for (int iRow = 0; iRow < lines.length; iRow++) {
                 String line = lines[iRow].trim();
-                table[iRow] = line.split(",");
+                table[iRow] = line.split(splitter);
             }
         }
 
@@ -467,5 +471,14 @@ public class Util {
 	    BigDecimal bd = new BigDecimal(value);
 	    bd = bd.setScale(places, RoundingMode.HALF_UP);
 	    return bd.doubleValue();
+	}
+	
+	public static void clearFolder(String folder) throws Exception {
+		if(fileExists(folder)) {
+			String[] fnList = loadFileList(folder);
+			for(int i = 0; i < fnList.length; i++) {
+				deleteFile(getOSPath(new String[]{folder, fnList[i]}));
+			}
+		}
 	}
 }

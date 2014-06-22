@@ -67,8 +67,7 @@ public class Report_Controller {
 		double[][][] predictionList = new double[modelFnList.size()][][];
 		for (int i = 0; i < modelFnList.size(); i++) {
 			predictionList[i] = getTestSetPrediction(testSet,
-					Util.getOSPath(new String[] { m_modelFolder,
-							Storage_Controller.getModelFn(modelFnList.get(i)) }));
+					Storage_Controller.getModelFn(modelFnList.get(i)));
 		}
 		// access to each prediction of each report for each classifier
 		int[] numPositiveDocument = new int[modelFnList.size()];

@@ -548,7 +548,11 @@ public class TextFileFeedbackManager extends FeedbackManager {
                             new String[]{docsFolder, reportID,
                         "pathology.txt"}));
                 }
-                feedbackLabel = getVarValueAtLineID(feedback[9]);
+//                // old approach, get class value of a span using its instance class value
+//                feedbackLabel = getVarValueAtLineID(feedback[9]);
+                // new approach, each span has its own class label (could be different from 
+                // its instance's class label)
+                feedbackLabel = feedback[9];
                 // extract the highlight span
                 spanStart =  Integer.parseInt(feedback[6]);
                 spanEnd =  Integer.parseInt(feedback[7]);

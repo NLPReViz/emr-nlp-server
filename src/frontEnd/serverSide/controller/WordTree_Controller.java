@@ -42,60 +42,38 @@ public class WordTree_Controller {
 	}
 	
 	public Map<String, Object> getWordTree(List<String> reportIDList, String rootWord) throws Exception {
-		String reportID, reportText, matchedSentence;
+		String reportID, reportText;
 		List<Map<String, Object>> leftList = new ArrayList<>();
 		List<Map<String, Object>> rightList = new ArrayList<>();
-		Map<String, Object> matchedItem;
-		List<String> tokenList;
 		
 		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
 		Pattern tokenPattern = Pattern.compile("[\\w']+|[.,!?;]");
 		
-		Matcher sentenceMatch, branchMatch;
+		
 		int matchCount = 0;
-		for(int i = 0; i < reportIDList.size(); i++) {
+		int docCount = 0;
+		for (int i = 0; i < reportIDList.size(); i++) {
 			reportID = reportIDList.get(i);
-			
-			reportText = Util.loadTextFile(Util.getOSPath(new String[]{m_docsFolder,
-					reportID, Storage_Controller.getColonoscopyReportFn()}));
-			// preprocess
-			reportText = reportText.replaceAll("\r\n", "\n");
-			sentenceMatch = sentencePattern.matcher(reportText);
-			while(sentenceMatch.find()) {
-				matchCount++;
-				matchedSentence = sentenceMatch.group();
-				matchedSentence = matchedSentence.replaceAll("\' s", "'s");
-				matchedSentence = matchedSentence.replaceAll("\n", " ");
-				matchedSentence = matchedSentence.replaceAll(" \t\n", "");
+
+			// find within the colonoscopy report
+			reportText = Util.loadTextFile(Util.getOSPath(new String[] {
+					m_docsFolder, reportID,
+					Storage_Controller.getColonoscopyReportFn() }));
+			matchCount = parseWordTree(reportText, sentencePattern,
+					tokenPattern, leftList, rightList, reportID, rootWord,
+					matchCount);
+			docCount++;
+			// find within the pathology report
+			if (Util.fileExists(Util.getOSPath(new String[] { m_docsFolder,
+					reportID, Storage_Controller.getPathologyReportFn() }))) {
 				
-				if(matchedSentence.charAt(matchedSentence.length() - 1) == '.') {
-					matchedSentence = matchedSentence.substring(0, matchedSentence.length() - 1);
-				}
-				
-				// left branch				
-				tokenList = new ArrayList<>();
-				branchMatch = tokenPattern.matcher(matchedSentence.substring(0, matchedSentence.indexOf(rootWord)).trim());
-				while(branchMatch.find()) {					
-					tokenList.add(branchMatch.group());
-				}
-				matchedItem = new HashMap<>();
-				matchedItem.put("doc", reportID);
-				matchedItem.put("id", Integer.toString(matchCount));
-				matchedItem.put("sentence", tokenList);
-				leftList.add(matchedItem);
-				
-				// right branch
-				tokenList = new ArrayList<>();
-				branchMatch = tokenPattern.matcher(matchedSentence.substring(
-						matchedSentence.indexOf(rootWord) + rootWord.length()).trim());
-				while(branchMatch.find()) {					
-					tokenList.add(branchMatch.group());
-				}
-				matchedItem = new HashMap<>();
-				matchedItem.put("doc", reportID);
-				matchedItem.put("id", Integer.toString(matchCount));
-				matchedItem.put("sentence", tokenList);
-				rightList.add(matchedItem);
+				reportText = Util.loadTextFile(Util.getOSPath(new String[] {
+						m_docsFolder, reportID,
+						Storage_Controller.getPathologyReportFn() }));
+				matchCount = parseWordTree(reportText, sentencePattern,
+						tokenPattern, leftList, rightList, reportID, rootWord,
+						matchCount);
+				docCount++;
 			}
 		}
 		
@@ -105,11 +83,66 @@ public class WordTree_Controller {
 		
 		Map<String, Object> treeMap = new HashMap<>();
 		treeMap.put("matches", matchCount);
-		treeMap.put("total", reportIDList.size());
+		treeMap.put("total", docCount);
 		treeMap.put("query", rootWord);
 		treeMap.put("lefts", leftList);
 		treeMap.put("rights", rightList);
 		
 		return treeMap;
+	}
+
+	protected int parseWordTree(String reportText, Pattern sentencePattern,
+			Pattern tokenPattern,List<Map<String, Object>> leftList,
+			List<Map<String, Object>> rightList, String reportID,
+			String rootWord, int matchCount) throws Exception {
+		String matchedSentence;
+		Matcher sentenceMatch, branchMatch;
+		Map<String, Object> matchedItem;
+		List<String> tokenList;
+		
+		// preprocess
+		reportText = reportText.replaceAll("\r\n", "\n");
+		sentenceMatch = sentencePattern.matcher(reportText);
+		while (sentenceMatch.find()) {
+			matchCount++;
+			matchedSentence = sentenceMatch.group();
+			matchedSentence = matchedSentence.replaceAll("\' s", "'s");
+			matchedSentence = matchedSentence.replaceAll("\n", " ");
+			matchedSentence = matchedSentence.replaceAll(" \t\n", "");
+
+			if (matchedSentence.charAt(matchedSentence.length() - 1) == '.') {
+				matchedSentence = matchedSentence.substring(0,
+						matchedSentence.length() - 1);
+			}
+
+			// left branch
+			tokenList = new ArrayList<>();
+			branchMatch = tokenPattern.matcher(matchedSentence.substring(0,
+					matchedSentence.indexOf(rootWord)).trim());
+			while (branchMatch.find()) {
+				tokenList.add(branchMatch.group());
+			}
+			matchedItem = new HashMap<>();
+			matchedItem.put("doc", reportID);
+			matchedItem.put("id", Integer.toString(matchCount));
+			matchedItem.put("sentence", tokenList);
+			leftList.add(matchedItem);
+
+			// right branch
+			tokenList = new ArrayList<>();
+			branchMatch = tokenPattern.matcher(matchedSentence.substring(
+					matchedSentence.indexOf(rootWord) + rootWord.length())
+					.trim());
+			while (branchMatch.find()) {
+				tokenList.add(branchMatch.group());
+			}
+			matchedItem = new HashMap<>();
+			matchedItem.put("doc", reportID);
+			matchedItem.put("id", Integer.toString(matchCount));
+			matchedItem.put("sentence", tokenList);
+			rightList.add(matchedItem);
+		}
+		
+		return matchCount;
 	}
 }

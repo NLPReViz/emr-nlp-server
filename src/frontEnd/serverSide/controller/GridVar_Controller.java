@@ -3,9 +3,12 @@
  */
 package frontEnd.serverSide.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.print.DocPrintJob;
 
 import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
@@ -63,6 +66,14 @@ public enum GridVar_Controller {
 		// update meta count
 		int[] numPositiveDoc = new int[modelFnList.size()];
 		int[] numNegativeDoc = new int[modelFnList.size()];
+		ArrayList<String>[] docIDPositiveList = new ArrayList[modelFnList.size()];
+		ArrayList<String>[] docIDNegativeList = new ArrayList[modelFnList.size()];
+		ArrayList<String>[] docIDUnclassifiedList = new ArrayList[modelFnList.size()];
+		for(int iModel = 0; iModel < modelFnList.size(); iModel++) {
+			docIDPositiveList[iModel] = new ArrayList<>();
+			docIDNegativeList[iModel] = new ArrayList<>();
+			docIDUnclassifiedList[iModel] = new ArrayList<>();
+		}
 		for(Map<String, Object> report : reportList) {
 			for(int iModel = 0; iModel < modelFnList.size(); iModel++) {
 				ReportPrediction_Model reportPrediction =
@@ -70,9 +81,14 @@ public enum GridVar_Controller {
 								Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)));
 				if(reportPrediction.getClassification().equals("positive")) {
 					numPositiveDoc[iModel]++;
+					docIDPositiveList[iModel].add((String)report.get("id"));
 				}
 				else if(reportPrediction.getClassification().equals("negative")) {
 					numNegativeDoc[iModel]++;
+					docIDNegativeList[iModel].add((String)report.get("id"));
+				}
+				else {
+					docIDUnclassifiedList[iModel].add((String)report.get("id"));
 				}
 			}	
 		}
@@ -82,6 +98,12 @@ public enum GridVar_Controller {
 					.setNumNegative(numNegativeDoc[iModel]);
 			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
 					.setNumPositive(numPositiveDoc[iModel]);
+			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
+				.setDocPositive(docIDPositiveList[iModel]);
+			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
+				.setDocNegative(docIDNegativeList[iModel]);
+			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
+				.setDocUnclassified(docIDUnclassifiedList[iModel]);
 		}
 		
 		gridVarObj.put("variableData", classifierMap);

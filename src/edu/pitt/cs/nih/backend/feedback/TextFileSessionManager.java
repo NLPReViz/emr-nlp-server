@@ -6,7 +6,9 @@
 package edu.pitt.cs.nih.backend.feedback;
 
 import edu.pitt.cs.nih.backend.utils.Util;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Manage sessions (batch) of feedback. Session management allows users can roll backward, 
@@ -415,6 +417,12 @@ public class TextFileSessionManager {
         }
     }
     
+    /**
+     * Delete all variables belonging to <code>sessionID</code>
+     * 
+     * @param sessionID
+     * @param userID
+     */
     public void deleteSession(String sessionID, String userID) {
         String[][] metaTable = getMetaTable();
         String varID;
@@ -485,5 +493,56 @@ public class TextFileSessionManager {
         }
         
         return index;
+    }
+    
+    /**
+     * Delete all related file of the latest session of <code>userID</code>
+     * 
+     * @param userID
+     * @throws Exception
+     */
+    public void deleteCurrentSessionID(String userID) throws Exception {
+    	String curSessionID = getCurrentSessionID(userID);
+    	// update the session manager file
+    	deleteSession(curSessionID, userID);
+    }
+    
+    /**
+     * Get the latest (valid) session of <code>userID</code>
+     * 
+     * @param userID
+     * @return
+     * @throws Exception
+     */
+    protected String getCurrentSessionID(String userID) throws Exception {
+    	String curSessionID = "";
+        String[][] metaTable = getMetaTable();
+        // go from the end to the beginning
+        int i = metaTable.length - 1;
+        String[] metaRow;        
+        // looking for the sessionID
+        while(i >= 0) {
+            metaRow = metaTable[i--];
+            if((metaRow[1].equals(userID) || metaRow[1].equals("")) && 
+                    metaRow[4].equals("valid") &&
+                    metaRow[3].equals("active")) {
+                curSessionID = metaRow[0];
+                break;
+            }
+        }
+        
+        return curSessionID;
+    }
+    
+    public static List<String> getDeletedSessionIDList(String userID, String fn_sessionTable) throws Exception {
+    	String[][] sessionTable = Util.loadTable(fn_sessionTable);
+    	List<String> sessionIDList = new ArrayList<>(sessionTable.length);
+    	for(int i = 0; i < sessionTable.length; i++) {
+    		if(sessionTable[i][1].equals(userID) &&
+    				sessionTable[i][4].equals("delete")) {
+    			sessionIDList.add(sessionTable[i][0]);
+    		}
+    	}
+    	return sessionIDList;
     }
 }

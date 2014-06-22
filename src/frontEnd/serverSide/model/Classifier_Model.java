@@ -21,6 +21,9 @@ public class Classifier_Model {
 	private int m_numPositive;
 	private List<FeatureWeight> m_topNegative;
 	private List<FeatureWeight> m_topPositive;
+	private List<String> m_docIDPositive;
+	private List<String> m_docIDNegative;
+	private List<String> m_docIDUnclassified;
 	
 //	public String getClassifierName() {
 //		return m_classifierName;
@@ -60,6 +63,30 @@ public class Classifier_Model {
 	
 	public void setTopPositive(List<FeatureWeight> topPositive) {
 		m_topPositive = topPositive;
+	}
+	
+	public List<String> getDocPositive() {
+		return m_docIDPositive;
+	}
+	
+	public void setDocPositive(List<String> docIDPositiveList) {
+		m_docIDPositive = docIDPositiveList;
+	}
+	
+	public List<String> getDocNegative() {
+		return m_docIDNegative;
+	}
+	
+	public void setDocNegative(List<String> docIDNegativeList) {
+		m_docIDNegative = docIDNegativeList;
+	}
+	
+	public List<String> getDocUnclassified() {
+		return m_docIDUnclassified;
+	}
+	
+	public void setDocUnclassified(List<String> docIDUnclassifiedList) {
+		m_docIDUnclassified = docIDUnclassifiedList;
 	}
 	
 	public void normalizeTopFeatures(double totalWeight) {

@@ -70,8 +70,17 @@ public class Storage_Controller {
 	public static String getLearningFn(String varID, String userID, String sessionID)
 			throws Exception {
 		StringBuilder sb = new StringBuilder(sessionID);
-		sb.append(".").append(userID).append(".").append(varID).append(".arff");
+		// Weka format
+//		sb.append(".").append(userID).append(".").append(varID).append(".arff");
+		// LibSVM format
+		sb.append(".").append(userID).append(".").append(varID).append(".txt");
 		return sb.toString();
+	}
+	
+	public static String getModelListFn(String sessionID, String userID) 
+			throws Exception {
+		return Util.getOSPath(new String[]{getModelListFolder(), "modelList." +
+			sessionID + "." + userID + ".xml"});
 	}
 	
 	/**
@@ -83,7 +92,7 @@ public class Storage_Controller {
 	 * @throws Exception
 	 */
 	public static String getModelFn(String fn_modelInList) throws Exception {
-		return fn_modelInList + ".model";
+		return Util.getOSPath(new String[]{getModelFolder(), fn_modelInList + ".model"});
 	}
 	
 	/**
@@ -101,5 +110,50 @@ public class Storage_Controller {
 	public static String getVarIdFromFn(String fn_model) throws Exception {
 		return fn_model.substring(fn_model.lastIndexOf(".") + 1,
 				fn_model.length());
+	}
+	
+	public static String getLocalSessionIDFromFn(String fn_model) throws Exception {
+		return fn_model.substring(0, fn_model.indexOf("."));
+	}
+	
+	public static String getLearningFeatureFn(String sessionID, String userID,
+			String varID) throws Exception {
+		return Util.getOSPath(new String[]{getTrainingFileFolder(),
+				sessionID + "." + userID + "." + varID + "-feature.txt"});
+	}
+	
+	public static String getLearningIndexFn(String sessionID, String userID,
+			String varID) throws Exception {
+		return Util.getOSPath(new String[]{getTrainingFileFolder(),
+				sessionID + "." + userID + "." + varID + "-index.txt"});
+	}
+	
+	public static String getLearningWeightFn(String sessionID, String userID,
+			String varID) throws Exception {
+		return Util.getOSPath(new String[]{getTrainingFileFolder(),
+				sessionID + "." + userID + "." + varID + "-weight.txt"});
+	}
+	
+	public static String getHyperParameterFn(String varID) throws Exception {
+		return Util.getOSPath(new String[]{getBaseFolder(), "hyperParams",
+				varID + "-hyperParams.txt"});
+	}
+	
+	public static String getDevFeatureFn(String varID) throws Exception {
+		return Util.getOSPath(new String[]{getTrainingFileFolder(), "dev." + varID +
+				"-feature.txt"});
+	}
+	
+	public static String getDevIndexFn(String varID) throws Exception {
+		return Util.getOSPath(new String[]{getTrainingFileFolder(), "dev." + varID +
+				"-index.txt"});
+	}
+	
+	public static String getLibSVMPath() throws Exception {
+		return Util.getOSPath(new String[]{getBaseFolder(), "libsvm"});
+	}
+	
+	public static String getPredictionFn() throws Exception {
+		return Util.getOSPath(new String[]{getLibSVMPath(), "prediction.txt"});
 	}
 }
