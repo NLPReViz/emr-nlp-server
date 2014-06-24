@@ -64,8 +64,6 @@ public enum GridVar_Controller {
 				reportIDList, modelFnList, topKwords);
 
 		// update meta count
-		int[] numPositiveDoc = new int[modelFnList.size()];
-		int[] numNegativeDoc = new int[modelFnList.size()];
 		ArrayList<String>[] docIDPositiveList = new ArrayList[modelFnList.size()];
 		ArrayList<String>[] docIDNegativeList = new ArrayList[modelFnList.size()];
 		ArrayList<String>[] docIDUnclassifiedList = new ArrayList[modelFnList.size()];
@@ -80,11 +78,9 @@ public enum GridVar_Controller {
 						(ReportPrediction_Model) report.get(
 								Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)));
 				if(reportPrediction.getClassification().equals("positive")) {
-					numPositiveDoc[iModel]++;
 					docIDPositiveList[iModel].add((String)report.get("id"));
 				}
 				else if(reportPrediction.getClassification().equals("negative")) {
-					numNegativeDoc[iModel]++;
 					docIDNegativeList[iModel].add((String)report.get("id"));
 				}
 				else {
@@ -94,10 +90,6 @@ public enum GridVar_Controller {
 		}
 		
 		for(int iModel = 0; iModel < modelFnList.size(); iModel++) {
-			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
-					.setNumNegative(numNegativeDoc[iModel]);
-			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
-					.setNumPositive(numPositiveDoc[iModel]);
 			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
 				.setDocPositive(docIDPositiveList[iModel]);
 			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
