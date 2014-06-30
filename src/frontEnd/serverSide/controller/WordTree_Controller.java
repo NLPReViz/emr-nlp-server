@@ -51,6 +51,8 @@ public class WordTree_Controller {
 		
 		
 		int matchCount = 0;
+		List<String> matchedList = new ArrayList<>();
+		
 		int docCount = 0;
 		for (int i = 0; i < reportIDList.size(); i++) {
 			reportID = reportIDList.get(i);
@@ -59,6 +61,7 @@ public class WordTree_Controller {
 			reportText = Util.loadTextFile(Util.getOSPath(new String[] {
 					m_docsFolder, reportID,
 					Storage_Controller.getColonoscopyReportFn() }));
+			int oldCount = matchCount;
 			matchCount = parseWordTree(reportText, sentencePattern,
 					tokenPattern, leftList, rightList, reportID, rootWord,
 					matchCount);
@@ -75,6 +78,10 @@ public class WordTree_Controller {
 						matchCount);
 				docCount++;
 			}
+			
+			if(matchCount > oldCount) {
+				matchedList.add(reportID);
+			}
 		}
 		
 //		Map<String, Object> branchMap = new HashMap<>();
@@ -83,6 +90,7 @@ public class WordTree_Controller {
 		
 		Map<String, Object> treeMap = new HashMap<>();
 		treeMap.put("matches", matchCount);
+		treeMap.put("matchedList", matchedList);
 		treeMap.put("total", docCount);
 		treeMap.put("query", rootWord);
 		treeMap.put("lefts", leftList);
