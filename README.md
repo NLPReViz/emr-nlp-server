@@ -46,7 +46,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 1. Navigate to the folder containing the _data_ directory (not in the repository). This folder may reside anywhere on your file-system and doesn't have to be present in one of the project folders.
 
 2. Start the Tomcat server using `$ catalina run` or `$ catalina start`. Note that the _data_ directory must reside in the same directory you start the server from. So, if you are using Eclipse to launch the server on build it must be present where the Eclipse executable is running from.
-3. Follow the README file inside the _libsvm_ / _data_ directory to compile LibSVM before running emr-nlp-server.
+3. Follow the README file inside the _data_ / _libsvm_ directory to compile LibSVM before running emr-nlp-server.
 
 Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) to setup the front-end application.
 
