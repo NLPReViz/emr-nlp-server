@@ -63,11 +63,11 @@ public class Classifier_Controller {
 						m_weightFolder,
 						Storage_Controller
 								.convertModelFn2FeatureWeightFn(fn_modelInList) }));
-		classifier.setTopNegative(getTopKNegativeFeatures(featureWeightTable,
-				topKwords));
-		classifier.setTopPositive(getTopKPositiveFeatures(featureWeightTable,
-				topKwords));
-		classifier.normalizeTopFeatures();
+//		classifier.setTopNegative(getTopKNegativeFeatures(featureWeightTable,
+//				topKwords));
+//		classifier.setTopPositive(getTopKPositiveFeatures(featureWeightTable,
+//				topKwords));
+//		classifier.normalizeTopFeatures();
 
 		return classifier;
 	}

@@ -481,4 +481,8 @@ public class Util {
 			}
 		}
 	}
+	
+	public static String getOSName() throws Exception {
+		return System.getProperty("os.name");
+	}
 }

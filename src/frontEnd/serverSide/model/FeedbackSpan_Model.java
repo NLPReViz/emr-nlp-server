@@ -6,14 +6,13 @@ package frontEnd.serverSide.model;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import edu.pitt.cs.nih.backend.feedback.IFeedbackTextFileSerializer;
-import edu.pitt.cs.nih.backend.feedback.TextFileFeedbackManager;
 
 /**
  * @author Phuong Pham
  *
  */
 @XmlRootElement
-public class FeedbackSpan_Model extends Feedback_Model implements IFeedbackTextFileSerializer {
+public class FeedbackSpan_Model extends Feedback_Document_Model implements IFeedbackTextFileSerializer {
 	public FeedbackSpan_Model() {};
 	
 	protected TextSpan_Model m_textSpan;
@@ -29,7 +28,7 @@ public class FeedbackSpan_Model extends Feedback_Model implements IFeedbackTextF
 	/**
      * Generate a feedback line to be written in the feedback.txt.
      * Each line has the following format: lineID, sessionID, userID, requestID, docID, varID, 
-     * spanStart, spanEnd, add/remove, pointer to var value of this highlight (lineID) (length=10).
+     * spanStart, spanEnd, add/remove, new value (length=10).
      * 
      * @param sessionID
      * @return

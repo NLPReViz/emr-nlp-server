@@ -54,6 +54,10 @@ public class Storage_Controller {
 		return Util.getOSPath(new String[]{getBaseFolder(), "feedback", "sessionManager.txt"});
 	}
 	
+	public static String getWordTreeFeedbackFn() throws Exception {
+		return Util.getOSPath(new String[]{getBaseFolder(), "feedback", "wordTree-feedback.txt"});
+	}
+	
 	public static String getTrainingFileFolder() throws Exception {
 		return Util.getOSPath(new String[]{getBaseFolder(), "learnings"});
 	}
@@ -155,5 +159,17 @@ public class Storage_Controller {
 	
 	public static String getPredictionFn() throws Exception {
 		return Util.getOSPath(new String[]{getLibSVMPath(), "prediction.txt"});
+	}
+	
+	public static String getTempLearningFeatureFn() throws Exception {
+		return Util.getOSPath(new String[]{getLibSVMPath(), "temp-feature.txt"});
+	}
+	
+	public static String getTempLearningIndexFn() throws Exception {
+		return Util.getOSPath(new String[]{getLibSVMPath(), "temp-index.txt"});
+	}
+	
+	public static String getTempLearningWeightFn() throws Exception {
+		return Util.getOSPath(new String[]{getLibSVMPath(), "temp-weight.txt"});
 	}
 }

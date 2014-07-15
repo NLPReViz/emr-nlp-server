@@ -12,11 +12,14 @@ import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import frontEnd.serverSide.controller.Storage_Controller;
+import frontEnd.serverSide.controller.WordTree_Controller;
 import frontEnd.serverSide.model.FeedbackSpan_Model;
-import frontEnd.serverSide.model.Feedback_Model;
+import frontEnd.serverSide.model.FeedbackSpan_WordTree_Model;
+import frontEnd.serverSide.model.Feedback_Abstract_Model;
+import frontEnd.serverSide.model.Feedback_Document_Model;
+import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
 import frontEnd.serverSide.model.TextSpan_Model;
 
-import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,8 +27,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import weka.core.Instances;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -78,6 +81,15 @@ public class FileTextCreateInitialDS {
     	createFeedbackEntries(modelFnList, sessionID, userID,
     			Storage_Controller.getFeedbackFn(), instanceIDList);
 
+    	// clean modelList folder
+    	String[] fnList = Util.loadFileList(Storage_Controller.getModelListFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.contains("modelList.0.")) { // the initial session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
     	// clear learning folder
     	Util.clearFolder(Storage_Controller.getTrainingFileFolder());
     	// initialize learning files from modelList linked with feedback file
@@ -86,7 +98,6 @@ public class FileTextCreateInitialDS {
     	createLearningFileFromFn(Util.getOSPath(new String[]{
     					Storage_Controller.getDocumentListFolder(), "devIDList.xml"}));
     	
-    	// clear model folder
     	String feedbackFileName = Storage_Controller.getFeedbackFn();
     	String fn_sessionManager = Storage_Controller.getSessionManagerFn();
     	String learningFolder = Storage_Controller.getTrainingFileFolder();
@@ -95,8 +106,10 @@ public class FileTextCreateInitialDS {
     	String featureWeightFolder = Storage_Controller.getWeightFolder();
     	String globalFeatureName = Storage_Controller.getGlobalFeatureVectorFn();
     	String xmlPredictorFolder = Storage_Controller.getModelListFolder();
-    	
+    	// clear model folder
     	Util.clearFolder(modelFolder);
+    	// clear weight folder
+    	Util.clearFolder(featureWeightFolder);
     	// update the current (0..) model
     	TextFileFeedbackManagerLibSVM feedbackManager = new TextFileFeedbackManagerLibSVM(feedbackFileName,
     			fn_sessionManager, learningFolder, docsFolder, modelFolder, featureWeightFolder,
@@ -104,7 +117,10 @@ public class FileTextCreateInitialDS {
     	feedbackManager.setUserID(userID);
     	feedbackManager.updateModels();
     	
+    	// clear word tree annotation feedback file
+    	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
     	
+    	// legacy
 //    	String[] fnList;
 //    	// remove additional weight files
 //    	fnList = Util.loadFileList(Storage_Controller.getWeightFolder());
@@ -240,8 +256,7 @@ public class FileTextCreateInitialDS {
     protected void createFeedbackEntries(List<String> modelFnList, String sessionID,
             String userID, String fn_feedbackMeta, List<String> instanceIDList)
             		throws Exception {
-        String requestID, varID, spanEnd, instanceID, instanceClass;        
-        WekaDataSet wekaDS = new WekaDataSet();
+        String requestID, varID, instanceID, instanceClass;        
         int iCount = 0;
         StringBuilder feedbackText = new StringBuilder(); 
         Map<String,String> classValueMap;
@@ -354,12 +369,12 @@ public class FileTextCreateInitialDS {
      * @return
      * @throws Exception
      */
-    public List<Feedback_Model> addFeedBack1(String userID) throws Exception {
+    public List<Feedback_Document_Model> addFeedBack1(String userID) throws Exception {
         // create a batch of feedback
-        ArrayList<Feedback_Model> batch = new ArrayList<>();
+        ArrayList<Feedback_Document_Model> batch = new ArrayList<>();
         
         // first var value
-        Feedback_Model varValue = new Feedback_Model();
+        Feedback_Document_Model varValue = new Feedback_Document_Model();
         varValue.setRequestId(getRequestID());
         varValue.setDocId("0001");
         varValue.setVariableName("biopsy");
@@ -379,7 +394,7 @@ public class FileTextCreateInitialDS {
         batch.add(highlightSpan);
         
         // second var value
-        varValue = new Feedback_Model();
+        varValue = new Feedback_Document_Model();
         varValue.setRequestId(getRequestID());
         varValue.setDocId("0004");
         varValue.setVariableName("biopsy");
@@ -387,7 +402,7 @@ public class FileTextCreateInitialDS {
         batch.add(varValue);
         
         // third var value
-        varValue = new Feedback_Model();
+        varValue = new Feedback_Document_Model();
         varValue.setRequestId(getRequestID());
         varValue.setDocId("0005");
         varValue.setVariableName("biopsy");
@@ -398,12 +413,12 @@ public class FileTextCreateInitialDS {
 	}
     
     
-    public List<Feedback_Model> addFeedBack2(String userID) throws Exception {
+    public List<Feedback_Document_Model> addFeedBack2(String userID) throws Exception {
         // create a batch of feedback
-        ArrayList<Feedback_Model> batch = new ArrayList<>();
+        ArrayList<Feedback_Document_Model> batch = new ArrayList<>();
         
         // first var value
-        Feedback_Model varValue = new Feedback_Model();
+        Feedback_Document_Model varValue = new Feedback_Document_Model();
         varValue.setRequestId(getRequestID());
         varValue.setDocId("0001");
         varValue.setVariableName("cecum");
@@ -411,7 +426,7 @@ public class FileTextCreateInitialDS {
         batch.add(varValue);
         
         // second var value
-        varValue = new Feedback_Model();
+        varValue = new Feedback_Document_Model();
         varValue.setRequestId(getRequestID());
         varValue.setDocId("0001");
         varValue.setVariableName("asa");
@@ -419,7 +434,7 @@ public class FileTextCreateInitialDS {
         batch.add(varValue);
         
         // third var value
-        varValue = new Feedback_Model();
+        varValue = new Feedback_Document_Model();
         varValue.setRequestId(getRequestID());
         varValue.setDocId("0009");
         varValue.setVariableName("biopsy");
@@ -440,12 +455,12 @@ public class FileTextCreateInitialDS {
         return batch;
 	}
 
-    public List<Feedback_Model> addFeedBack3(String userID) throws Exception {
+    public List<Feedback_Document_Model> addFeedBack3(String userID) throws Exception {
         // create a batch of feedback
-        ArrayList<Feedback_Model> batch = new ArrayList<>();
+        ArrayList<Feedback_Document_Model> batch = new ArrayList<>();
         
         // first var value
-        Feedback_Model varValue = new Feedback_Model();
+        Feedback_Document_Model varValue = new Feedback_Document_Model();
         varValue.setRequestId(getRequestID());
         varValue.setDocId("0001");
         varValue.setVariableName("cecum");
@@ -464,7 +479,7 @@ public class FileTextCreateInitialDS {
         batch.add(highlightSpan);
         
         // second var value
-        varValue = new Feedback_Model();
+        varValue = new Feedback_Document_Model();
         varValue.setRequestId(getRequestID());
         varValue.setDocId("0011");
         varValue.setVariableName("biopsy");
@@ -634,5 +649,244 @@ public class FileTextCreateInitialDS {
     		System.out.print(perfMeasures[2] + ",");
     		System.out.println(perfMeasures[3] + ",");
     	}
+    }
+    
+    public void verifyWordTreeAnnotation() throws Exception {
+//    	// print report ID contains the span (compare with word tree)    	
+//    	documentIDContainsText();
+//    	documentIDContainsTextFromWordTree();
+    	// re-create the data set files
+    	String fn_modelList = Util.getOSPath(new String[] {
+				Storage_Controller.getModelListFolder(), "modelList.0..xml" });
+		String fn_reportIDList = Util.getOSPath(new String[]{
+				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
+		// re-create the whole dataset
+    	initializeFeedbackFile(fn_modelList, fn_reportIDList);
+//    	// only re-create wordtree annotation
+//    	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
+    	
+    	// handle feedback
+		String userID = "1";
+		String feedbackFileName = Storage_Controller.getFeedbackFn();
+		String fn_sessionManager = Storage_Controller.getSessionManagerFn();
+		String _learningFolder = Storage_Controller.getTrainingFileFolder();
+		String _docsFolder = Storage_Controller.getDocsFolder();
+		String _modelFolder = Storage_Controller.getModelFolder();
+		String _featureWeightFolder = Storage_Controller.getWeightFolder();
+		String _globalFeatureName = Storage_Controller
+				.getGlobalFeatureVectorFn();		
+		String _xmlPredictorFolder = Storage_Controller.getModelListFolder();
+		String _fn_wordTreeFeedback = Storage_Controller.getWordTreeFeedbackFn();
+		
+		TextFileFeedbackManager_LibSVM_WordTree manager = new TextFileFeedbackManager_LibSVM_WordTree(
+    			feedbackFileName, fn_sessionManager, _learningFolder, _docsFolder, 
+    			_modelFolder, _featureWeightFolder, _globalFeatureName, _xmlPredictorFolder,
+    			_fn_wordTreeFeedback);
+		manager.setUserID(userID);
+		// got from the front-end
+		List<Feedback_WordTree_JSON_Model> feedbackBatch = addWordTreeJSONAnnotation();
+		// intermediate step, convert Feedback_WordTree_JSON_Model into Feedback_Abstract_Model
+		List<Feedback_Abstract_Model> feedbackBatchBackEnd = Feedback_WordTree_JSON_Model.toFeedbackModelList(feedbackBatch);
+//    	// add word tree annotation
+//    	manager.saveFeedbackBatch(feedbackBatchBackEnd);
+//    	manager.createLearningFiles();
+		System.out.println(manager.processFeedback(feedbackBatchBackEnd));
+//		// test skipped n-gram
+//    	Map<String,String> spanMap = new HashMap<>();
+//    	spanMap.put("selected", "(ISH & FISH) Anatomic Pathology Testing");
+//    	spanMap.put("matched", "(ISH & FISH) , Molecular Anatomic Pathology , and Immunofluorescent Testing");
+//    	System.out.println(manager.wordTreeSkippedNGramPatternString(spanMap));
+    }
+    
+    protected void documentIDContainsTextFromWordTree() throws Exception {
+    	String text = "biopsy";
+    	String fn_xmlList = Util.getOSPath(new String[]{Storage_Controller.getDocumentListFolder(),
+			"devIDList.xml"});
+		List<String> reportIDList = XMLUtil.getReportIDFromXMLList(fn_xmlList);
+		Map<String, Object> sentenceMap = new WordTree_Controller().getWordTree(reportIDList, text);
+		List<Map<String, Object>> leftBranchList = (List<Map<String, Object>>) sentenceMap.get("lefts");
+		List<String> matchSentence = new ArrayList<>();
+		int count = 0;
+		for(Map<String, Object> leftBranch : leftBranchList) {
+			List<String> leftTokenList = (List<String>)leftBranch.get("sentence");			
+//			if(leftTokenList.get(leftTokenList.size() - 1).equals("diminutive")) {
+			for(int i = 0; i < leftTokenList.size(); i++) {
+				if(leftTokenList.contains("using")) {
+				System.out.println("[" + leftBranch.get("doc") + "]" + leftTokenList);
+				++count;
+				matchSentence.add((String)leftBranch.get("doc"));
+				break;
+				}
+			}
+		}
+		System.out.println(count);
+		Collections.sort(matchSentence);
+		System.out.println(matchSentence);
+    }
+    
+    protected List<String> documentIDContainsText() throws Exception {
+    	String text = "diminutive using biopsy";
+    	// get from devID list
+    	String fn_xmlList = Util.getOSPath(new String[]{Storage_Controller.getDocumentListFolder(),
+    			"devIDList.xml"});
+    	List<String> reportIDList = XMLUtil.getReportIDFromXMLList(fn_xmlList);
+    	List<String> matchIDList = new ArrayList<>();
+    	Pattern pattern;
+//    	pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE); // raw text compare
+    	System.out.println(text.replaceAll("\\s",  ".+?"));
+    	pattern = Pattern.compile(text.replaceAll("\\s",  ".+?"), Pattern.MULTILINE | Pattern.DOTALL); // skipped n-gram
+    	Matcher m;
+    	int count = 0;
+    	String doc;
+    	for(String reportID : reportIDList) {
+    		doc = Util.loadTextFile(Util.getOSPath(new String[]{
+    				Storage_Controller.getDocsFolder(), reportID,
+    				Storage_Controller.getColonoscopyReportFn()}));
+    		m = pattern.matcher(doc);
+    		while(m.find()) {
+    			matchIDList.add(reportID + "a");
+    			System.out.println("[" + reportID + "a]" + m.group());
+    			++count;
+    		}
+    		
+    		if(Util.fileExists(Util.getOSPath(new String[]{Storage_Controller.getDocsFolder(),
+    				reportID, Storage_Controller.getPathologyReportFn()}))) {
+    			doc = Util.loadTextFile(Util.getOSPath(new String[]{Storage_Controller.getDocsFolder(),
+    				reportID, Storage_Controller.getPathologyReportFn()}));
+    			m = pattern.matcher(doc);
+    			while(m.find()) {
+    				matchIDList.add(reportID + "b");
+    				System.out.println("[" + reportID + "b]" + m.group());
+    				++count;
+    			}
+    		}
+    	}
+    	System.out.println(count);
+    	Collections.sort(matchIDList);
+    	System.out.println(matchIDList);
+    	return matchIDList;
+    }
+    
+    public List<Feedback_Abstract_Model> addWordTreeAnnotation() throws Exception {
+    	// create conflicts
+    	List<Feedback_Abstract_Model> feedbackBatch = new ArrayList<>();
+//    	// add 2 document level feedbacks
+//    	Feedback_Document_Model documentFeedback;
+////    	documentFeedback = new Feedback_Document_Model();
+////    	documentFeedback.setDocId("0001");
+////    	documentFeedback.setDocValue("True");
+////    	documentFeedback.setVariableName("cecum");
+////    	feedbackBatch.add(documentFeedback);
+//    	documentFeedback = new Feedback_Document_Model();
+//    	documentFeedback.setDocId("0002");
+//    	documentFeedback.setDocValue("False");
+//    	documentFeedback.setVariableName("cecum");
+//    	feedbackBatch.add(documentFeedback);
+    	
+    	// add 5 span level feedbacks
+    	FeedbackSpan_WordTree_Model wordTreeFeedback;
+    	List<String> reportIDList;
+    	wordTreeFeedback = new FeedbackSpan_WordTree_Model();
+    	wordTreeFeedback.setDocValue("True");
+    	wordTreeFeedback.setMatchedTextSpan("(ISH & FISH) , Molecular Anatomic Pathology , and\nImmunofluorescent Testing");
+    	wordTreeFeedback.setVariableName("cecum");
+    	reportIDList = new ArrayList<>();
+    	reportIDList.add("0002");
+    	wordTreeFeedback.setReportIDList(reportIDList);
+    	feedbackBatch.add(wordTreeFeedback);    	
+    	wordTreeFeedback = new FeedbackSpan_WordTree_Model();
+    	wordTreeFeedback.setDocValue("False");
+    	wordTreeFeedback.setMatchedTextSpan("were thoroughly explained , informed consent was obtained");
+    	wordTreeFeedback.setVariableName("cecum");
+    	reportIDList = new ArrayList<>();
+    	reportIDList.add("0001");
+    	wordTreeFeedback.setReportIDList(reportIDList);
+    	feedbackBatch.add(wordTreeFeedback);
+    	
+    	return feedbackBatch;
+    }
+    
+    public List<Feedback_WordTree_JSON_Model> addWordTreeJSONAnnotation() throws Exception {
+    	List<Feedback_WordTree_JSON_Model> feedbackBatch = new ArrayList<>();
+    	Feedback_WordTree_JSON_Model feedback;
+    	List<String> docIDList;
+//    	// add doc level feedback
+//    	feedback = new Feedback_WordTree_JSON_Model();
+//    	feedback.setKind("DOC");
+//    	feedback.setClassification("True");
+//    	docIDList = new ArrayList<>();
+//    	docIDList.add("0001");
+//    	feedback.setDocList(docIDList);
+//    	feedback.setVariable("cecum");
+//    	feedbackBatch.add(feedback);
+//    	
+//    	// add normal span feedback
+//    	feedback = new Feedback_WordTree_JSON_Model();
+//    	feedback.setKind("TEXT");
+//    	feedback.setClassification("True");
+//    	docIDList = new ArrayList<>();
+//    	docIDList.add("0001");
+//    	feedback.setDocList(docIDList);
+//    	feedback.setVariable("cecum");
+//    	feedback.setSelected("were\nthoroughly explained, informed consent was obtained"); // the span as it is
+//    	feedbackBatch.add(feedback);
+    	
+    	// add word tree span feedback
+    	feedback = new Feedback_WordTree_JSON_Model();
+    	feedback.setKind("WORDTREE");
+    	feedback.setClassification("False");
+    	docIDList = new ArrayList<>();
+    	docIDList.add("0002");
+    	feedback.setDocList(docIDList);
+    	feedback.setVariable("cecum");
+    	feedback.setSelected("(ISH & FISH) Anatomic Pathology Testing"); // skipped span
+    	feedback.setSpan("(ISH & FISH) , Molecular Anatomic Pathology , and Immunofluorescent Testing"); // matched span
+    	feedbackBatch.add(feedback);
+    	
+    	return feedbackBatch;
+    }
+    
+    public void verifyFullModel() throws Exception {
+    	List<String> instanceIDList = XMLUtil.getReportIDFromXMLList(Util.getOSPath(new String[]{
+				Storage_Controller.getDocumentListFolder(),"fullIDList.xml"}));
+//    	List<String> instanceIDList = XMLUtil.getReportIDFromXMLList(Util.getOSPath(new String[]{
+//				Storage_Controller.getDocumentListFolder(),"initialIDList.xml"}));
+    	
+//    	String[] varIDList = new String[] {"informed-consent"};
+    	String[] varIDList = new String[] {"any-adenoma",
+    		      "appendiceal-orifice", "asa", "biopsy", "cecum", "ileo-cecal-valve",
+    		      "indication-type", "informed-consent", "nursing-report", "prep-adequateNo",
+    		      "prep-adequateNot", "prep-adequateYes", "proc-aborted", "withdraw-time"};
+    	ColonoscopyDS_SVMLightFormat ds = new ColonoscopyDS_SVMLightFormat();
+    	String fn_trainFeature = Storage_Controller.getTempLearningFeatureFn();
+    	String fn_trainIndex = Storage_Controller.getTempLearningIndexFn();
+    	String fn_modelWeight = Storage_Controller.getTempLearningWeightFn();
+    	for(String varID : varIDList) {
+    		Map<String,String> classValueMap = getClassValueMap(varID);
+    		String fn_model = Util.getOSPath(new String[]{
+    				Storage_Controller.getModelFolder(), "full", "full." + varID + ".model"});
+    		String fn_featureWeight = Util.getOSPath(new String[]{
+    				Storage_Controller.getModelFolder(), "full", "full." + varID + ".weight.csv"});
+    		String[] hyperParamList = Util.loadList(
+        			Storage_Controller.getHyperParameterFn(varID), ",");
+        	double C = Double.parseDouble(hyperParamList[0]);
+        	double C_contrast = Double.parseDouble(hyperParamList[1]);
+        	double mu = Double.parseDouble(hyperParamList[2]);
+    		ds.trainModelnFeatureWeight(instanceIDList, classValueMap,
+    				fn_trainFeature, fn_trainIndex, fn_model,
+    				fn_modelWeight, fn_featureWeight, C, C_contrast, mu);
+    	}
+    }
+    
+    protected Map<String,String> getClassValueMap(String varID) throws Exception {
+    	Map<String,String> classValueMap = new HashMap<>();
+    	String[][] classValueTable = Util.loadTable(
+				Util.getOSPath(new String[] {Storage_Controller.getClassFn(varID)}));
+    	
+    	for(int i = 0; i < classValueTable.length; i++) {
+    		classValueMap.put(classValueTable[i][0], classValueTable[i][1]);
+    	}
+    	
+    	return classValueMap;
     }
 }

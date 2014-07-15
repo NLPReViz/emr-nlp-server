@@ -38,12 +38,14 @@ import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import emr_vis_nlp.ml.SVMPredictor;
+import frontEnd.serverSide.controller.Feedback_Controller;
 import frontEnd.serverSide.controller.GridVar_Controller;
 import frontEnd.serverSide.controller.Dataset_MLModel_Controller;
 import frontEnd.serverSide.controller.Report_Controller;
 import frontEnd.serverSide.controller.Storage_Controller;
 import frontEnd.serverSide.controller.WordTree_Controller;
-import frontEnd.serverSide.model.Feedback_Model;
+import frontEnd.serverSide.model.Feedback_Document_Model;
+import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
 
 /**
  * @author Phuong Pham
@@ -123,13 +125,25 @@ public class WSInterface {
 //	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})	
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Map<String, Object> getFeedback(
-			@PathParam("fn_modelFnList") String fn_modelFnList,
-			@PathParam("query") String rootWord)
+	public String getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
+			@PathParam("fn_modelFnList") String fn_modelFnList)
 			throws Exception {
-		return null; 
+		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList); 
 	}
-		
+	
+	@GET
+	@Path("resetDB")
+	public void resetDB()
+			throws Exception {
+		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
+		// re-create the data set files
+    	String fn_modelList = Util.getOSPath(new String[] {
+				Storage_Controller.getModelListFolder(), "modelList.0..xml" });
+		String fn_reportIDList = Util.getOSPath(new String[]{
+				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
+		// re-create the whole dataset
+		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList); 
+	}
 	
 	public static void main(String[] args) throws Exception {
 		long startTime = System.currentTimeMillis();
@@ -138,27 +152,41 @@ public class WSInterface {
 //		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
 //		createDataSet();
+//		verifyFullModel();
 		
 		long endTime = System.currentTimeMillis();
 		long totalTime = (endTime - startTime) / 1000;
 	    System.out.println(Util.convertTimeTick2String(totalTime));
 	}
 	
+	protected static void verifyFullModel() throws Exception {
+		FileTextCreateInitialDS ds = new FileTextCreateInitialDS();
+		ds.verifyFullModel();
+	}
+	
 	protected static void validateWebServiceOffline() throws Exception {
-//		// get var grid object
-//		String fn_reportIDList = "initialIDList.xml";
-//		String fn_modelFnList = "modelList.0..xml";
-//		int topKwords = 5;
-////		@SuppressWarnings("unused")
-//		// get grid var
-//		Map<String, Object> classifierList = 
-//		GridVar_Controller.instance.getPrediction(fn_reportIDList, 
-//				fn_modelFnList, topKwords);	
+		// get var grid object
+		String fn_reportIDList = "initialIDList.xml";
+		String fn_modelFnList = "modelList.0..xml";
+		int topKwords = 5;
+		// get grid var
+		Map<String, Object> classifierList = 
+		GridVar_Controller.instance.getPrediction(fn_reportIDList, 
+				fn_modelFnList, topKwords);	
+		
 //		List<String> reportIDList = Arrays.asList(new String[]{"0002", "0005"});
-////		// word tree
-////		String rootWord = "biopsy";
-////		System.out.println(new WordTree_Controller().getWordTree(reportIDList, rootWord));
-		countDocuments();
+//		// word tree
+//		String rootWord = "biopsy";
+//		System.out.println(new WordTree_Controller().getWordTree(reportIDList, rootWord));
+//		countDocuments();
+		
+		// verify word tree annotation handling
+		verifyWordTreeAnnotation();
+	}
+	
+	protected static void verifyWordTreeAnnotation() throws Exception {
+		FileTextCreateInitialDS ds = new FileTextCreateInitialDS();
+		ds.verifyWordTreeAnnotation();
 	}
 	
 	protected static void evaluateInitialSetOnDevSet() throws Exception {

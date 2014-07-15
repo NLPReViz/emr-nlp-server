@@ -11,7 +11,7 @@ import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
 import emr_vis_nlp.ml.SVMPredictor;
 import frontEnd.serverSide.model.FeedbackSpan_Model;
-import frontEnd.serverSide.model.Feedback_Model;
+import frontEnd.serverSide.model.Feedback_Abstract_Model;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -99,7 +99,7 @@ public class TextFileFeedbackManager extends FeedbackManager {
 	 * @param batch
 	 * @throws Exception
 	 */
-	public void processFeedback(List<Feedback_Model> batch) throws Exception {
+	public void processFeedback(List<Feedback_Abstract_Model> batch) throws Exception {
 		saveFeedbackBatch(batch);
 		createLearningFiles();
 		updateModels();
@@ -135,7 +135,7 @@ public class TextFileFeedbackManager extends FeedbackManager {
      * @throws Exception 
      */
     @Override
-    public void saveFeedbackBatch(List<Feedback_Model> feedbackBatch) throws Exception {
+    public void saveFeedbackBatch(List<Feedback_Abstract_Model> feedbackBatch) throws Exception {
         String batchSessionID = sessionManager.getNewSessionID();
         ArrayList<String[]> sessionAddList = new ArrayList<>();
         String[][] feedbackMetaTable;
@@ -148,7 +148,7 @@ public class TextFileFeedbackManager extends FeedbackManager {
         // highlight span feedbacks will have a valid referenced value line
         feedbackBatch = sortFeedbackBatch(feedbackBatch);
         
-        for(Feedback_Model feedback : feedbackBatch) {
+        for(Feedback_Abstract_Model feedback : feedbackBatch) {
             feedbackMetaTable = getFeedbackMetaTable();
             lineID = getLineID(feedbackMetaTable);
             // extract string from the feedback            
@@ -178,12 +178,12 @@ public class TextFileFeedbackManager extends FeedbackManager {
      * @return
      * @throws Exception 
      */
-    protected List<Feedback_Model> sortFeedbackBatch(
-            List<Feedback_Model> originalBatch) throws Exception {
-        ArrayList<Feedback_Model> varValueBatch = new ArrayList<>();
-        ArrayList<Feedback_Model> highlightSpanBatch = new ArrayList<>();
+    protected List<Feedback_Abstract_Model> sortFeedbackBatch(
+            List<Feedback_Abstract_Model> originalBatch) throws Exception {
+        ArrayList<Feedback_Abstract_Model> varValueBatch = new ArrayList<>();
+        ArrayList<Feedback_Abstract_Model> highlightSpanBatch = new ArrayList<>();
         
-        for(Feedback_Model feedback : originalBatch) {
+        for(Feedback_Abstract_Model feedback : originalBatch) {
             if (feedback instanceof FeedbackSpan_Model) {
             	highlightSpanBatch.add(feedback);
             }
@@ -205,7 +205,7 @@ public class TextFileFeedbackManager extends FeedbackManager {
      * @param batchSessionID
      * @throws Exception 
      */
-    public ArrayList<String[]> saveFeedbackBatch(List<Feedback_Model> feedbackBatch,
+    public ArrayList<String[]> saveFeedbackBatch(List<Feedback_Abstract_Model> feedbackBatch,
             String batchSessionID, String userID) throws Exception {
         ArrayList<String[]> sessionAddList = new ArrayList<>();
         String[][] feedbackMetaTable;
@@ -214,7 +214,7 @@ public class TextFileFeedbackManager extends FeedbackManager {
         String feedbackText;
         String varID = "";
         
-        for(Feedback_Model feedback : feedbackBatch) {
+        for(Feedback_Abstract_Model feedback : feedbackBatch) {
             feedbackMetaTable = getFeedbackMetaTable();
             lineID = getLineID(feedbackMetaTable);
             // extract string from the feedback            

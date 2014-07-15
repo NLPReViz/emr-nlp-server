@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.print.DocPrintJob;
 
@@ -14,6 +16,7 @@ import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
 import emr_vis_nlp.ml.SVMPredictor;
 import frontEnd.serverSide.model.Classifier_Model;
+import frontEnd.serverSide.model.FeatureWeight;
 import frontEnd.serverSide.model.ReportPrediction_Model;
 
 /**
@@ -25,12 +28,14 @@ public enum GridVar_Controller {
 	
 	private String m_modelListFolder;
 	private String m_documentListFolder;
+	private String m_weightFolder;
 	
 	private GridVar_Controller() {
 		// initialize global feature vector
 		try {
 			m_modelListFolder = Storage_Controller.getModelListFolder();
 			m_documentListFolder = Storage_Controller.getDocumentListFolder();
+			m_weightFolder = Storage_Controller.getWeightFolder();
 			
 			if (SVMPredictor.globalFeatureVector == null
 					|| SVMPredictor.globalFeatureVector.length == 0) {
@@ -60,8 +65,12 @@ public enum GridVar_Controller {
 				.getReportIDFromXMLList(Util.getOSPath(new String[] {
 						m_documentListFolder, fn_reportIDList }));
 		Report_Controller report_Controller = new Report_Controller();
+		List<FeatureWeight>[] topGlobalPositive = new ArrayList[modelFnList.size()];
+		List<FeatureWeight>[] topGlobalNegative = new ArrayList[modelFnList.size()];
+		
 		List<Map<String, Object>> reportList = report_Controller.getReport_Model(
-				reportIDList, modelFnList, topKwords);
+				reportIDList, modelFnList, topKwords, topGlobalPositive,
+				topGlobalNegative);
 
 		// update meta count
 		ArrayList<String>[] docIDPositiveList = new ArrayList[modelFnList.size()];
@@ -96,6 +105,15 @@ public enum GridVar_Controller {
 				.setDocNegative(docIDNegativeList[iModel]);
 			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
 				.setDocUnclassified(docIDUnclassifiedList[iModel]);
+			
+			// set global top feature
+			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
+				.setTopNegative(topGlobalNegative[iModel]);
+			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
+				.setTopPositive(topGlobalPositive[iModel]);
+			// normalize
+			classifierMap.get(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)))
+				.normalizeTopFeatures();
 		}
 		
 		gridVarObj.put("variableData", classifierMap);

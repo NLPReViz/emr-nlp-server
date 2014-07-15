@@ -15,6 +15,7 @@ import edu.pitt.cs.nih.backend.featureVector.FeatureSet.MLInstanceType;
 import edu.pitt.cs.nih.backend.feedback.TextFileSessionManager;
 import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
+import emr_vis_nlp.ml.LibSVMPredictor;
 import frontEnd.serverSide.controller.Storage_Controller;
 
 /**
@@ -55,6 +56,10 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     
     public void setClassValueMap(String _varID) throws Exception {
     	classValueTable = getClassMap(_varID);
+    }
+    
+    public void setClassValueMap(Map<String,String> map) throws Exception {
+    	classValueTable = map;
     }
     
     public static HashMap<String, String> getClassMap(String varID) throws Exception {
@@ -184,24 +189,23 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
         }
         
         // extract text spans from span feedbacks
-        StringBuilder rawText, pathologyText;
+        StringBuilder rawTextColon, rawTextPathology;
         int totalFeedback = 0;
         int totalInstance = featureSet.m_Instances.size();
         for(String report_ID : feedbackSpanDocList.keySet()) {
             // we work with colonoscopy report only
             // skip pathology report
-            rawText = new StringBuilder(Util.loadTextFile(Util.getOSPath(new String[] {dataFolder,
+            rawTextColon = new StringBuilder(Util.loadTextFile(Util.getOSPath(new String[] {dataFolder,
                     report_ID, Storage_Controller.getColonoscopyReportFn()})));
 
 			if (Util.fileExists(Util.getOSPath(new String[] {
 					dataFolder, report_ID, Storage_Controller.getPathologyReportFn() }))) {
-				pathologyText = new StringBuilder(Util.loadTextFile(Util
+				rawTextPathology = new StringBuilder(Util.loadTextFile(Util
 						.getOSPath(new String[] { dataFolder, report_ID,
 								Storage_Controller.getPathologyReportFn() })));
-				instanceTextList[1] = pathologyText.toString();
 			}
             else {
-            	instanceTextList[1] = "";
+            	rawTextPathology = new StringBuilder();
             }
             
             spanLabelMap = feedbackSpanDocList.get(report_ID);
@@ -231,7 +235,8 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
             // second approach (single rationale)
             // use each highlight span to create a pseudo span, not use all 
             // as in the first approach above
-            String originalText = rawText.toString();
+            String colonText = rawTextColon.toString();
+            String pathologyText = rawTextPathology.toString();
 //            for(int i = 0; i < spanList.size(); i++) {
 //	            start = spanList.get(i).getKey();
 //	            end = spanList.get(i).getValue();
@@ -240,13 +245,45 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
             	start = span.getKey();
                 end = span.getValue();
                 
-                // the StringBuilder.replace function will modify rawText
-                // we need to re-initialize the rawText object at each iteration
-                rawText = new StringBuilder(originalText);
-                instanceText = rawText.replace(start, end, "").toString();
-                // remove header and footer
-                instanceTextList[0] = Preprocess.separateReportHeaderFooter(
-                    instanceText)[1];
+                if(start < colonText.length()) { // the span in colonoscopy report
+                	System.out.println("[colon]" + rawTextColon.substring(start, end));
+                	// the StringBuilder.replace function will modify rawText
+                    // we need to re-initialize the rawText object at each iteration
+                    rawTextColon = new StringBuilder(colonText);
+                    instanceText = rawTextColon.replace(start, end, "").toString();
+                    // remove header and footer of the colonoscopy report
+                    instanceTextList[0] = Preprocess.separateReportHeaderFooter(
+                        instanceText)[1];
+                    // remove header and footer of the pathology report without modifying
+                    if(pathologyText.length() > 0) {
+	                    instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
+	                    		pathologyText)[1];
+                    }
+                    else {
+                    	instanceTextList[1] = "";
+                    }
+                }
+                else { // the span in pathology report
+                	start -= colonText.length();
+                	end -= colonText.length();                	
+                    // remove header and footer of the colonoscopy report without modifying
+                    instanceTextList[0] = Preprocess.separateReportHeaderFooter(
+                        colonText)[1];
+                    // the StringBuilder.replace function will modify rawText
+                    // we need to re-initialize the rawText object at each iteration
+                    System.out.println("[patho]" + rawTextPathology.substring(start, end));
+                    rawTextPathology = new StringBuilder(pathologyText);
+                    instanceText = rawTextPathology.replace(start, end, "").toString();
+                    // remove header and footer of the pathology report
+                    if(pathologyText.length() > 0) {
+	                    instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
+	                    		instanceText)[1];
+                    }
+                    else {
+                    	instanceTextList[1] = "";
+                    }
+                }
+                
                 String spanID = String.format("%s_%03d", report_ID, i++);
                 featureSet.addInstance(spanID, instanceTextList, reportType);
                 classValueTable.put(spanID, spanLabelMap.get(span));
@@ -786,5 +823,105 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     	// create weight file
     	// update feature vector (divide pseudo instance to \mu)
     	mergeCostList(fn_index, fn_featureVector, fn_weight, C, C_contrast, mu);
+    }
+    
+    public static List<String>[] fromStringTable2SparseIndexArray(String[][] dataSet)
+    	throws Exception {
+    	List<String>[] sparsedIndexTable = new List[dataSet.length];
+    	
+    	for(int i = 0; i < dataSet.length; i++) {
+    		sparsedIndexTable[i] = fromStringArray2SparsedIndexVector(dataSet[i]);
+    	}
+    	
+    	return sparsedIndexTable;
+    }
+    
+    protected static List<String> fromStringArray2SparsedIndexVector(String[] instanceArray)
+    		throws Exception {
+    	List<String> sparsedIndexList = new ArrayList<>();
+    	String[] indexValue;
+    	for(int i = 1; i < instanceArray.length; i++) { // the first index is the label
+    		indexValue = instanceArray[i].split(svmLightFeatureValueDelimiter);
+    		sparsedIndexList.add(indexValue[0]);
+    	}
+    	return sparsedIndexList;
+    }
+    
+    /**
+     * Create model file, weight file train a set of document 
+     * (docIDList), and classValueMap.
+     * Apply for document level annotation only, not for span 
+     * level annotation
+     * 
+     * @param docIDList
+     * @param classValueTable
+     * @param fn_trainFeature
+     * @param fn_trainIndex
+     * @param fn_model
+     * @param fn_modelWeight: weight of each instance, not feature weight
+     * @throws Exception
+     */
+    public void trainModelnFeatureWeight(List<String> docIDList,
+    		Map<String,String> classValueMap, String fn_trainFeature, String fn_trainIndex,
+    		String fn_model, String fn_modelWeight, String fn_featureWeight, double C,
+    		double C_contrast, double mu) throws Exception {
+    	
+    	String fn_globalFeatureVector = Storage_Controller.getGlobalFeatureVectorFn();
+    	// create class value map
+    	classValueTable = classValueMap;
+    	// create training file
+    	FeatureVector fv = getFVFromDocIDList(docIDList, fn_globalFeatureVector);
+    	boolean includeBiasFeature = true;
+    	
+    	createLearningFileFromFeatureVector(fv, fn_trainFeature, fn_trainIndex,
+    			includeBiasFeature, fn_globalFeatureVector);
+    	mergeCostList(fn_trainIndex, fn_trainFeature, fn_modelWeight, C, C_contrast, mu);
+    	
+    	
+    	
+    	// train model
+    	String[] svmTrainParams = new String[] {Storage_Controller.getLibSVMPath(),
+    			fn_trainFeature, fn_model, fn_modelWeight};
+    	LibSVMPredictor libSVM = new LibSVMPredictor();
+    	libSVM.train(svmTrainParams);
+    	libSVM.saveFeatureWeight(fn_model, fn_globalFeatureVector, fn_featureWeight,
+    			includeBiasFeature);
+    }
+    
+    public FeatureVector getFVFromDocIDList(List<String> docIDList,
+    		String fn_globalFeatureVector) throws Exception {
+    	FeatureSetNGram featureSet = FeatureSetNGram.createFeatureSetNGram();
+    	String dataFolder = Storage_Controller.getDocsFolder();
+    	String instanceID;
+    	String[] instanceTextList = new String[2];
+    	
+    	for(int i = 0; i < docIDList.size(); i++) {
+    		instanceID = docIDList.get(i);
+    		String fileName = Util.getOSPath(new String[] {dataFolder, instanceID,
+                Storage_Controller.getColonoscopyReportFn()});
+            
+            // the first string is colonocopy report
+            instanceTextList[0] = Util.loadTextFile(fileName);
+            // remove header and footer
+            instanceTextList[0] = Preprocess.separateReportHeaderFooter(
+                    instanceTextList[0])[1];
+            
+            fileName = Util.getOSPath(new String[] {dataFolder, instanceID,
+                Storage_Controller.getPathologyReportFn()});
+            if(Util.fileExists(fileName)) {
+                instanceTextList[1] = Util.loadTextFile(fileName);
+                // remove header and footer
+                instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
+                		instanceTextList[1])[1];
+            }
+            else {
+                instanceTextList[1] = "";
+            }
+            
+            featureSet.addInstance(instanceID, instanceTextList,
+            		reportType);
+    	}
+    	String[] globalFeatureVector = Util.loadList(fn_globalFeatureVector);
+    	return featureSet.getFeatureVectorFromGlobalFeatureVector(globalFeatureVector);
     }
 }

@@ -7,7 +7,7 @@ package edu.pitt.cs.nih.backend.feedback;
 
 import java.util.List;
 
-import frontEnd.serverSide.model.Feedback_Model;
+import frontEnd.serverSide.model.Feedback_Abstract_Model;
 
 /**
  * This is an abstract class to deal with feedback on the back-end side.
@@ -32,7 +32,7 @@ public abstract class FeedbackManager {
      * @param feedbackBatch A list of INLPChangeRequestEvent object
      * @throws Exception 
      */
-    public abstract void saveFeedbackBatch(List<Feedback_Model> feedbackBatch) throws Exception;
+    public abstract void saveFeedbackBatch(List<Feedback_Abstract_Model> feedbackBatch) throws Exception;
     
     /**
      * Create learning files for the current batch. 

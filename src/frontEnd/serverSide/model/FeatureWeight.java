@@ -14,7 +14,7 @@ import edu.pitt.cs.nih.backend.utils.Util;
  *
  */
 @XmlRootElement
-public class FeatureWeight {
+public class FeatureWeight implements Comparable<FeatureWeight>, Cloneable {
 	public FeatureWeight() {};
 	
 	private String m_term;
@@ -78,5 +78,47 @@ public class FeatureWeight {
 			}
 		}
 		return totalWeight;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) return false;
+	    if (o == this) return true;
+	    if (!(o instanceof FeatureWeight))return false;
+	    FeatureWeight otherFeatureWeight = (FeatureWeight) o;
+	    if(m_term.equals(otherFeatureWeight.m_term) &&
+	    		m_weight == otherFeatureWeight.m_weight) {
+	    	return true;
+	    }
+	    else {
+	    	return false;
+	    }
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(FeatureWeight o) {
+		if(Math.abs(this.m_weight) > Math.abs(o.m_weight)) {
+//			return 1; // ascending
+			return -1; // descending
+		}
+		else if(this.m_weight == o.m_weight) {
+			return 0;
+		}
+		else {
+//			return -1; // ascending
+			return 1; // descending
+		}
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		FeatureWeight cloned = new FeatureWeight();
+		cloned.m_term = m_term;
+		cloned.m_weight = m_weight;
+		
+		return cloned;
 	}
 }
