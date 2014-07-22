@@ -20,6 +20,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import weka.core.Instance;
@@ -123,12 +124,13 @@ public class WSInterface {
 	@POST
 	@Path("putFeedback/{fn_modelFnList}")
 //	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})	
-	@Produces(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
-			@PathParam("fn_modelFnList") String fn_modelFnList)
+	public Response getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch)
 			throws Exception {
-		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList); 
+		System.out.println("There are " + feedbackBatch.size() + "feedback");		
+		return Response.status(200).entity("OK").build();
+//		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList);		
 	}
 	
 	@GET
