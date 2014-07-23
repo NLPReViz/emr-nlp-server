@@ -121,4 +121,13 @@ public class FeatureWeight implements Comparable<FeatureWeight>, Cloneable {
 		
 		return cloned;
 	}
+	
+	public String toString() {
+		String objStr = "term: " + m_term + "\nweight: " + m_weight + "\nmatchedList: ";
+		for(String match : m_matchedList) {
+			objStr += match + ", ";
+		}
+		objStr += "\n";
+		return objStr;
+	}
 }

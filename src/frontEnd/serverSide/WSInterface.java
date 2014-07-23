@@ -82,9 +82,10 @@ public class WSInterface {
 			@PathParam("fn_modelFnList") String fn_modelFnList,
 			@QueryParam("callback") String callback) throws Exception {
 		int topKwords = 5;
+		boolean biasFeature = true;
 		Map<String, Object> gridVarObj = 
 				GridVar_Controller.instance.getPrediction(fn_reportIDList,
-						fn_modelFnList, topKwords);
+						fn_modelFnList, topKwords, biasFeature);
 		
 		return gridVarObj;
 	}
@@ -168,13 +169,14 @@ public class WSInterface {
 	
 	protected static void validateWebServiceOffline() throws Exception {
 		// get var grid object
-		String fn_reportIDList = "initialIDList.xml";
-		String fn_modelFnList = "modelList.0..xml";
+		String fn_reportIDList = "debugIDList.xml";
+		String fn_modelFnList = "modelList.debug.xml";
 		int topKwords = 5;
+		boolean biasFeature = true;
 		// get grid var
 		Map<String, Object> classifierList = 
 		GridVar_Controller.instance.getPrediction(fn_reportIDList, 
-				fn_modelFnList, topKwords);	
+				fn_modelFnList, topKwords, biasFeature);	
 		
 //		List<String> reportIDList = Arrays.asList(new String[]{"0002", "0005"});
 //		// word tree
@@ -183,7 +185,7 @@ public class WSInterface {
 //		countDocuments();
 		
 		// verify word tree annotation handling
-		verifyWordTreeAnnotation();
+//		verifyWordTreeAnnotation();
 	}
 	
 	protected static void verifyWordTreeAnnotation() throws Exception {

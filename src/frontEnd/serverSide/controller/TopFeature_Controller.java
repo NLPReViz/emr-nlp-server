@@ -33,14 +33,17 @@ public class TopFeature_Controller {
 		
 		for(int iSentence = 0; iSentence < stemmedList.size(); iSentence++) {
 			for(int iWord = 0; iWord < stemmedList.get(iSentence).length; iWord++) {
+//				System.out.print(stemmedList.get(iSentence)[iWord] + "/" + tokenList.get(iSentence)[iWord]);
 				for(int iFeature = 0; iFeature < featureWeightList.size(); iFeature++) {
 					fw = featureWeightList.get(iFeature);
-//					System.out.println(iWord + ": " + fw.getTerm() + "/" + featureWeightList.size());
-					if(stemmedList.get(iSentence)[iWord].equals(fw.getTerm())) {
-						matchedList.get(iFeature).add(tokenList.get(iSentence)[iWord].toLowerCase());
+//					System.out.println(iWord + ": " + fw.getTerm() + "/" + featureWeightList.size());					
+					if(stemmedList.get(iSentence)[iWord].equals(fw.getTerm().toLowerCase())) {
+						matchedList.get(iFeature).add(tokenList.get(iSentence)[iWord]);
+//						System.out.print("*");
 						break; // all features are different, matched this feature will terminate the others
 					}
 				}
+//				System.out.println();
 			}
 		}
 		
@@ -63,14 +66,22 @@ public class TopFeature_Controller {
 		allTokenList.add(TextUtil.extractWordsByStandfordParser(document));
 		List<String[]> stemmedTokenList = new ArrayList<>();
 		
+//		Set<String> unigramList = new TreeSet<>();
+		
 		for(int iSentence = 0; iSentence < allTokenList.get(0).size(); iSentence++) {
 			String[] wordList = new String[allTokenList.get(0).get(iSentence).length];
 			for(int iWord = 0; iWord < wordList.length; iWord++) {
-				wordList[iWord] = TextUtil.stemWord(allTokenList.get(0).get(iSentence)[iWord]);
+				wordList[iWord] = TextUtil.stemWord(allTokenList.get(0).get(iSentence)[iWord]).toLowerCase();
+//				unigramList.add(wordList[iWord]);
 			}
 			stemmedTokenList.add(wordList);
 		}
 		allTokenList.add(stemmedTokenList);
+		
+//		System.out.println("original text");
+//		for(String unigram : unigramList) {
+//			System.out.println(unigram);
+//		}
 		
 		return allTokenList;
 	}

@@ -49,7 +49,7 @@ public enum GridVar_Controller {
 	}
 	
 	public Map<String, Object> getPrediction(String fn_reportIDList,
-			String fn_modelList, int topKwords) throws Exception {
+			String fn_modelList, int topKwords, boolean biasFeature) throws Exception {
 		HashMap<String, Object> gridVarObj = new HashMap<>();
 		// get classifier name list
 		List<String> modelFnList = XMLUtil.getModelFnFromXMLList(
@@ -70,7 +70,7 @@ public enum GridVar_Controller {
 		
 		List<Map<String, Object>> reportList = report_Controller.getReport_Model(
 				reportIDList, modelFnList, topKwords, topGlobalPositive,
-				topGlobalNegative);
+				topGlobalNegative, biasFeature);
 
 		// update meta count
 		ArrayList<String>[] docIDPositiveList = new ArrayList[modelFnList.size()];

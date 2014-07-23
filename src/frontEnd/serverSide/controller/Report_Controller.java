@@ -58,7 +58,7 @@ public class Report_Controller {
 	public List<Map<String, Object>> getReport_Model(List<String> reportIDList,
 			List<String> modelFnList, int topKwords, 
 			List<FeatureWeight>[] globalTopPositive,
-			List<FeatureWeight>[] globalTopNegative) throws Exception {
+			List<FeatureWeight>[] globalTopNegative, boolean biasFeature) throws Exception {
 		String positiveClassification = "positive";
 		String negativeClassification = "negative";
 		String unclassified = "unclassified";
@@ -156,25 +156,45 @@ public class Report_Controller {
 //						reportInstance, featureIndexMap, featureWeightTable, topKwords);
 				// libSVM
 				topFeatureList = getTopNegativeLibSVMFeaturesInReport(
-						sparsedIndexData[iInstance], featureIndexMap, featureWeightTable, topKwords);
+						sparsedIndexData[iInstance], featureIndexMap, featureWeightTable, topKwords,
+						biasFeature);
+//				// debug
+//				System.out.println(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)));
+//				System.out.print("Negative: ");
+				
 				topFeatureController.extractMatchedUnigram(topFeatureList, allTokenList);
 				reportPrediction.setTopNegative(topFeatureList);
+				
+//				for(FeatureWeight fw : topFeatureList) {
+//					System.out.print(fw.getTerm() + ", ");
+//				}
+//				System.out.println();
+				
 				// get top positive features
 //				// weka
 //				topFeatureList = getTopPositiveWekaFeaturesInReport(
 //						reportInstance, featureIndexMap, featureWeightTable, topKwords);
 				// libSVM
 				topFeatureList = getTopPositiveLibSVMFeaturesInReport(
-						sparsedIndexData[iInstance], featureIndexMap, featureWeightTable, topKwords);
+						sparsedIndexData[iInstance], featureIndexMap, featureWeightTable, topKwords,
+						biasFeature);
+//				// debug				
+//				System.out.print("Positive: ");
+				
 				topFeatureController.extractMatchedUnigram(topFeatureList, allTokenList);
 				reportPrediction.setTopPositive(topFeatureList);
+				
+//				for(FeatureWeight fw : topFeatureList) {
+//					System.out.print(fw.getTerm() + ", ");
+//				}
+//				System.out.println();
 				
 				// update global top negative
 				mergeTopFeature2Global(globalTopNegative, iModel,
 						reportPrediction.getTopNegative(), topKwords);
 				// update global top positive
 				mergeTopFeature2Global(globalTopPositive, iModel,
-						reportPrediction.getTopPositive(), topKwords);
+						reportPrediction.getTopPositive(), topKwords);				
 				
 				// normalize
 				List<List<FeatureWeight>> topFeature = new ArrayList<>();
@@ -186,6 +206,18 @@ public class Report_Controller {
 				
 				report.put(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)),
 						reportPrediction);
+				
+				// debug
+//				System.out.println("Stemmed tokens");
+//				List<String[]> sentences = allTokenList.get(1);
+//				for(String[] tokenList : sentences) {
+//					for(String token : tokenList) {
+//						System.out.println(token);
+//					}
+//				}
+//				System.out.println("----------------------");
+//				System.out.println("***" + Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)));
+//				System.out.println(reportPrediction.toString());
 			}
 			reportList.add(report);
 		}
@@ -262,18 +294,20 @@ public class Report_Controller {
 	}
 	
 	protected List<FeatureWeight> getTopNegativeLibSVMFeaturesInReport(List<String> sparsedIndexInstance,
-			HashMap<String, Integer> featureIndexMap, String[][] featureWeightTable, int topKwords) throws Exception {
+			HashMap<String, Integer> featureIndexMap, String[][] featureWeightTable, int topKwords,
+			boolean biasFeature) throws Exception {
 		List<FeatureWeight> topNegativeFeatureList = new ArrayList<>();
 		int iFeature = 0;
 		double weight;
 		FeatureWeight featureWeight;
+		int offset = biasFeature ? 2 : 1; // libsvm start from 1 while globalfeature start from 0
 		while(topNegativeFeatureList.size() < topKwords &&
 				iFeature < featureIndexMap.size()) {
 			weight = Double.parseDouble(featureWeightTable[iFeature][1]); 
 			if(weight < 0 && !featureWeightTable[iFeature][0].equals("[biasFeature]") &&
 					sparsedIndexInstance.contains(
 							Integer.toString(
-									featureIndexMap.get(featureWeightTable[iFeature][0])))) {
+									featureIndexMap.get(featureWeightTable[iFeature][0]) + offset))) {
 				featureWeight = new FeatureWeight();
 				featureWeight.setTerm(featureWeightTable[iFeature][0]);
 				featureWeight.setWeight(weight);
@@ -281,13 +315,29 @@ public class Report_Controller {
 			}
 			iFeature++;
 		}
+		
+//		// debug
+//		Set<String> unigramList = new TreeSet<>();
+//		for(String indexInstance : sparsedIndexInstance) {
+//			if(!indexInstance.equals("1")) {
+//				unigramList.add(indexInstance);
+//			}
+//		}
+//		String[] globalFeatureVector = Util.loadList(
+//				Storage_Controller.getGlobalFeatureVectorFn());
+//		for(String unigram : unigramList) {
+//			System.out.println(unigram + "," + globalFeatureVector[Integer.parseInt(unigram) - 2]);
+//		}
+		
 		return topNegativeFeatureList;
 	}
 	
 	protected List<FeatureWeight> getTopPositiveLibSVMFeaturesInReport(List<String> sparsedIndexInstance,
-			HashMap<String, Integer> featureIndexMap, String[][] featureWeightTable, int topKwords) throws Exception {
+			HashMap<String, Integer> featureIndexMap, String[][] featureWeightTable, int topKwords,
+			boolean biasFeature) throws Exception {
 		List<FeatureWeight> topPositiveFeatureList = new ArrayList<>();
 		int iFeature = 0;
+		int offset = biasFeature ? 2 : 1; // libsvm start from 1 while globalfeature start from 0
 		double weight;
 		FeatureWeight featureWeight;
 		while(topPositiveFeatureList.size() < topKwords &&
@@ -296,7 +346,7 @@ public class Report_Controller {
 			if(weight > 0 && !featureWeightTable[iFeature][0].equals("[biasFeature]") &&
 					sparsedIndexInstance.contains(
 							Integer.toString(
-									featureIndexMap.get(featureWeightTable[iFeature][0])))) {
+									featureIndexMap.get(featureWeightTable[iFeature][0]) + offset))) {
 				featureWeight = new FeatureWeight();
 				featureWeight.setTerm(featureWeightTable[iFeature][0]);
 				featureWeight.setWeight(weight);
@@ -406,11 +456,17 @@ public class Report_Controller {
 		String docsFolder = Storage_Controller.getDocsFolder();
 		String fn_globalFeatureVector = Storage_Controller
 				.getGlobalFeatureVectorFn();
-		boolean includeBiasFeature = true;		
+		boolean includeBiasFeature = true;	
 
 		libSVM.setClassValueMap(createDummyLabelMap(docIDList));
 		fv = libSVM.getFeatureVectorFromReportList(fn_globalFeatureVector,
 				docsFolder, docIDList);
+//		//debug
+//		HashMap<Integer, Double> fvPrint = fv.m_FeatureVector[0];
+//		for(Integer index : fvPrint.keySet()) {
+//			System.out.println(index);
+//		}
+		
 		libSVM.createLearningFileFromFeatureVector(fv, fn_featureVector,
 				fn_index, includeBiasFeature, fn_globalFeatureVector);
 	}

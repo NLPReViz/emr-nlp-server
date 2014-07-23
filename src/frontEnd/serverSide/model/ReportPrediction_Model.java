@@ -60,4 +60,16 @@ public class ReportPrediction_Model {
 	public void setTopPositive(List<FeatureWeight> topPositive) {
 		m_topPositive = topPositive;
 	}
+	
+	public String toString() {
+		String objStr = "classification: " + m_classification + "\nconfidence: " + m_confidence + "\nNegative list:\n";
+		for(FeatureWeight fw : m_topNegative) {
+			objStr += fw.toString();
+		}
+		objStr += "Positive list: \n";
+		for(FeatureWeight fw : m_topPositive) {
+			objStr += fw.toString();
+		}
+		return objStr;
+	}
 }
