@@ -40,7 +40,6 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 1. Clone the emr-nlp-server repository using EGit: **File** > **Import** > Git ...
 
 2. Use `ant create` to generate the war file and copy it your _webapps/_ directory as specified in step 4 of the section above.
-
 or, Export the project into a .war file: **File** > **Export** > Web > WAR File to the _webapps/_ directory as specified in steps 2-3 in the section above.
 
 ### Run the server
