@@ -20,7 +20,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with [homebrew][homebrew] you may use `$ brew install tomcat` to install the server on your machine.
 
-3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source.
+3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source (Option C).
 
 ### Get the emr-nlp-server application
 
@@ -35,12 +35,24 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 4. Move _emr-nlp-server.war_ to this _webapps/_ directory. Skip the next section and continue reading.
 
 
-#### _Option B:_ Build the project in Eclipse
+#### _Option B:_ Use ant to build the project
 
-1. Clone the emr-nlp-server repository using EGit: **File** > **Import** > Git ...
+1. Clone the emr-nlp-server repository using [git][git]:
 
-2. Use `ant create` to generate the war file and copy it your _webapps/_ directory as specified in step 4 of the section above.
-or, Export the project into a .war file: **File** > **Export** > Web > WAR File to the _webapps/_ directory as specified in steps 2-3 in the section above.
+    ```
+    git clone https://github.com/trivedigaurav/emr-nlp-server.git
+    cd emr-nlp-server
+    ```
+
+2. Use `ant create` to generate the war file and copy it your _webapps/_ directory as specified in step 4 in Option A.
+
+
+#### _Option C:_ Build the project in Eclipse
+
+1. Clone the emr-nlp-server repository using EGit: **File** > **Import** > Git ... 
+
+3. **or**, Export the project into a .war file: **File** > **Export** > Web > WAR File to the _webapps/_ directory as specified in steps 2-3 in Option A.
+
 
 ### Run the server
 
@@ -54,3 +66,4 @@ or, Export the project into a .war file: **File** > **Export** > Web > WAR File 
 Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) to setup the front-end application.
 
 [homebrew]: http://brew.sh/
+[git]: http://git-scm.com/
