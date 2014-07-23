@@ -44,14 +44,14 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
     cd emr-nlp-server
     ```
 
-2. Use `ant create` to generate the war file and copy it your _webapps/_ directory as specified in step 4 in Option A.
+2. Use `ant create` to generate the war file and copy it your _webapps/_ directory as specified in step 4 of Option A. If you have the correct environment variables set for `CATALINA_HOME`, you may also use `ant deploy` to automate this step. 
 
 
 #### _Option C:_ Build the project in Eclipse
 
 1. Clone the emr-nlp-server repository using EGit: **File** > **Import** > Git ... 
 
-3. **or**, Export the project into a .war file: **File** > **Export** > Web > WAR File to the _webapps/_ directory as specified in steps 2-3 in Option A.
+3. **or**, Export the project into a .war file: **File** > **Export** > Web > WAR File to the _webapps/_ directory as specified in steps 2-3 of Option A.
 
 
 ### Run the server
