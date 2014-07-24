@@ -78,6 +78,7 @@ public class Feedback_Controller {
 		// Feedback_Abstract_Model
 		List<Feedback_Abstract_Model> feedbackBatchBackEnd = Feedback_WordTree_JSON_Model
 				.toFeedbackModelList(feedbackBatch);
+		
 		String feedbackMsg = manager.processFeedback(feedbackBatchBackEnd);
 
 		return feedbackMsg;

@@ -12,7 +12,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -20,32 +20,26 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import weka.core.Instance;
 import weka.core.Instances;
 import edu.pitt.cs.nih.backend.featureVector.ColonoscopyDS_SVMLightFormat;
 import edu.pitt.cs.nih.backend.featureVector.FeatureSet.MLInstanceType;
 import edu.pitt.cs.nih.backend.featureVector.FeatureSetNGram;
 import edu.pitt.cs.nih.backend.featureVector.FeatureVector;
 import edu.pitt.cs.nih.backend.featureVector.Preprocess;
-import edu.pitt.cs.nih.backend.featureVector.WekaDataSet;
 import edu.pitt.cs.nih.backend.feedback.FileTextCreateInitialDS;
-import edu.pitt.cs.nih.backend.feedback.TextFileFeedbackManager;
 import edu.pitt.cs.nih.backend.feedback.TextFileFeedbackManagerLibSVM;
-import edu.pitt.cs.nih.backend.feedback.TextFileSessionManager;
 import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import emr_vis_nlp.ml.SVMPredictor;
+import frontEnd.serverSide.controller.Dataset_MLModel_Controller;
 import frontEnd.serverSide.controller.Feedback_Controller;
 import frontEnd.serverSide.controller.GridVar_Controller;
-import frontEnd.serverSide.controller.Dataset_MLModel_Controller;
 import frontEnd.serverSide.controller.Report_Controller;
 import frontEnd.serverSide.controller.Storage_Controller;
 import frontEnd.serverSide.controller.WordTree_Controller;
-import frontEnd.serverSide.model.Feedback_Document_Model;
 import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
 
 /**
@@ -122,21 +116,23 @@ public class WSInterface {
 		return new WordTree_Controller().getWordTree(fn_reportIDList, rootWord); 
 	}
 	
-	@POST
+	@PUT
 	@Path("putFeedback/{fn_modelFnList}")
+//	@Path("putFeedback/{fn_modelFnList}/{fn_reportIDList}")
 //	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})	
 //	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch)
+	public String getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
+			@PathParam("fn_modelFnList") String fn_modelFnList)
 			throws Exception {
-		System.out.println("There are " + feedbackBatch.size() + "feedback");		
-		return Response.status(200).entity("OK").build();
-//		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList);		
+//		System.out.println("There are " + feedbackBatch.size() + " feedback");		
+//		return Response.status(200).entity("OK").build();
+		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList);
 	}
 	
 	@GET
 	@Path("resetDB")
-	public void resetDB()
+	public String resetDB()
 			throws Exception {
 		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
 		// re-create the data set files
@@ -145,21 +141,23 @@ public class WSInterface {
 		String fn_reportIDList = Util.getOSPath(new String[]{
 				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
 		// re-create the whole dataset
-		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList); 
+		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
+		
+		return "resetDB: OK";
 	}
 	
 	public static void main(String[] args) throws Exception {
-		long startTime = System.currentTimeMillis();
+//		long startTime = System.currentTimeMillis();
 
-		validateWebServiceOffline();
+//		validateWebServiceOffline();
 //		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
 //		createDataSet();
 //		verifyFullModel();
 		
-		long endTime = System.currentTimeMillis();
-		long totalTime = (endTime - startTime) / 1000;
-	    System.out.println(Util.convertTimeTick2String(totalTime));
+//		long endTime = System.currentTimeMillis();
+//		long totalTime = (endTime - startTime) / 1000;
+//	    System.out.println(Util.convertTimeTick2String(totalTime));
 	}
 	
 	protected static void verifyFullModel() throws Exception {

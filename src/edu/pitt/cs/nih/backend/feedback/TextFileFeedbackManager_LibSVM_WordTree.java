@@ -70,6 +70,8 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 			feedbackMsg = "Error: " + e.getMessage();
 		}
 		
+		System.out.println(feedbackMsg);
+		
 		return feedbackMsg;
 	}
 	
@@ -82,7 +84,6 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		// matched is the real span that matched in the text
 		// from selected and matched, we can get the skipped n-gram patterns (skipped position, n words to be skipped)
 		validateFeedbackBatch(feedbackBatch);		
-		
 		// save wordTree stand off annotation
 		String sessionID = saveWordTreeAnnotationFile(feedbackBatch);
 
@@ -257,13 +258,40 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	 * @param sessionID
 	 * @throws Exception
 	 */
-	protected void convertWordTreeAnnotation2FinalAnnotation(String sessionID) throws Exception {
+	protected void convertWordTreeAnnotation2FinalAnnotation(String sessionID) throws Exception {		
+		try {
+			String[][] feedbackTable = Util.loadTable(fn_wordTreeFeedback);
+			// extract all feedback in this session
+			Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = 
+					extractWordTreeAnnotation2Map(sessionID, feedbackTable);
+			// from the structure, convert into final annotation
+			convert2FinalAnnotationFormat(feedbackMap, sessionID);
+		}
+		catch(Exception e) {
+			// can't convert into final feedback, roll back saved wordtree feedback
+			rollBackWordTreeFeedback(sessionID);
+			throw e;
+		}
+	}
+	
+	/**
+	 * If there is an exception during saving feedback
+	 * roll back the wordtree format feedback after it was saved
+	 *  
+	 * @param sessionID
+	 * @throws Exception
+	 */
+	protected void rollBackWordTreeFeedback(String sessionID) throws Exception {
 		String[][] feedbackTable = Util.loadTable(fn_wordTreeFeedback);
-		// extract all feedback in this session
-		Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = 
-				extractWordTreeAnnotation2Map(sessionID, feedbackTable);
-		// from the structure, convert into final annotation
-		convert2FinalAnnotationFormat(feedbackMap, sessionID);
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < feedbackTable.length; i++) {
+			if(feedbackTable[i][1].equals(sessionID)) {
+				break; // roll back the latest session ID, therefore we stop whenever meet it
+			}
+			sb.append(Util.joinString(feedbackTable[i], ",")).append("\n");
+		}
+		
+		Util.saveTextFile(fn_wordTreeFeedback, sb.toString());
 	}
 	
 	/**
@@ -408,7 +436,6 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		for(String varID : feedbackMap.keySet()) {
 			// update the session manager
 			addNewFeedbackSessionItem(userID, varID, sessionAddList);
-			
 			// update the feedback manager
 			varMap = feedbackMap.get(varID);
 			
@@ -493,17 +520,14 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		String fn_report = Storage_Controller.getColonoscopyReportFn();
 		String fn_pathology = Storage_Controller.getPathologyReportFn();
 		String docText;
-		
 		Pattern pattern = getSearchPatternFromSpanMap(spanMap);
 		Matcher m;
-		
 		// search text in colonoscopy text
 		docText = Util.loadTextFile(Util.getOSPath(new String[]{docsFolder, docID, fn_report}));
 		m = pattern.matcher(docText);
 		if(m.find()) {
 			startEndPos = Integer.toString(m.start()) + "," 
 					+ Integer.toString(m.end());
-			System.out.println("[colon]" + m.group());
 		}
 		else { // look into pathology text
 			fn_pathology = Util.getOSPath(new String[]{docsFolder, docID, fn_pathology});
@@ -516,7 +540,6 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 				if(m.find()) {					
 					startEndPos = Integer.toString(m.start() + offset) + "," 
 							+ Integer.toString(m.end() + offset);
-					System.out.println("[patho]" + m.group());
 				}
 				else { // can't find the span in pathology report
 					throw new Exception("Cannot find \"" + spanMap.get("selected") +

@@ -22,7 +22,8 @@ public class Feedback_WordTree_JSON_Model {
 	private String m_matchedSpan; // the matched span (realization of the skipped n-gram span)
 	private String m_value; // classification value (class label)
 	private String m_varID; // varID
-	private List<String> m_docIDList; // list of reportID
+//	private List<String> m_docIDList; // list of reportID
+	private Object m_docIDList;
 	
 	public Feedback_WordTree_JSON_Model(){};
 	
@@ -54,8 +55,9 @@ public class Feedback_WordTree_JSON_Model {
 		return m_value;
 	}
 	
-	public void setClassification(String value) {
-		m_value = value;
+	public void setClassification(String value) {		
+//		m_value = value;
+		m_value = value.toLowerCase().equals("positive") ? "True" : "False";
 	}
 	
 	public String getVariable() {
@@ -66,24 +68,33 @@ public class Feedback_WordTree_JSON_Model {
 		m_varID = varID;
 	}
 	
-	public List<String> getDocList() {
+//	public List<String> getDocList() {
+//		return m_docIDList;
+//	}
+//	
+//	public void setDocList(List<String> docIDList) {
+//		m_docIDList = docIDList;
+//	}
+	
+	public Object getDocList() {
 		return m_docIDList;
 	}
 	
-	public void setDocList(List<String> docIDList) {
+	public void setDocList(Object docIDList) {
 		m_docIDList = docIDList;
 	}
 	
 	public Feedback_Abstract_Model toFeedbackModel() throws Exception {
 		Feedback_Abstract_Model feedback = null;
-		if(m_type.toUpperCase().equals("DOC")) {
+		if(m_type.toUpperCase().equals("TYPE_DOC")) {
 			Feedback_Document_Model docFeedback = new Feedback_Document_Model();
-			docFeedback.setDocId(m_docIDList.get(0)); // docID is the first element
+			String docId = (String) m_docIDList;
+			docFeedback.setDocId(docId); // docID is the first element
 			docFeedback.setDocValue(m_value);
 			docFeedback.setVariableName(m_varID);
 			feedback = docFeedback;
 		}
-		else if(m_type.toUpperCase().equals("TEXT")) {
+		else if(m_type.toUpperCase().equals("TYPE_TEXT")) {
 			// we treat a normal highlight text span as a special case of 
 			// word tree highlight span, where the span is the same as the
 			// selected so there would be no diff between these 2 strings
@@ -92,17 +103,23 @@ public class Feedback_WordTree_JSON_Model {
 			spanFeedback.setVariableName(m_varID);
 			spanFeedback.setSelectedTextSpan(m_selectedSpan);
 			spanFeedback.setMatchedTextSpan(m_selectedSpan); // the same as selected
-			spanFeedback.setReportIDList(m_docIDList);
+			ArrayList<String> docIdList = new ArrayList<>();
+			docIdList.add((String) m_docIDList);
+			spanFeedback.setReportIDList(docIdList);
 			feedback = spanFeedback;
 		}
-		else if(m_type.toUpperCase().equals("WORDTREE")) {
+		else if(m_type.toUpperCase().equals("TYPE_WORDTREE")) {
 			FeedbackSpan_WordTree_Model spanFeedback = new FeedbackSpan_WordTree_Model();
 			spanFeedback.setDocValue(m_value);
 			spanFeedback.setVariableName(m_varID);
 			spanFeedback.setSelectedTextSpan(m_selectedSpan);
 			spanFeedback.setMatchedTextSpan(m_matchedSpan); // the same as selected
-			spanFeedback.setReportIDList(m_docIDList);
+			List<String> docIdList = (List<String>) m_docIDList;
+			spanFeedback.setReportIDList(docIdList);
 			feedback = spanFeedback;
+		}
+		else {
+			throw new Exception(m_type.toUpperCase() + " is not a defined feedback type");
 		}
 		
 		return feedback;
@@ -115,6 +132,11 @@ public class Feedback_WordTree_JSON_Model {
 		for(Feedback_WordTree_JSON_Model feedback : feedbackBatch) {
 			abstractFeedbackBatch.add(feedback.toFeedbackModel());
 		}
+		
+//		// debug
+//		for(Feedback_Abstract_Model fb : abstractFeedbackBatch) {
+//			System.out.println(fb.toString());
+//		}
 		
 		return abstractFeedbackBatch;
 	}

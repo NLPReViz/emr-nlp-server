@@ -55,6 +55,72 @@ public class FileTextCreateInitialDS {
 				XMLUtil.getReportIDFromXMLList(fn_instanceIDList));
 	}
 	
+	public void softResetDB(String fn_modelList,
+			String fn_instanceIDList) throws Exception {
+		String userID = ""; // default user is ""
+    	String sessionID = "0"; // default sessionID = "1"
+    	ColonoscopyDS_SVMLightFormat svm = new ColonoscopyDS_SVMLightFormat();
+    	List<String> modelFnList = XMLUtil.getModelFnFromXMLList(fn_modelList);
+    	List<String> instanceIDList = XMLUtil.getReportIDFromXMLList(fn_instanceIDList);
+    	
+    	// initialize the session manager file
+    	if(Util.fileExists(Storage_Controller.getSessionManagerFn())) {
+    		Util.deleteFile(Storage_Controller.getSessionManagerFn());
+    	}
+    	createSessionEntries(modelFnList, sessionID, userID,
+    			Storage_Controller.getSessionManagerFn());
+    	
+    	// initialize the feedback file
+    	if(Util.fileExists(Storage_Controller.getFeedbackFn())) {
+    		Util.deleteFile(Storage_Controller.getFeedbackFn());
+    	}
+    	createFeedbackEntries(modelFnList, sessionID, userID,
+    			Storage_Controller.getFeedbackFn(), instanceIDList);
+
+    	// clear word tree annotation feedback file
+    	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
+
+    	// clean modelList folder
+    	String[] fnList = Util.loadFileList(Storage_Controller.getModelListFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.contains("modelList.0.")) { // the initial session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
+    	// clear learning folder
+    	fnList = Util.loadFileList(Storage_Controller.getTrainingFileFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.substring(0, 3).equals("0..") || // the initial session
+    				!fnModel.substring(0, 3).equals("dev")) { // development session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
+    	
+    	// clear model folder
+    	fnList = Util.loadFileList(Storage_Controller.getModelFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.substring(0, 3).equals("0..")){ // initial session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
+    	
+    	// clear weight folder
+    	fnList = Util.loadFileList(Storage_Controller.getWeightFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.substring(0, 3).equals("0..")){ // initial session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
+	}
+	
 	/**
      * create initial session manager and feedback file from training files of a model list
      * 

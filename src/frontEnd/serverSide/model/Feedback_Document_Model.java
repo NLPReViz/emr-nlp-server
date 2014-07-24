@@ -82,4 +82,13 @@ public class Feedback_Document_Model extends Feedback_Abstract_Model
         
         return feedbackLine.toString();
 	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("TYPE_DOC\n");
+		sb.append("Classification: ").append(this.m_docValue).append("\n");
+		sb.append("DocID: ").append(this.m_docId).append("\n");
+		sb.append("Variable: ").append(this.m_classifierId).append("\n");
+		return sb.toString();
+	}
 }

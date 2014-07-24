@@ -246,7 +246,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
                 end = span.getValue();
                 
                 if(start < colonText.length()) { // the span in colonoscopy report
-                	System.out.println("[colon]" + rawTextColon.substring(start, end));
+//                	System.out.println("[colon]" + rawTextColon.substring(start, end));
                 	// the StringBuilder.replace function will modify rawText
                     // we need to re-initialize the rawText object at each iteration
                     rawTextColon = new StringBuilder(colonText);
@@ -271,7 +271,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
                         colonText)[1];
                     // the StringBuilder.replace function will modify rawText
                     // we need to re-initialize the rawText object at each iteration
-                    System.out.println("[patho]" + rawTextPathology.substring(start, end));
+//                    System.out.println("[patho]" + rawTextPathology.substring(start, end));
                     rawTextPathology = new StringBuilder(pathologyText);
                     instanceText = rawTextPathology.replace(start, end, "").toString();
                     // remove header and footer of the pathology report
@@ -291,7 +291,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
             }
         }
         
-        System.out.println("There are " + totalFeedback + " over " + totalInstance + " reports. On average, there are " + (totalFeedback * 1.0 / totalInstance) + " feedback per report");
+//        System.out.println("There are " + totalFeedback + " over " + totalInstance + " reports. On average, there are " + (totalFeedback * 1.0 / totalInstance) + " feedback per report");
         String[] globalFeatureVector = Util.loadList(fn_globalFeatureVector);
 
         return featureSet.getFeatureVectorFromGlobalFeatureVector(globalFeatureVector);

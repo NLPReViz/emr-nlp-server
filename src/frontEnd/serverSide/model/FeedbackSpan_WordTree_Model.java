@@ -118,4 +118,19 @@ public class FeedbackSpan_WordTree_Model extends Feedback_Abstract_Model impleme
 	public static String deNormalizeTextSpan(String textSpan) throws Exception {
 		return textSpan.replaceAll("&comma;", ",").replaceAll("\\\\n", "\n");
 	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("TEXT/WORDTREE\n");
+		sb.append("Classification: ").append(this.m_docValue).append("\n");
+		sb.append("DocID: ");
+		for(String id : m_reportIDList) {
+			sb.append(id).append(", ");
+		}
+		sb.append("\n");
+		sb.append("Variable: ").append(this.m_classifierId).append("\n");
+		sb.append("Selected: ").append(this.m_selectedTextSpan).append("\n");
+		sb.append("Matched: ").append(this.m_matchedTextSpan).append("\n");
+		return sb.toString();
+	}
 }
