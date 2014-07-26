@@ -876,37 +876,37 @@ public class FileTextCreateInitialDS {
     	List<Feedback_WordTree_JSON_Model> feedbackBatch = new ArrayList<>();
     	Feedback_WordTree_JSON_Model feedback;
     	List<String> docIDList;
-//    	// add doc level feedback
-//    	feedback = new Feedback_WordTree_JSON_Model();
-//    	feedback.setKind("DOC");
-//    	feedback.setClassification("True");
-//    	docIDList = new ArrayList<>();
-//    	docIDList.add("0001");
-//    	feedback.setDocList(docIDList);
-//    	feedback.setVariable("cecum");
-//    	feedbackBatch.add(feedback);
-//    	
-//    	// add normal span feedback
-//    	feedback = new Feedback_WordTree_JSON_Model();
-//    	feedback.setKind("TEXT");
-//    	feedback.setClassification("True");
-//    	docIDList = new ArrayList<>();
-//    	docIDList.add("0001");
-//    	feedback.setDocList(docIDList);
-//    	feedback.setVariable("cecum");
-//    	feedback.setSelected("were\nthoroughly explained, informed consent was obtained"); // the span as it is
-//    	feedbackBatch.add(feedback);
+    	// add doc level feedback
+    	feedback = new Feedback_WordTree_JSON_Model();
+    	feedback.setKind("TYPE_DOC");
+    	feedback.setClassification("negative");
+    	docIDList = new ArrayList<>();
+    	docIDList.add("0080");
+    	feedback.setDocList("0041");
+    	feedback.setVariable("prep-adequateYes");
+    	feedbackBatch.add(feedback);
+    	
+    	// add normal span feedback
+    	feedback = new Feedback_WordTree_JSON_Model();
+    	feedback.setKind("TYPE_TEXT");
+    	feedback.setClassification("negative");
+    	docIDList = new ArrayList<>();
+    	docIDList.add("0192");
+    	feedback.setDocList("0059");
+    	feedback.setVariable("prep-adequateYes");
+    	feedback.setSelected("blindly into the rectum"); // the span as it is
+    	feedbackBatch.add(feedback);
     	
     	// add word tree span feedback
     	feedback = new Feedback_WordTree_JSON_Model();
-    	feedback.setKind("WORDTREE");
-    	feedback.setClassification("False");
+    	feedback.setKind("TYPE_WORDTREE");
+    	feedback.setClassification("negative");
     	docIDList = new ArrayList<>();
-    	docIDList.add("0002");
+    	docIDList.add("0080");
     	feedback.setDocList(docIDList);
-    	feedback.setVariable("cecum");
-    	feedback.setSelected("(ISH & FISH) Anatomic Pathology Testing"); // skipped span
-    	feedback.setSpan("(ISH & FISH) , Molecular Anatomic Pathology , and Immunofluorescent Testing"); // matched span
+    	feedback.setVariable("prep-adequateYes");
+    	feedback.setSelected("withdrawn terminating"); // skipped span
+    	feedback.setSpan("withdrawn terminating"); // matched span
     	feedbackBatch.add(feedback);
     	
     	return feedbackBatch;

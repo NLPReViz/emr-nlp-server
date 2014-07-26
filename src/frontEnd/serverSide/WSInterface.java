@@ -40,6 +40,7 @@ import frontEnd.serverSide.controller.GridVar_Controller;
 import frontEnd.serverSide.controller.Report_Controller;
 import frontEnd.serverSide.controller.Storage_Controller;
 import frontEnd.serverSide.controller.WordTree_Controller;
+import frontEnd.serverSide.model.Feedback_Abstract_Model;
 import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
 
 /**
@@ -117,17 +118,31 @@ public class WSInterface {
 	}
 	
 	@PUT
-	@Path("putFeedback/{fn_modelFnList}")
-//	@Path("putFeedback/{fn_modelFnList}/{fn_reportIDList}")
-//	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})	
-//	@Produces(MediaType.APPLICATION_JSON)
+	@Path("putFeedback/{fn_modelFnList}/{fn_reportIDList}")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
-			@PathParam("fn_modelFnList") String fn_modelFnList)
+	public Map<String,Object> getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
+			@PathParam("fn_modelFnList") String fn_modelFnList,
+			@PathParam("fn_reportIDList") String fn_reportIDList)
 			throws Exception {
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
 //		return Response.status(200).entity("OK").build();
-		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList);
+		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+	}
+	
+	@GET
+	@Path("testFeedback/{fn_modelFnList}/{fn_reportIDList}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Map<String,Object> testFeedback(@PathParam("fn_modelFnList") String fn_modelFnList,
+			@PathParam("fn_reportIDList") String fn_reportIDList)
+			throws Exception {
+		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();		
+		List<Feedback_WordTree_JSON_Model> feedbackBatch = dataSet.addWordTreeJSONAnnotation();
+		
+//		System.out.println("There are " + feedbackBatch.size() + " feedback");		
+//		return Response.status(200).entity("OK").build();
+		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
 	@GET
@@ -149,7 +164,7 @@ public class WSInterface {
 	public static void main(String[] args) throws Exception {
 //		long startTime = System.currentTimeMillis();
 
-//		validateWebServiceOffline();
+		validateWebServiceOffline();
 //		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
 //		createDataSet();
@@ -166,15 +181,15 @@ public class WSInterface {
 	}
 	
 	protected static void validateWebServiceOffline() throws Exception {
-		// get var grid object
+//		// get var grid object
 		String fn_reportIDList = "debugIDList.xml";
-		String fn_modelFnList = "modelList.debug.xml";
-		int topKwords = 5;
-		boolean biasFeature = true;
-		// get grid var
-		Map<String, Object> classifierList = 
-		GridVar_Controller.instance.getPrediction(fn_reportIDList, 
-				fn_modelFnList, topKwords, biasFeature);	
+		String fn_modelFnList = "modelList.0..xml";
+//		int topKwords = 5;
+//		boolean biasFeature = true;
+//		// get grid var
+//		Map<String, Object> classifierList = 
+//		GridVar_Controller.instance.getPrediction(fn_reportIDList, 
+//				fn_modelFnList, topKwords, biasFeature);	
 		
 //		List<String> reportIDList = Arrays.asList(new String[]{"0002", "0005"});
 //		// word tree
@@ -184,6 +199,14 @@ public class WSInterface {
 		
 		// verify word tree annotation handling
 //		verifyWordTreeAnnotation();
+		
+		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();		
+		List<Feedback_WordTree_JSON_Model> feedbackBatch = dataSet.addWordTreeJSONAnnotation();
+		
+//		System.out.println("There are " + feedbackBatch.size() + " feedback");		
+//		return Response.status(200).entity("OK").build();
+		
+		new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
 	protected static void verifyWordTreeAnnotation() throws Exception {

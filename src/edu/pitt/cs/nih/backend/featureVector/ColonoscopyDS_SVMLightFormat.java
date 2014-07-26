@@ -83,12 +83,11 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
      * @param fn_index
      * @param includeBiasFeature
      * @param fn_globalFeatureVector
-     * @throws Exception \
+     * @throws Exception
      */
     public void createFullDS(String dataFolder, String _fn_feedback, String _sessionID,
             String _userID, String _varID, String fn_featureVector, String fn_index,
-            boolean includeBiasFeature, String fn_globalFeatureVector,
-            String[][] _classValueTable) throws Exception {
+            boolean includeBiasFeature, String fn_globalFeatureVector) throws Exception {
         fn_feedback = _fn_feedback;
         sessionID = _sessionID;
         userID = _userID;
@@ -116,8 +115,6 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     @Override
     protected FeatureVector getFullDSFeatureVector(String fn_globalFeatureVector,
             String dataFolder) throws Exception {
-    	// dataFolder = docsFolder
-    	
     	String fileName, instanceID, instanceText;
     	int start, end;
         String[] instanceTextList = new String[2];
@@ -136,39 +133,49 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 
         for(int iFeedback = 0; iFeedback < feedbackTable.length; iFeedback++) {
         	if(!deletedSessionIDList.contains(feedbackTable[iFeedback][1]) && // this session has not been deleted
-        		(feedbackTable[iFeedback][2].equals("") || feedbackTable[iFeedback][2].equals(userID))	&& // default user or userID
-        		Integer.parseInt(feedbackTable[iFeedback][1]) <= sessionNum && // <= sessionNum
-        		feedbackTable[iFeedback][5].equals(varID)) {
-        		// get reportID
-        		instanceID = feedbackTable[iFeedback][4];
-        		
-        		if(!isSpanFeedback(feedbackTable[iFeedback])) { // instance feedback
-        			
-                    fileName = Util.getOSPath(new String[] {dataFolder, instanceID,
-                        Storage_Controller.getColonoscopyReportFn()});
-                    
-                    // the first string is colonocopy report
-                    instanceTextList[0] = Util.loadTextFile(fileName);
-                    // remove header and footer
-                    instanceTextList[0] = Preprocess.separateReportHeaderFooter(
-                            instanceTextList[0])[1];
-                    
-                    fileName = Util.getOSPath(new String[] {dataFolder, instanceID,
-                        Storage_Controller.getPathologyReportFn()});
-                    if(Util.fileExists(fileName)) {
-                        instanceTextList[1] = Util.loadTextFile(fileName);
-                        // remove header and footer
-                        instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
-                        		instanceTextList[1])[1];
-                    }
-                    else {
-                        instanceTextList[1] = "";
-                    }
-                    
-                    featureSet.addInstance(instanceID, instanceTextList,
-                    		reportType);
-                    
+					(feedbackTable[iFeedback][2].equals("") || feedbackTable[iFeedback][2]
+							.equals(userID))
+					&& // default user or userID
+					Integer.parseInt(feedbackTable[iFeedback][1]) <= sessionNum
+					&& // <= sessionNum
+					feedbackTable[iFeedback][5].equals(varID)) {
+				// get reportID
+				instanceID = feedbackTable[iFeedback][4];
+
+				if (!isSpanFeedback(feedbackTable[iFeedback])) { // instance feedback
+					// add text content if the instance is a new instance
+					if (!featureSet.m_Instances.containsKey(instanceID)) {
+						fileName = Util.getOSPath(new String[] { dataFolder,
+								instanceID,
+								Storage_Controller.getColonoscopyReportFn() });
+
+						// the first string is colonocopy report
+						instanceTextList[0] = Util.loadTextFile(fileName);
+						// remove header and footer
+						instanceTextList[0] = Preprocess
+								.separateReportHeaderFooter(instanceTextList[0])[1];
+
+						fileName = Util.getOSPath(new String[] { dataFolder,
+								instanceID,
+								Storage_Controller.getPathologyReportFn() });
+						if (Util.fileExists(fileName)) {
+							instanceTextList[1] = Util.loadTextFile(fileName);
+							// remove header and footer
+							instanceTextList[1] = Preprocess
+									.separatePathologyHeaderFooter(instanceTextList[1])[1];
+						} else {
+							instanceTextList[1] = "";
+						}
+
+						featureSet.addInstance(instanceID, instanceTextList,
+								reportType);
+					}
+        			// whether it is a new or old instance, update 
+        			// class value with the latest value
+        			// we move from 0 - latest sessionID so it is
+        			// safe to overwrite value here
                     classValueTable.put(instanceID, feedbackTable[iFeedback][10]);
+//                    System.out.println(varID + ": " + instanceID + " = " + feedbackTable[iFeedback][10]);
         		}
         		else { // span feedback
         			start = Integer.parseInt(feedbackTable[iFeedback][6]);
@@ -710,7 +717,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     	String _instanceID = instanceID.substring(0, 4); //"0000"_000
     	String classValue = classValueTable.get(_instanceID).toLowerCase();
     	
-    	return classValue.equals("false") || classValue.equals("0")? "-1" : "+1";
+    	return classValue.toLowerCase().equals("false") || classValue.equals("0")? "-1" : "+1";
     }
     
     public void printVerbalFeatureAllPseudoInstance(String fn_pseudo,
@@ -806,7 +813,6 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     			varID);
     	boolean includeBiasFeature = true;
     	String fn_globalFeatureVector = Storage_Controller.getGlobalFeatureVectorFn();
-    	String[][] _classValueTable = Util.loadTable(Storage_Controller.getClassFn(varID));
     	String fn_weight = Storage_Controller.getLearningWeightFn(sessionID, userID,
     			varID);
     	String[] hyperParamList = Util.loadList(
@@ -818,8 +824,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     	// create index file and feature file from feedback file
     	// but feature file has not been normalized (divide pseudo instance to \mu)
     	createFullDS(dataFolder, fn_feedback, sessionID, userID, varID,
-    			fn_featureVector, fn_index, includeBiasFeature, fn_globalFeatureVector,
-    			_classValueTable);
+    			fn_featureVector, fn_index, includeBiasFeature, fn_globalFeatureVector);
     	// create weight file
     	// update feature vector (divide pseudo instance to \mu)
     	mergeCostList(fn_index, fn_featureVector, fn_weight, C, C_contrast, mu);

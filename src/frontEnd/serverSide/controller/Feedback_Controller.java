@@ -10,14 +10,15 @@ import java.util.Map;
 import edu.pitt.cs.nih.backend.feedback.TextFileFeedbackManager_LibSVM_WordTree;
 import frontEnd.serverSide.model.Feedback_Abstract_Model;
 import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
+import frontEnd.serverSide.model.MLModel;
 
 /**
  * @author Phuong Pham
  * 
  */
 public class Feedback_Controller {
-	public String getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
-			String fn_modelFnList) throws Exception {
+	public Map<String,Object> getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
+			String fn_modelFnList, String fn_reportIDList) throws Exception {
 		// parse the modelFnList to get userID, (previous) sessionID
 		// only use userID at this moment, NO, what if we start from initial
 		// set?
@@ -30,8 +31,27 @@ public class Feedback_Controller {
 		// how to convert json upload to a List object?
 		String returnMsg = processFeedback(feedbackBatch,
 				userID);
+		
+		Map<String, Object> feedbackResult = new HashMap<>();
+		feedbackResult.put("msg", returnMsg);
+		
+		// if success, load info of the new model
+		if(!returnMsg.contains("Error:")) {
+			// msg
+			feedbackResult.put("msg", "OK");
+			// modelList
+			List<MLModel> modelList = Dataset_MLModel_Controller.instance.getMLModelList();
+			feedbackResult.put("modelList", modelList);
+			// gradVar object
+			int topKwords = 5;
+			boolean biasFeature = true;
+			Map<String, Object> gridVarObj = 
+					GridVar_Controller.instance.getPrediction(fn_reportIDList,
+							returnMsg + ".xml", topKwords, biasFeature);
+			feedbackResult.put("gradVarData", gridVarObj);
+		}
 
-		return returnMsg;
+		return feedbackResult;
 	}
 
 	/**

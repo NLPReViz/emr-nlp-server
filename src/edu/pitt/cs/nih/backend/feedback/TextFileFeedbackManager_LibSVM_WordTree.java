@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.pitt.cs.nih.backend.featureVector.Preprocess;
 import edu.pitt.cs.nih.backend.utils.TextUtil;
 import edu.pitt.cs.nih.backend.utils.Util;
 import frontEnd.serverSide.controller.Storage_Controller;
@@ -522,20 +523,23 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		String docText;
 		Pattern pattern = getSearchPatternFromSpanMap(spanMap);
 		Matcher m;
-		// search text in colonoscopy text
-		docText = Util.loadTextFile(Util.getOSPath(new String[]{docsFolder, docID, fn_report}));
-		m = pattern.matcher(docText);
+		// search text in colonoscopy text, remove header footer
+		docText = Preprocess.separateReportHeaderFooter( 
+				Util.loadTextFile(Util.getOSPath(
+						new String[]{docsFolder, docID, fn_report})))[1];
+		m = pattern.matcher(docText);		
 		if(m.find()) {
 			startEndPos = Integer.toString(m.start()) + "," 
 					+ Integer.toString(m.end());
 		}
-		else { // look into pathology text
-			fn_pathology = Util.getOSPath(new String[]{docsFolder, docID, fn_pathology});
+		else { // look into pathology text, remove header footer
+			fn_pathology =  Util.getOSPath(
+							new String[]{docsFolder, docID, fn_pathology});
 			if(Util.fileExists(fn_pathology)) {
 				// get the colonoscopy report length before
 				// overwrite the docText
 				int offset = docText.length();
-				docText = Util.loadTextFile(fn_pathology);
+				docText = Preprocess.separatePathologyHeaderFooter(Util.loadTextFile(fn_pathology))[1];
 				m = pattern.matcher(docText);
 				if(m.find()) {					
 					startEndPos = Integer.toString(m.start() + offset) + "," 
@@ -622,24 +626,31 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		int skippedN = 0;
 		int iSelected = 0;
 		for(int iMatched = 0; iMatched < matchedTokenList.length; iMatched++) {
-			if(matchedTokenList[iMatched].equals(selectedTokenList[iSelected])) {
-				if(skippedN == 0) {
-					sb.append(matchedTokenList[iMatched]).append(" ");
-					iSelected++;
-				}
-				else { // put skipped ngram pattern
-					// skipped pattern \\bword\\b (\\S+ ){0,n}\\bword
-					if(sb.charAt(sb.length() - 1) != ' ') {
-						sb.append(" ");
+			if(iSelected < selectedTokenList.length) {
+				if (matchedTokenList[iMatched]
+						.equals(selectedTokenList[iSelected])) {
+					if (skippedN == 0) {
+						sb.append(matchedTokenList[iMatched]).append(" ");
+						iSelected++;
+					} else { // put skipped ngram pattern skipped pattern \\bword\\b (\\S+ ){0,n}\\bword
+						if (sb.length() > 0 && sb.charAt(sb.length() - 1) != ' ') {
+							sb.append(" ");
+						}
+						sb.append("(\\S+ ){0,").append(skippedN).append("}");
+						sb.append(matchedTokenList[iMatched]).append(" "); // append the current position
+						skippedN = 0;
+						iSelected++;
 					}
-					sb.append("(\\S+ ){0,").append(skippedN).append("}");
-					sb.append(matchedTokenList[iMatched]).append(" "); // append the current position
-					skippedN = 0;
-					iSelected++;
+				} else {
+					skippedN++;
 				}
 			}
-			else {
-				skippedN++;
+			else { // the rest of matched n-gram will be skipped ngram, append skipped ngram pattern
+				if (sb.length() > 0 && sb.charAt(sb.length() - 1) != ' ') {
+					sb.append(" ");
+				}
+				sb.append("(\\S+ ){0,1}");
+				break;
 			}
 		}
 		// convert spanText into regular expression

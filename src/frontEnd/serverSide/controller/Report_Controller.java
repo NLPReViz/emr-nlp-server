@@ -141,6 +141,9 @@ public class Report_Controller {
 					reportPrediction.setConfidence(Util.round(predictionList[iModel][iInstance][1], numDecConfidence));
 //					numPositiveDocument[iModel]++;
 				}
+//				if(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)).equals("asa")){
+//					System.out.println(predictionList[iModel][iInstance][0] + " assign as " + reportPrediction.getClassification());
+//				}
 				
 //				sb.append(report.get("id") + "," + Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)) + "," + reportPrediction.getClassification().toUpperCase() + "," + predictionList[iModel][iInstance][1] + "\n");
 				
