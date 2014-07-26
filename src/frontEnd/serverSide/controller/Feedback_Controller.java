@@ -48,7 +48,7 @@ public class Feedback_Controller {
 			Map<String, Object> gridVarObj = 
 					GridVar_Controller.instance.getPrediction(fn_reportIDList,
 							returnMsg + ".xml", topKwords, biasFeature);
-			feedbackResult.put("gradVarData", gridVarObj);
+			feedbackResult.put("gridVarData", gridVarObj);
 		}
 
 		return feedbackResult;
