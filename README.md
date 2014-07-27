@@ -34,7 +34,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 2. Specify the path to the _webapps_ directory in `CATALINA_HOME` environment variable and use `ant deploy` to to build and deploy the backend app. 
 
-    For example if your Tomcat's _webapps_ directory is contained in _/usr/local/Cellar/tomcat/7.0.54/libexec/webapps/_, then you may use:
+    For example if your Tomcat's _webapps_ directory accessible as _/usr/local/Cellar/tomcat/7.0.54/libexec/webapps/_, then you may use:
 
     ```
     env CATALINA_HOME=/usr/local/Cellar/tomcat/8.0.9/libexec/ ant deploy
