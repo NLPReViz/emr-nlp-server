@@ -22,6 +22,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import weka.core.Instances;
 import edu.pitt.cs.nih.backend.featureVector.ColonoscopyDS_SVMLightFormat;
 import edu.pitt.cs.nih.backend.featureVector.FeatureSet.MLInstanceType;
@@ -137,8 +139,10 @@ public class WSInterface {
 	public Map<String,Object> testFeedback(@PathParam("fn_modelFnList") String fn_modelFnList,
 			@PathParam("fn_reportIDList") String fn_reportIDList)
 			throws Exception {
-		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();		
-		List<Feedback_WordTree_JSON_Model> feedbackBatch = dataSet.addWordTreeJSONAnnotation();
+//		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();		
+//		List<Feedback_WordTree_JSON_Model> feedbackBatch = dataSet.addWordTreeJSONAnnotation();
+		String jsonStr = "[{\"kind\":\"TYPE_WORDTREE\",\"selected\":\"biopsy\",\"span\":\"biopsy\",\"classification\":\"positive\",\"variable\":\"biopsy\",\"docList\":[\"0509\",\"0667\",\"0293\",\"0366\",\"0592\",\"0436\",\"0980\",\"0750\",\"0202\",\"0629\",\"0842\",\"0468\",\"0696\",\"0059\",\"0865\",\"0364\",\"0774\",\"0299\",\"0863\",\"0545\",\"0178\",\"0177\",\"0350\",\"0068\",\"0184\",\"0703\",\"0614\",\"0412\",\"0438\",\"0874\",\"0041\",\"0281\",\"1041\",\"0736\",\"0018\",\"0805\",\"0989\",\"0147\",\"0535\",\"1031\",\"0939\",\"0748\",\"0009\",\"0186\",\"0779\",\"0356\",\"0099\"]}]";
+		List<Feedback_WordTree_JSON_Model> feedbackBatch = new ObjectMapper().readValue(jsonStr, List.class);
 		
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
 //		return Response.status(200).entity("OK").build();
@@ -182,7 +186,7 @@ public class WSInterface {
 	
 	protected static void validateWebServiceOffline() throws Exception {
 //		// get var grid object
-		String fn_reportIDList = "debugIDList.xml";
+		String fn_reportIDList = "devIDList.xml";
 		String fn_modelFnList = "modelList.0..xml";
 //		int topKwords = 5;
 //		boolean biasFeature = true;
@@ -192,21 +196,23 @@ public class WSInterface {
 //				fn_modelFnList, topKwords, biasFeature);	
 		
 //		List<String> reportIDList = Arrays.asList(new String[]{"0002", "0005"});
-//		// word tree
-//		String rootWord = "biopsy";
-//		System.out.println(new WordTree_Controller().getWordTree(reportIDList, rootWord));
-//		countDocuments();
+		List<String> reportIDList = XMLUtil.getReportIDFromXMLList(Util.getOSPath(new String[]{Storage_Controller.getDocumentListFolder(),fn_reportIDList}));
+		// word tree
+		String rootWord = "biopsy forceps";
+		System.out.println(new WordTree_Controller().getWordTree(reportIDList, rootWord));
+		countDocuments();
 		
 		// verify word tree annotation handling
 //		verifyWordTreeAnnotation();
 		
-		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();		
-		List<Feedback_WordTree_JSON_Model> feedbackBatch = dataSet.addWordTreeJSONAnnotation();
+//		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();		
+//		List<Feedback_WordTree_JSON_Model> feedbackBatch = dataSet.addWordTreeJSONAnnotation();
+//		String jsonStr = "{\"kind\":\"TYPE_WORDTREE\",\"selected\":\"biopsy\",\"span\":\"biopsy\",\"classification\":\"positive\",\"variable\":\"biopsy\",\"docList\":[\"0509\",\"0667\",\"0293\",\"0366\",\"0592\",\"0436\",\"0980\",\"0750\",\"0202\",\"0629\",\"0842\",\"0468\",\"0696\",\"0059\",\"0865\",\"0364\",\"0774\",\"0299\",\"0863\",\"0545\",\"0178\",\"0177\",\"0350\",\"0068\",\"0184\",\"0703\",\"0614\",\"0412\",\"0438\",\"0874\",\"0041\",\"0281\",\"1041\",\"0736\",\"0018\",\"0805\",\"0989\",\"0147\",\"0535\",\"1031\",\"0939\",\"0748\",\"0009\",\"0186\",\"0779\",\"0356\",\"0099\"]}";
+//		List<Feedback_WordTree_JSON_Model> feedbackBatch = new ArrayList<>();
+//		Feedback_WordTree_JSON_Model singleFeedback =  new ObjectMapper().readValue(jsonStr, Feedback_WordTree_JSON_Model.class);
+//		feedbackBatch.add(singleFeedback);
 		
-//		System.out.println("There are " + feedbackBatch.size() + " feedback");		
-//		return Response.status(200).entity("OK").build();
-		
-		new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+//		new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
 	protected static void verifyWordTreeAnnotation() throws Exception {

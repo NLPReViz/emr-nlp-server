@@ -524,9 +524,12 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		Pattern pattern = getSearchPatternFromSpanMap(spanMap);
 		Matcher m;
 		// search text in colonoscopy text, remove header footer
-		docText = Preprocess.separateReportHeaderFooter( 
-				Util.loadTextFile(Util.getOSPath(
-						new String[]{docsFolder, docID, fn_report})))[1];
+//		docText = Preprocess.separateReportHeaderFooter( 
+//				Util.loadTextFile(Util.getOSPath(
+//						new String[]{docsFolder, docID, fn_report})))[1];
+		// no remove header footer, find a counter code in class ColonoscopyDS_SVMLightFormat
+		docText = Util.loadTextFile(Util.getOSPath(
+						new String[]{docsFolder, docID, fn_report}));
 		m = pattern.matcher(docText);		
 		if(m.find()) {
 			startEndPos = Integer.toString(m.start()) + "," 
@@ -539,6 +542,9 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 				// get the colonoscopy report length before
 				// overwrite the docText
 				int offset = docText.length();
+//				// remove header footer
+//				docText = Preprocess.separatePathologyHeaderFooter(Util.loadTextFile(fn_pathology))[1];
+				// no remove header footer
 				docText = Preprocess.separatePathologyHeaderFooter(Util.loadTextFile(fn_pathology))[1];
 				m = pattern.matcher(docText);
 				if(m.find()) {					

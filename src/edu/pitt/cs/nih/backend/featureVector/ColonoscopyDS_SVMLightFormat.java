@@ -200,16 +200,19 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
         int totalFeedback = 0;
         int totalInstance = featureSet.m_Instances.size();
         for(String report_ID : feedbackSpanDocList.keySet()) {
-            // we work with colonoscopy report only
-            // skip pathology report
             rawTextColon = new StringBuilder(Util.loadTextFile(Util.getOSPath(new String[] {dataFolder,
                     report_ID, Storage_Controller.getColonoscopyReportFn()})));
+//            // remove header footer
+//            rawTextColon = new StringBuilder(Preprocess.separateReportHeaderFooter(
+//            		rawTextColon.toString())[1]);
 
 			if (Util.fileExists(Util.getOSPath(new String[] {
 					dataFolder, report_ID, Storage_Controller.getPathologyReportFn() }))) {
 				rawTextPathology = new StringBuilder(Util.loadTextFile(Util
 						.getOSPath(new String[] { dataFolder, report_ID,
 								Storage_Controller.getPathologyReportFn() })));
+//				rawTextPathology = new StringBuilder(Preprocess.separatePathologyHeaderFooter(
+//						rawTextPathology.toString())[1]);
 			}
             else {
             	rawTextPathology = new StringBuilder();
@@ -259,12 +262,14 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
                     rawTextColon = new StringBuilder(colonText);
                     instanceText = rawTextColon.replace(start, end, "").toString();
                     // remove header and footer of the colonoscopy report
-                    instanceTextList[0] = Preprocess.separateReportHeaderFooter(
-                        instanceText)[1];
+                    instanceTextList[0] = Preprocess.separateReportHeaderFooter(instanceText)[1];
+//                    // no remove header footer
+//                    instanceTextList[0] = instanceText;
                     // remove header and footer of the pathology report without modifying
                     if(pathologyText.length() > 0) {
-	                    instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
-	                    		pathologyText)[1];
+                    	instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(pathologyText)[1];
+//                    	// no remove header footer
+//	                    instanceTextList[1] = pathologyText;
                     }
                     else {
                     	instanceTextList[1] = "";
@@ -274,8 +279,9 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
                 	start -= colonText.length();
                 	end -= colonText.length();                	
                     // remove header and footer of the colonoscopy report without modifying
-                    instanceTextList[0] = Preprocess.separateReportHeaderFooter(
-                        colonText)[1];
+                	instanceTextList[0] = Preprocess.separateReportHeaderFooter(colonText)[1];
+//                	// no remove header footer
+//                    instanceTextList[0] = colonText;
                     // the StringBuilder.replace function will modify rawText
                     // we need to re-initialize the rawText object at each iteration
 //                    System.out.println("[patho]" + rawTextPathology.substring(start, end));
@@ -283,8 +289,9 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
                     instanceText = rawTextPathology.replace(start, end, "").toString();
                     // remove header and footer of the pathology report
                     if(pathologyText.length() > 0) {
-	                    instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
-	                    		instanceText)[1];
+                    	instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(instanceText)[1];
+//                    	// no remove header footer
+//	                    instanceTextList[1] = instanceText;
                     }
                     else {
                     	instanceTextList[1] = "";
