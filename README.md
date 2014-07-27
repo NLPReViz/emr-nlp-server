@@ -20,22 +20,10 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with [homebrew][homebrew] you may use `$ brew install tomcat` to install the server on your machine.
 
-3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source (Option C).
-
-### Get the emr-nlp-server application
-
-#### _Option A:_ Use the pre-built .war file to run the project
-
-1. Download [emr-nlp-server.war](https://github.com/trivedigaurav/emr-nlp-server/blob/master/emr-nlp-server.war).
-
-2. Navigate to the home directory of your tomcat server. You can use `$ catalina version` to check the value of  `CATALINA_HOME`.
-
-3. `cd` to the _webapps/_ directory. If you are using the default tomcat setup, your present working directory would be something like _/usr/local/Cellar/tomcat/7.0.54/libexec/webapps/_.
-
-4. Move _emr-nlp-server.war_ to this _webapps/_ directory. Skip the next section and continue reading.
+3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source (Option B).
 
 
-#### _Option B:_ Use ant to build the project
+#### _Option A:_ Use ant to build the project
 
 1. Clone the emr-nlp-server repository using [git][git]:
 
@@ -44,21 +32,20 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
     cd emr-nlp-server
     ```
 
-2. Use `ant create` to generate the war file and copy it your _webapps/_ directory as specified in step 4 of Option A. If you have the correct environment variables set for `CATALINA_HOME`, you may also use `ant deploy` to automate this step. For example:
+2. Specify the path to the _webapps_ directory in `CATALINA_HOME` environment variable and use `ant deploy` to to build and deploy the backend app. 
+
+    For example if your Tomcat's _webapps_ directory is contained in _/usr/local/Cellar/tomcat/7.0.54/libexec/webapps/_, then you may use:
 
     ```
     env CATALINA_HOME=/usr/local/Cellar/tomcat/8.0.9/libexec/ ant deploy
     ```
-    
-Again `CATALINA_HOME` holds the path containing the Tomcat's _webapps/_ directory. 
 
 
-#### _Option C:_ Build the project in Eclipse
+#### _Option B:_ Build the project in Eclipse
 
 1. Clone the emr-nlp-server repository using EGit: **File** > **Import** > Git ... 
 
-3. **or**, Export the project into a .war file: **File** > **Export** > Web > WAR File to the _webapps/_ directory as specified in steps 2-3 of Option A.
-
+3. **or**, Export the project into a .war file: **File** > **Export** > Web > WAR File to the Tomcat's _webapps/_ directory.
 
 ### Run the server
 
