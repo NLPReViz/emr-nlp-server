@@ -44,7 +44,13 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
     cd emr-nlp-server
     ```
 
-2. Use `ant create` to generate the war file and copy it your _webapps/_ directory as specified in step 4 of Option A. If you have the correct environment variables set for `CATALINA_HOME`, you may also use `ant deploy` to automate this step. 
+2. Use `ant create` to generate the war file and copy it your _webapps/_ directory as specified in step 4 of Option A. If you have the correct environment variables set for `CATALINA_HOME`, you may also use `ant deploy` to automate this step. For example:
+
+    ```
+    env CATALINA_HOME=/usr/local/Cellar/tomcat/8.0.9/libexec/ ant deploy
+    ```
+    
+Again `CATALINA_HOME` holds the path containing the Tomcat's _webapps/_ directory. 
 
 
 #### _Option C:_ Build the project in Eclipse
