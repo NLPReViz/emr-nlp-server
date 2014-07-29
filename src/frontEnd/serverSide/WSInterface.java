@@ -168,7 +168,7 @@ public class WSInterface {
 	public static void main(String[] args) throws Exception {
 //		long startTime = System.currentTimeMillis();
 
-		validateWebServiceOffline();
+		//		validateWebServiceOffline();
 //		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
 //		createDataSet();

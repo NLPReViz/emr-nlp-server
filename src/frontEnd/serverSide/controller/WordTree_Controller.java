@@ -46,7 +46,8 @@ public class WordTree_Controller {
 		List<Map<String, Object>> leftList = new ArrayList<>();
 		List<Map<String, Object>> rightList = new ArrayList<>();
 		
-		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
+//		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
+		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\b" + rootWord + "\b[^\n.]*)");
 		Pattern tokenPattern = Pattern.compile("[\\w']+|[.,!?;]");
 		
 		

@@ -95,7 +95,8 @@ public class Feedback_Controller {
 		manager.setUserID(userID);
 		// got from the front-end
 		// intermediate step, convert Feedback_WordTree_JSON_Model into
-		// Feedback_Abstract_Model
+		// Feedback_Abstract_Model, delete the "." at the end of text, if any
+		// because "." is a dummy character we add to show in the wordtree https://github.com/trivedigaurav/emr-wordtree/issues/1
 		List<Feedback_Abstract_Model> feedbackBatchBackEnd = Feedback_WordTree_JSON_Model
 				.toFeedbackModelList(feedbackBatch);
 		

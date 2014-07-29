@@ -95,6 +95,9 @@ public class Feedback_WordTree_JSON_Model {
 			feedback = docFeedback;
 		}
 		else if(m_type.toUpperCase().equals("TYPE_TEXT")) {
+			// remove the last "." because it is a dummy character
+			// we add to display on wordtree https://github.com/trivedigaurav/emr-wordtree/issues/1
+			m_selectedSpan = m_selectedSpan.trim().replaceAll("\\.$", "").trim();
 			// we treat a normal highlight text span as a special case of 
 			// word tree highlight span, where the span is the same as the
 			// selected so there would be no diff between these 2 strings
@@ -109,11 +112,16 @@ public class Feedback_WordTree_JSON_Model {
 			feedback = spanFeedback;
 		}
 		else if(m_type.toUpperCase().equals("TYPE_WORDTREE")) {
+			// remove the last "." because it is a dummy character
+			// we add to display on wordtree https://github.com/trivedigaurav/emr-wordtree/issues/1
+			m_selectedSpan = m_selectedSpan.trim().replaceAll("\\.$", "").trim();
+			m_matchedSpan = m_matchedSpan.trim().replaceAll("\\.$", "").trim();
+			
 			FeedbackSpan_WordTree_Model spanFeedback = new FeedbackSpan_WordTree_Model();
 			spanFeedback.setDocValue(m_value);
 			spanFeedback.setVariableName(m_varID);
 			spanFeedback.setSelectedTextSpan(m_selectedSpan);
-			spanFeedback.setMatchedTextSpan(m_matchedSpan); // the same as selected
+			spanFeedback.setMatchedTextSpan(m_matchedSpan);
 			List<String> docIdList = (List<String>) m_docIDList;
 			spanFeedback.setReportIDList(docIdList);
 			feedback = spanFeedback;
