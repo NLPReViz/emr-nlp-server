@@ -37,8 +37,8 @@ public class Feedback_Controller {
 		
 		// if success, load info of the new model
 		if(!returnMsg.contains("Error:")) {
-			// msg
-			feedbackResult.put("msg", "OK");
+//			// msg
+//			feedbackResult.put("msg", "OK");
 			// modelList
 			List<MLModel> modelList = Dataset_MLModel_Controller.instance.getMLModelList();
 			feedbackResult.put("modelList", modelList);

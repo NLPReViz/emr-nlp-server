@@ -4,6 +4,7 @@
 package frontEnd.serverSide.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,20 @@ public enum Dataset_MLModel_Controller {
 			MLModelList.add(mlModel);
 		}
 		
+		// sort model list
+		Collections.sort(MLModelList);
+		
 		return MLModelList;
+	}
+	
+	protected List<MLModel> sortMLModelList(List<MLModel> inputList) throws Exception {
+		int[] sessionIDList = new int[inputList.size()];
+		for(int i = 0; i < sessionIDList.length; i++) {
+			
+		}
+		
+		List<MLModel> sortedList = new ArrayList<>();
+		return sortedList;
 	}
 	
 	protected List<DataSet> getDataSetList() throws Exception {

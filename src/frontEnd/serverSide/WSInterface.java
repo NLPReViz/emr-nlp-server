@@ -167,7 +167,8 @@ public class WSInterface {
 	
 	public static void main(String[] args) throws Exception {
 //		long startTime = System.currentTimeMillis();
-
+		String test = "modelList.0.";
+		System.out.println(test.substring(test.indexOf('.') + 1, test.lastIndexOf('.')));
 		//		validateWebServiceOffline();
 //		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
