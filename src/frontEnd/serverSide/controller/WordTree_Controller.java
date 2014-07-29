@@ -144,6 +144,8 @@ public class WordTree_Controller {
 			while (branchMatch.find()) {
 				tokenList.add(branchMatch.group());
 			}
+			// add . to the right list
+			tokenList.add(".");
 			matchedItem = new HashMap<>();
 			matchedItem.put("doc", reportID);
 			matchedItem.put("id", Integer.toString(matchCount));

@@ -198,7 +198,7 @@ public class WSInterface {
 //		List<String> reportIDList = Arrays.asList(new String[]{"0002", "0005"});
 		List<String> reportIDList = XMLUtil.getReportIDFromXMLList(Util.getOSPath(new String[]{Storage_Controller.getDocumentListFolder(),fn_reportIDList}));
 		// word tree
-		String rootWord = "biopsy forceps";
+		String rootWord = "biopsy";
 		System.out.println(new WordTree_Controller().getWordTree(reportIDList, rootWord));
 		countDocuments();
 		
