@@ -23,7 +23,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source using Ecipse (Option B).
 
 
-#### _Option A:_ Use ant to build the project
+#### _Option A:_ Use [ant][ant] to build the project
 
 1. Clone the emr-nlp-server repository using [git][git]:
 
@@ -62,3 +62,4 @@ Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-w
 
 [homebrew]: http://brew.sh/
 [git]: http://git-scm.com/
+[ant]: http://ant.apache.org/
