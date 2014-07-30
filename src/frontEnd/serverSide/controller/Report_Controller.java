@@ -20,6 +20,7 @@ import edu.pitt.cs.nih.backend.featureVector.FeatureVector;
 import edu.pitt.cs.nih.backend.featureVector.Preprocess;
 import edu.pitt.cs.nih.backend.featureVector.WekaDataSet;
 import edu.pitt.cs.nih.backend.utils.Util;
+import emr_vis_nlp.ml.LibLinearPredictor;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import emr_vis_nlp.ml.SVMPredictor;
 import frontEnd.serverSide.model.FeatureWeight;
@@ -369,7 +370,8 @@ public class Report_Controller {
 	
 	protected double[][] getLibSVMTestSetPrediction(String fn_featureTestSet,
 			String fn_model) throws Exception {
-		LibSVMPredictor svm = new LibSVMPredictor();
+//		LibSVMPredictor svm = new LibSVMPredictor();
+		LibLinearPredictor svm = new LibLinearPredictor();
 		String[] libSVMParamList = new String[4];
 		libSVMParamList[0] = Storage_Controller.getLibSVMPath();
 		libSVMParamList[1] = fn_featureTestSet;

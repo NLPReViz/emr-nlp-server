@@ -10,6 +10,7 @@ import edu.pitt.cs.nih.backend.featureVector.FeatureVector;
 import edu.pitt.cs.nih.backend.featureVector.WekaDataSet;
 import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
+import emr_vis_nlp.ml.LibLinearPredictor;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import frontEnd.serverSide.controller.Storage_Controller;
 import frontEnd.serverSide.controller.WordTree_Controller;
@@ -686,7 +687,8 @@ public class FileTextCreateInitialDS {
     	List<String> modelFnList = XMLUtil.getModelFnFromXMLList(fn_modelListXML);
     	String varID, fn_testFeature;
     	String fn_prediction = Storage_Controller.getPredictionFn();
-    	LibSVMPredictor libSVM = new LibSVMPredictor();
+//    	LibSVMPredictor libSVM = new LibSVMPredictor();
+    	LibLinearPredictor libSVM = new LibLinearPredictor();
     	String[] svmTestParams = new String[] {Storage_Controller.getLibSVMPath(),
                 "", "", fn_prediction};
     	double[][] predictionMatrix;

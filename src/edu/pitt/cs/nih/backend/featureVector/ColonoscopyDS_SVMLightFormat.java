@@ -15,6 +15,7 @@ import edu.pitt.cs.nih.backend.featureVector.FeatureSet.MLInstanceType;
 import edu.pitt.cs.nih.backend.feedback.TextFileSessionManager;
 import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
+import emr_vis_nlp.ml.LibLinearPredictor;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import frontEnd.serverSide.controller.Storage_Controller;
 
@@ -894,7 +895,8 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     	// train model
     	String[] svmTrainParams = new String[] {Storage_Controller.getLibSVMPath(),
     			fn_trainFeature, fn_model, fn_modelWeight};
-    	LibSVMPredictor libSVM = new LibSVMPredictor();
+//    	LibSVMPredictor libSVM = new LibSVMPredictor();
+    	LibLinearPredictor libSVM = new LibLinearPredictor();
     	libSVM.train(svmTrainParams);
     	libSVM.saveFeatureWeight(fn_model, fn_globalFeatureVector, fn_featureWeight,
     			includeBiasFeature);

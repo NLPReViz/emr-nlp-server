@@ -34,6 +34,7 @@ import edu.pitt.cs.nih.backend.feedback.FileTextCreateInitialDS;
 import edu.pitt.cs.nih.backend.feedback.TextFileFeedbackManagerLibSVM;
 import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
+import emr_vis_nlp.ml.LibLinearPredictor;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import emr_vis_nlp.ml.SVMPredictor;
 import frontEnd.serverSide.controller.Dataset_MLModel_Controller;
@@ -167,8 +168,7 @@ public class WSInterface {
 	
 	public static void main(String[] args) throws Exception {
 //		long startTime = System.currentTimeMillis();
-		String test = "modelList.0.";
-		System.out.println(test.substring(test.indexOf('.') + 1, test.lastIndexOf('.')));
+		System.out.println(Util.getOSName());
 		//		validateWebServiceOffline();
 //		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
@@ -259,7 +259,8 @@ public class WSInterface {
     	TextFileFeedbackManagerLibSVM feedbackManager = new TextFileFeedbackManagerLibSVM(feedbackFileName,
 			fn_sessionManager, learningFolder, docsFolder, modelFolder, featureWeightFolder,
 			globalFeatureName, xmlPredictorFolder);
-    	LibSVMPredictor svm = new LibSVMPredictor();
+//    	LibSVMPredictor svm = new LibSVMPredictor();
+    	LibLinearPredictor svm = new LibLinearPredictor();
     	ColonoscopyDS_SVMLightFormat fileFormat = new ColonoscopyDS_SVMLightFormat();
     	for(int i = 0; i < varIDList.length; i++) {
     		String varID = varIDList[i];

@@ -11,6 +11,8 @@ import edu.pitt.cs.nih.backend.featureVector.WekaDataSet;
 import edu.pitt.cs.nih.backend.feedback.TextFileFeedbackManager.FeedbackType;
 import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
+import emr_vis_nlp.ml.ALearner;
+import emr_vis_nlp.ml.LibLinearPredictor;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import frontEnd.serverSide.controller.Storage_Controller;
 import frontEnd.serverSide.model.FeedbackSpan_Model;
@@ -642,11 +644,11 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
     	
         // get the current state of each model
         String[][] currentSessionList = sessionManager.getCurrentState(userID);
-        LibSVMPredictor model;
         // create learning files for all current states
         for(String[] currentSession : currentSessionList) {
             if(currentSession[4].equals("valid")) {
-                model = new LibSVMPredictor();
+//                LibSVMPredictor model = new LibSVMPredictor();
+            	LibLinearPredictor model = new LibLinearPredictor();
                 updateModels(currentSession[0], currentSession[1], 
                         currentSession[2], model);
             }
@@ -665,7 +667,7 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
      * @throws Exception 
      */
     public void updateModels(String sessionID, String userID, String varID,
-    		LibSVMPredictor model) throws Exception {
+    		ALearner model) throws Exception {
         // if the model exists, do nothing
         String fn_model = getModelFileName(sessionID, userID, varID);
 //        HashMap<String, Double> predictorFeatureWeightMap;
@@ -686,7 +688,8 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
             
             // save feature weight + keyword weight
             String fn_featureWeight = getFeatureWeightFileName(sessionID, userID, varID);
-            model.saveFeatureWeight(fn_model, fn_globalFeatureName, fn_featureWeight, includeBiasFeature);
+            LibLinearPredictor svm = (LibLinearPredictor) model;
+            svm.saveFeatureWeight(fn_model, fn_globalFeatureName, fn_featureWeight, includeBiasFeature);
         }
     }
     
