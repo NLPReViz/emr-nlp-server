@@ -20,10 +20,10 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with [homebrew][homebrew] you may use `$ brew install tomcat` to install the server on your machine.
 
-3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed. This step is required only if you plan to build from the source using Ecipse (Option B).
+3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed (Option B). Otherwise, the project also contains a _build.xml_ to be used with [ant][ant] (Option A).
 
 
-#### _Option A:_ Use [ant][ant] to build the project
+#### _Option A:_ Use ant to build the project
 
 1. Clone the emr-nlp-server repository using [git][git]:
 
