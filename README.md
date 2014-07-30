@@ -16,7 +16,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
     Java HotSpot(TM) 64-Bit Server VM (build 24.51-b03, mixed mode)
     ```
     
-    If you don't have the JDK installed or have one of the previous version you may get the latest version from the [Oracle Technology Network](http://www.oracle.com/technetwork/java/index.html).
+    If you don't have the JDK installed or have an older one, you may get the latest version from the [Oracle Technology Network](http://www.oracle.com/technetwork/java/index.html).
 
 2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with [homebrew][homebrew] you may use `$ brew install tomcat` to install the server on your machine.
 
