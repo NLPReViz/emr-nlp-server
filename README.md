@@ -51,13 +51,17 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 1. Navigate to the folder containing the _data_ directory (not in the repository). This folder may reside anywhere on your file-system and doesn't have to be present in one of the project folders.
 
-2. You need to build libsvm before you may run the server. To do that run `make` inside _data/libsvm_ directory or follow the instructions in the README file present there.
+2. You need to build libsvm before you may run the server for the first time. To do that run `make` inside _data/libsvm_ directory or follow the instructions in the README file present there.
 
 3. Start the Tomcat server using `$ catalina run` or `$ catalina start`. Note that the _data_ directory must reside in the same directory you start the server from. So, if you are using Eclipse to launch the server on build it must be present where the Eclipse executable is running from.
 
 ### Cleaning model files
-Receiving and handling feedbacks from the front-end ([emr-vis-web](https://github.com/trivedigaurav/emr-vis-web)) will modify feedback management files in the back-end ([emr-nlp-server](https://github.com/trivedigaurav/emr-nlp-server)) side.
-If you want to reset these management files, e.g. to restart a new experiment, then copy the _ResetDB.jar_ file into your _data_ folder. Run the command java -jar ResetDB.jar from the _data_ folder.
+Receiving and handling feedbacks from the front-end ([emr-vis-web](https://github.com/trivedigaurav/emr-vis-web)) will modify the feedback management and model files contained in the _data_ directory. If you wish to reset these management files, e.g. to restart a new experiment, follow the following steps:
+
+1. Copy the _ResetDB.jar_ file into your _data_ directory. 
+2. Run the command `java -jar ResetDB.jar` from the _data_ directory.
+
+--
 
 Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) to setup the front-end application.
 
