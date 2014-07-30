@@ -154,18 +154,19 @@ public class Storage_Controller {
 	}
 	
 	public static String getLibSVMPath() throws Exception {
-		String osFolder = Util.getOSName().toLowerCase();
-		if(osFolder.contains("windows")) {
-			osFolder = "windows";
-		}
-		else if(osFolder.contains("mac")) {
-			osFolder = "mac";
-		}
-		else {
-			osFolder = "linux";
-		}
-		
-		return Util.getOSPath(new String[]{getBaseFolder(), "libsvm", osFolder});
+//		String osFolder = Util.getOSName().toLowerCase();
+//		if(osFolder.contains("windows")) {
+//			osFolder = "windows";
+//		}
+//		else if(osFolder.contains("mac")) {
+//			osFolder = "mac";
+//		}
+//		else {
+//			osFolder = "linux";
+//		}
+//		
+//		return Util.getOSPath(new String[]{getBaseFolder(), "libsvm", osFolder});
+		return Util.getOSPath(new String[]{getBaseFolder(), "libsvm"});
 	}
 	
 	public static String getPredictionFn() throws Exception {
