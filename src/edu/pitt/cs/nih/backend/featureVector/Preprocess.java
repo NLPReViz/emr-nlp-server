@@ -2,11 +2,12 @@ package edu.pitt.cs.nih.backend.featureVector;
 
 import edu.pitt.cs.nih.backend.utils.TextUtil;
 import edu.pitt.cs.nih.backend.utils.Util;
+import edu.stanford.nlp.process.Morphology;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -359,6 +360,7 @@ public class Preprocess {
             String[] tokenPerSentence;
             String token;
             List<String> processedTokenList;
+            Morphology morph = new Morphology();
 //            System.gc();
             for (int iSentence = 0; iSentence < tokenPerSentenceList.size(); iSentence++) {
                 processedTokenList = new ArrayList<>();
@@ -375,7 +377,7 @@ public class Preprocess {
                         token = filterStopWord(token);
                     }
                     if(!token.equals("") && m_stemWord)
-                            token = stemWord(token);
+                            token = stemWord(token, morph);
 
                     // add if it is not an empty token
                     if(!token.equals("")) {
@@ -396,8 +398,8 @@ public class Preprocess {
             return m_stopWordList.contains(token) ? "" : token;
         }
         
-        protected String stemWord(String token) throws Exception {
-            return TextUtil.stemWord(token);
+        protected String stemWord(String token, Morphology morph) throws Exception {
+            return TextUtil.stemWord(token, morph);
         }
         
         /**

@@ -185,12 +185,28 @@ public class TextUtil {
 
 	public static String stemWord(String word) throws Exception {
 		String stemmedWord = "";
+		Morphology local_morph = new Morphology();
 		try {
-			stemmedWord = morph.stem(word);
+//			stemmedWord = morph.stem(word);
+			stemmedWord = local_morph.stem(word);
 		} catch (NullPointerException e) {
-			morph = new Morphology();
-			stemmedWord = morph.stem(word);
+//			morph = new Morphology();
+//			stemmedWord = morph.stem(word);
 		}
+		return stemmedWord;
+	}
+	
+	/**
+	 * Get stemmed word with a given morphology object (reduce instance creation time)
+	 * 
+	 * @param word
+	 * @param local_morph
+	 * @return
+	 * @throws Exception
+	 */
+	public static String stemWord(String word, Morphology local_morph) throws Exception {
+		String stemmedWord = "";
+		stemmedWord = local_morph.stem(word);
 		return stemmedWord;
 	}
 	

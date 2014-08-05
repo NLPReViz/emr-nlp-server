@@ -63,7 +63,8 @@ public class WSInterface {
 	@Produces(MediaType.APPLICATION_JSON)	
 	public Map<String, Object> getDataSet_ModelList() throws Exception {
 //		System.out.println("Data folder is at: " + Storage_Controller.getBaseFolder());
-		return Dataset_MLModel_Controller.instance.getAllDataSetModel(); 
+//		return Dataset_MLModel_Controller.instance.getAllDataSetModel(); 
+		return new Dataset_MLModel_Controller().getAllDataSetModel();
 	}
 //	@Produces("application/x-javascript")
 //	public JSONWithPadding getDataSet_ModelList(@QueryParam("callback") String callback) throws Exception {
@@ -82,9 +83,10 @@ public class WSInterface {
 		int topKwords = 5;
 		boolean biasFeature = true;
 		Map<String, Object> gridVarObj = 
-				GridVar_Controller.instance.getPrediction(fn_reportIDList,
+//				GridVar_Controller.instance.getPrediction(fn_reportIDList,
+//						fn_modelFnList, topKwords, biasFeature);
+				new GridVar_Controller().getPrediction(fn_reportIDList,
 						fn_modelFnList, topKwords, biasFeature);
-		
 		return gridVarObj;
 	}
 //	@Produces("application/x-javascript")
@@ -129,8 +131,8 @@ public class WSInterface {
 			@PathParam("fn_reportIDList") String fn_reportIDList)
 			throws Exception {
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
-//		return Response.status(200).entity("OK").build();
-		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+//		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+		return Feedback_Controller.instance.getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
 	@GET
@@ -146,8 +148,8 @@ public class WSInterface {
 		List<Feedback_WordTree_JSON_Model> feedbackBatch = new ObjectMapper().readValue(jsonStr, List.class);
 		
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
-//		return Response.status(200).entity("OK").build();
-		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+//		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+		return Feedback_Controller.instance.getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
 	@GET

@@ -19,13 +19,13 @@ import frontEnd.serverSide.model.DataSet;
  * @author Phuong Pham
  *
  */
-public enum Dataset_MLModel_Controller {
-	instance;
+public class Dataset_MLModel_Controller {
+//	instance;
 	
 	private String m_documentListFolder;
 	private String m_modelListFolder;
 	
-	private Dataset_MLModel_Controller() {
+	public Dataset_MLModel_Controller() {
 		try {
 			m_documentListFolder = Storage_Controller.getDocumentListFolder();
 			m_modelListFolder = Storage_Controller.getModelListFolder();			

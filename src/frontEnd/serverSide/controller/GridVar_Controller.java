@@ -23,14 +23,14 @@ import frontEnd.serverSide.model.ReportPrediction_Model;
  * @author Phuong Pham
  *
  */
-public enum GridVar_Controller {
-	instance;
+public class GridVar_Controller {
+//	instance;
 	
 	private String m_modelListFolder;
 	private String m_documentListFolder;
 	private String m_weightFolder;
 	
-	private GridVar_Controller() {
+	public GridVar_Controller() {
 		// initialize global feature vector
 		try {
 			m_modelListFolder = Storage_Controller.getModelListFolder();

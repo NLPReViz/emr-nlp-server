@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import edu.pitt.cs.nih.backend.utils.TextUtil;
+import edu.stanford.nlp.process.Morphology;
 import frontEnd.serverSide.model.FeatureWeight;
 
 /**
@@ -65,13 +66,14 @@ public class TopFeature_Controller {
 		List<List<String[]>> allTokenList = new ArrayList<>();
 		allTokenList.add(TextUtil.extractWordsByStandfordParser(document));
 		List<String[]> stemmedTokenList = new ArrayList<>();
+		Morphology morph = new Morphology();
 		
 //		Set<String> unigramList = new TreeSet<>();
 		
 		for(int iSentence = 0; iSentence < allTokenList.get(0).size(); iSentence++) {
 			String[] wordList = new String[allTokenList.get(0).get(iSentence).length];
 			for(int iWord = 0; iWord < wordList.length; iWord++) {
-				wordList[iWord] = TextUtil.stemWord(allTokenList.get(0).get(iSentence)[iWord]).toLowerCase();
+				wordList[iWord] = TextUtil.stemWord(allTokenList.get(0).get(iSentence)[iWord], morph).toLowerCase();
 //				unigramList.add(wordList[iWord]);
 			}
 			stemmedTokenList.add(wordList);

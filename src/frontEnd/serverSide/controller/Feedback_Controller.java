@@ -16,7 +16,9 @@ import frontEnd.serverSide.model.MLModel;
  * @author Phuong Pham
  * 
  */
-public class Feedback_Controller {
+public enum Feedback_Controller {
+	instance;
+	
 	public Map<String,Object> getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
 			String fn_modelFnList, String fn_reportIDList) throws Exception {
 		// parse the modelFnList to get userID, (previous) sessionID
@@ -41,13 +43,16 @@ public class Feedback_Controller {
 			// msg
 			feedbackResult.put("msg", "OK");
 			// modelList
-			List<MLModel> modelList = Dataset_MLModel_Controller.instance.getMLModelList();
+//			List<MLModel> modelList = Dataset_MLModel_Controller.instance.getMLModelList();
+			List<MLModel> modelList = new Dataset_MLModel_Controller().getMLModelList();
 			feedbackResult.put("modelList", modelList);
 			// gradVar object
 			int topKwords = 5;
 			boolean biasFeature = true;
 			Map<String, Object> gridVarObj = 
-					GridVar_Controller.instance.getPrediction(fn_reportIDList,
+//					GridVar_Controller.instance.getPrediction(fn_reportIDList,
+//							returnMsg + ".xml", topKwords, biasFeature);
+					new GridVar_Controller().getPrediction(fn_reportIDList,
 							returnMsg + ".xml", topKwords, biasFeature);
 			feedbackResult.put("gridVarData", gridVarObj);
 		}
