@@ -94,8 +94,13 @@
             </fileset>
         </copy>
     </target>
+    <target name="delete">
+        <delete verbose='true' file="${deploydir}/${warfile}.war"/>
+        <delete verbose='true' dir="${deploydir}/${warfile}"/>
+    </target>
     <target name="deploy">
         <antcall target="create"/>
+        <antcall target="delete"/>
         <antcall target="copy"/>
     </target>
 </project>
