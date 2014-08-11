@@ -175,7 +175,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 							.containsKey(feedback.getDocValue())) {
 						throw new Exception("Report " + feedback.getDocId() +
 								" in variable " + feedback.getVariableName() +
-								" contains True and False feedback!");
+								" contains contradictory feedback!");
 					}
 				} else {
 					if(!feedbackMap.containsKey(feedback.getVariableName())) {
@@ -326,7 +326,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 								feedbackTable[i][10])) { // 10: class value
 							throw new Exception("Report " + feedbackTable[i][4] +
 									" in variable " + feedbackTable[i][5] +
-									" contains True and False feedback! (found in converting process)");
+									" contains contradictory feedback! (found in converting process)");
 						}
 					}
 					else { // add this document level feedback
