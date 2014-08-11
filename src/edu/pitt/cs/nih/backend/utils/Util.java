@@ -130,7 +130,7 @@ public class Util {
         ArrayList<String> fileNames = new ArrayList<>();
 
         for (int iFile = 0; iFile < files.length; iFile++) {
-            if (!files[iFile].isDirectory()) {
+            if (!files[iFile].isDirectory()) { 
                 String fileName = files[iFile].toString();
                 int startIndex = fileName.lastIndexOf(File.separatorChar) + 1;
                 fileNames.add(fileName.substring(startIndex));

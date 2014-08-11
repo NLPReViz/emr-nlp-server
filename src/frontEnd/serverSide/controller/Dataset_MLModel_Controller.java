@@ -48,6 +48,9 @@ public class Dataset_MLModel_Controller {
 		String[] fn_MLModelList = Util.loadFileList(m_modelListFolder);
 		List<MLModel> MLModelList = new ArrayList<>();
 		for(int i = 0; i < fn_MLModelList.length; i++) {
+			if(fn_MLModelList[i].charAt(0) == '.') { // hidden file in Mac and Linux
+				continue;
+			}
 			MLModel mlModel = new MLModel();
 			mlModel.setName(fromFnModel2ModelName(fn_MLModelList[i]));
 			mlModel.setId(Integer.toString(i + 1));
@@ -74,6 +77,9 @@ public class Dataset_MLModel_Controller {
 		String[] fn_dataSetList = Util.loadFileList(m_documentListFolder);
 		List<DataSet> dataSetList = new ArrayList<>();
 		for(int i = 0; i < fn_dataSetList.length; i++) {
+			if(fn_dataSetList[i].charAt(0) == '.') { // hidden file in Mac and Linux
+				continue;
+			}
 			DataSet dataSet = new DataSet();
 			dataSet.setName(fromFnModel2ModelName(fn_dataSetList[i]));
 			dataSet.setDocIds(XMLUtil.getReportIDFromXMLList(
