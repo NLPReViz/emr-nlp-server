@@ -957,4 +957,27 @@ public class FileTextCreateInitialDS {
     	
     	return classValueMap;
     }
+    
+    public List<Feedback_WordTree_JSON_Model> addFeedback4() {
+    	List<Feedback_WordTree_JSON_Model> batch = new ArrayList<>();
+    	Feedback_WordTree_JSON_Model feedback;
+    	
+//    	feedback = new Feedback_WordTree_JSON_Model();
+//    	feedback.setClassification("negative");
+//    	feedback.setKind("TYPE_TEXT");
+//    	feedback.setVariable("any-adenoma");
+//    	feedback.setSelected("alternatives of the procedure");
+//    	feedback.setDocList("0001");
+//    	batch.add(feedback);
+    	
+    	feedback = new Feedback_WordTree_JSON_Model();
+    	feedback.setClassification("positive");
+    	feedback.setKind("TYPE_TEXT");
+    	feedback.setVariable("any-adenoma");
+    	feedback.setSelected("After the risks");
+    	feedback.setDocList("0001");
+    	batch.add(feedback);
+    	
+    	return batch;
+    }
 }

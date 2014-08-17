@@ -178,7 +178,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
                     classValueTable.put(instanceID, feedbackTable[iFeedback][10]);
 //                    System.out.println(varID + ": " + instanceID + " = " + feedbackTable[iFeedback][10]);
         		}
-        		else { // span feedback
+        		else { // span feedback, save along with its label, so we can discard spans with contradictory labels later
         			start = Integer.parseInt(feedbackTable[iFeedback][6]);
                     end = Integer.parseInt(feedbackTable[iFeedback][7]);
                     spanLabelMap = feedbackSpanDocList.get(instanceID);
@@ -252,59 +252,75 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 //	            start = spanList.get(i).getKey();
 //	            end = spanList.get(i).getValue();
             int i = 0;
-            for(Map.Entry<Integer,Integer> span : spanLabelMap.keySet()) {
-            	start = span.getKey();
-                end = span.getValue();
-                
-                if(start < colonText.length()) { // the span in colonoscopy report
-//                	System.out.println("[colon]" + rawTextColon.substring(start, end));
-                	// the StringBuilder.replace function will modify rawText
-                    // we need to re-initialize the rawText object at each iteration
-                    rawTextColon = new StringBuilder(colonText);
-                    instanceText = rawTextColon.replace(start, end, "").toString();
-                    // remove header and footer of the colonoscopy report
-                    instanceTextList[0] = Preprocess.separateReportHeaderFooter(instanceText)[1];
-//                    // no remove header footer
-//                    instanceTextList[0] = instanceText;
-                    // remove header and footer of the pathology report without modifying
-                    if(pathologyText.length() > 0) {
-                    	instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(pathologyText)[1];
-//                    	// no remove header footer
-//	                    instanceTextList[1] = pathologyText;
-                    }
-                    else {
-                    	instanceTextList[1] = "";
-                    }
-                }
-                else { // the span in pathology report
-                	start -= colonText.length();
-                	end -= colonText.length();                	
-                    // remove header and footer of the colonoscopy report without modifying
-                	instanceTextList[0] = Preprocess.separateReportHeaderFooter(colonText)[1];
-//                	// no remove header footer
-//                    instanceTextList[0] = colonText;
-                    // the StringBuilder.replace function will modify rawText
-                    // we need to re-initialize the rawText object at each iteration
-//                    System.out.println("[patho]" + rawTextPathology.substring(start, end));
-                    rawTextPathology = new StringBuilder(pathologyText);
-                    instanceText = rawTextPathology.replace(start, end, "").toString();
-                    // remove header and footer of the pathology report
-                    if(pathologyText.length() > 0) {
-                    	instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(instanceText)[1];
-//                    	// no remove header footer
-//	                    instanceTextList[1] = instanceText;
-                    }
-                    else {
-                    	instanceTextList[1] = "";
-                    }
-                }
-                
-                String spanID = String.format("%s_%03d", report_ID, i++);
-                featureSet.addInstance(spanID, instanceTextList, reportType);
-                classValueTable.put(spanID, spanLabelMap.get(span));
-                ++totalFeedback;
-            }
-        }
+			for (Map.Entry<Integer, Integer> span : spanLabelMap.keySet()) {
+				// only get spans agree with the report label
+				if (spanLabelMap.get(span).equals(classValueTable.get(report_ID))) {
+					start = span.getKey();
+					end = span.getValue();
+
+					if (start < colonText.length()) { // the span in colonoscopy
+														// report
+					// System.out.println("[colon]" +
+					// rawTextColon.substring(start, end));
+						// the StringBuilder.replace function will modify
+						// rawText
+						// we need to re-initialize the rawText object at each
+						// iteration
+						rawTextColon = new StringBuilder(colonText);
+						instanceText = rawTextColon.replace(start, end, "")
+								.toString();
+						// remove header and footer of the colonoscopy report
+						instanceTextList[0] = Preprocess
+								.separateReportHeaderFooter(instanceText)[1];
+						// // no remove header footer
+						// instanceTextList[0] = instanceText;
+						// remove header and footer of the pathology report
+						// without modifying
+						if (pathologyText.length() > 0) {
+							instanceTextList[1] = Preprocess
+									.separatePathologyHeaderFooter(pathologyText)[1];
+							// // no remove header footer
+							// instanceTextList[1] = pathologyText;
+						} else {
+							instanceTextList[1] = "";
+						}
+					} else { // the span in pathology report
+						start -= colonText.length();
+						end -= colonText.length();
+						// remove header and footer of the colonoscopy report
+						// without modifying
+						instanceTextList[0] = Preprocess
+								.separateReportHeaderFooter(colonText)[1];
+						// // no remove header footer
+						// instanceTextList[0] = colonText;
+						// the StringBuilder.replace function will modify
+						// rawText
+						// we need to re-initialize the rawText object at each
+						// iteration
+						// System.out.println("[patho]" +
+						// rawTextPathology.substring(start, end));
+						rawTextPathology = new StringBuilder(pathologyText);
+						instanceText = rawTextPathology.replace(start, end, "")
+								.toString();
+						// remove header and footer of the pathology report
+						if (pathologyText.length() > 0) {
+							instanceTextList[1] = Preprocess
+									.separatePathologyHeaderFooter(instanceText)[1];
+							// no remove header footer
+							// instanceTextList[1] = instanceText;
+						} else {
+							instanceTextList[1] = "";
+						}
+					}
+
+					String spanID = String.format("%s_%03d", report_ID, i++);
+					featureSet
+							.addInstance(spanID, instanceTextList, reportType);
+					classValueTable.put(spanID, spanLabelMap.get(span));
+					++totalFeedback;
+				}
+			}
+		}
         
 //        System.out.println("There are " + totalFeedback + " over " + totalInstance + " reports. On average, there are " + (totalFeedback * 1.0 / totalInstance) + " feedback per report");
         String[] globalFeatureVector = Util.loadList(fn_globalFeatureVector);
@@ -937,5 +953,85 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     	}
     	String[] globalFeatureVector = Util.loadList(fn_globalFeatureVector);
     	return featureSet.getFeatureVectorFromGlobalFeatureVector(globalFeatureVector);
+    }
+    
+    
+    /**
+     * Create a label value map of explicit annotated document label values
+     * The back-end will use these values instead of model's predictions to show the user
+     * Kinda lie to the user but not frustrate her
+     * 
+     * @param sessionID
+     * @param userID
+     * @param varID
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> getExplicitDocumentLabel(String sessionID,
+    		String _userID, String _varID, String _fn_feedback) throws Exception {
+    	Map<String, String> labelMap = new HashMap<>();
+    	String[][] feedbackTable = Util.loadTable(_fn_feedback);
+    	int session = Integer.parseInt(sessionID);
+    	List<String> deletedSessionIDList = TextFileSessionManager.getDeletedSessionIDList(
+    			_userID, fn_session);
+    	
+    	for(int i = 0; i < feedbackTable.length; i++) {
+    		if(!isSpanFeedback(feedbackTable[i])) { // work with document feedback only    			
+    			if(!deletedSessionIDList.contains(feedbackTable[i][1]) // this session has not been deleted
+    					&& feedbackTable[i][5].equals(_varID) // varID
+    					&& !feedbackTable[i][6].equals("-1") // skip inferred document label value
+    					&& Integer.parseInt(feedbackTable[i][1]) <= session // get all previous sessions and this sessionID
+    					&& (feedbackTable[i][2].equals(_userID) || feedbackTable[i][2].length() == 0) // userID or default userID
+    			) {
+    				labelMap.put(feedbackTable[i][4], feedbackTable[i][10]); // later label value will override previous value
+    				// because feedback file is written linearly according to time
+    			}
+    		}
+    	}
+    	return labelMap;
+    }
+    
+    /**
+     * Create a label value map of explicit and inferred annotated document label values
+     * The back-end will use these values instead of model's predictions to show the user
+     * Kinda lie to the user but not frustrate her
+     * 
+     * @param sessionID
+     * @param userID
+     * @param varID
+     * @return
+     * @throws Exception
+     */
+    public Map<String,Map<String, String>> getAllDocumentLabel(String sessionID,
+    		String _userID, String _fn_feedback) throws Exception {
+    	Map<String, Map<String, String>> labelMap = new HashMap<>();
+    	Map<String,String> varMap;
+    	String[][] feedbackTable = Util.loadTable(_fn_feedback);
+    	int session = Integer.parseInt(sessionID);
+    	List<String> deletedSessionIDList = TextFileSessionManager.getDeletedSessionIDList(
+    			_userID, fn_session);
+    	
+    	for(int i = 0; i < feedbackTable.length; i++) {
+    		if(!isSpanFeedback(feedbackTable[i])) { // work with document feedback only    			
+    			if(!deletedSessionIDList.contains(feedbackTable[i][1]) // this session has not been deleted
+//    					&& feedbackTable[i][5].equals(_varID) // varID
+//    					&& !feedbackTable[i][6].equals("-1") // skip inferred document label value
+    					&& Integer.parseInt(feedbackTable[i][1]) <= session // get all previous sessions and this sessionID
+    					&& (feedbackTable[i][2].equals(_userID) || feedbackTable[i][2].length() == 0) // userID or default userID
+    			) {
+    				try {
+	    				varMap = labelMap.get(feedbackTable[i][5]);
+	    				varMap.put(feedbackTable[i][4], feedbackTable[i][10]); // later label value will override previous value
+	    				// because feedback file is written linearly according to time
+    				}
+    				catch (NullPointerException e) {
+    					varMap = new HashMap<>();
+    					varMap.put(feedbackTable[i][4], feedbackTable[i][10]);
+    					labelMap.put(feedbackTable[i][5], varMap);
+    				}
+    			}
+    		}
+    	}
+    	return labelMap;
     }
 }

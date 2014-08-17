@@ -39,6 +39,7 @@ import emr_vis_nlp.ml.LibSVMPredictor;
 import emr_vis_nlp.ml.SVMPredictor;
 import frontEnd.serverSide.controller.Dataset_MLModel_Controller;
 import frontEnd.serverSide.controller.Feedback_Controller;
+import frontEnd.serverSide.controller.Feedback_OverrideConflictLabel_Controller;
 import frontEnd.serverSide.controller.GridVar_Controller;
 import frontEnd.serverSide.controller.Report_Controller;
 import frontEnd.serverSide.controller.Storage_Controller;
@@ -131,8 +132,21 @@ public class WSInterface {
 			@PathParam("fn_reportIDList") String fn_reportIDList)
 			throws Exception {
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
+		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+//		return new Feedback_OverrideConflictLabel_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+	}
+	
+	@PUT
+	@Path("putFeedbackOverride/{fn_modelFnList}/{fn_reportIDList}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Map<String,Object> getFeedbackOverride(List<Feedback_WordTree_JSON_Model> feedbackBatch,
+			@PathParam("fn_modelFnList") String fn_modelFnList,
+			@PathParam("fn_reportIDList") String fn_reportIDList)
+			throws Exception {
+//		System.out.println("There are " + feedbackBatch.size() + " feedback");		
 //		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
-		return Feedback_Controller.instance.getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+		return new Feedback_OverrideConflictLabel_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
 	@GET
@@ -149,7 +163,7 @@ public class WSInterface {
 		
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
 //		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
-		return Feedback_Controller.instance.getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
 	@GET
@@ -170,9 +184,9 @@ public class WSInterface {
 	
 	public static void main(String[] args) throws Exception {
 //		long startTime = System.currentTimeMillis();
-		System.out.println(Util.getOSName());
-		//		validateWebServiceOffline();
-//		validateFeedbackProcess();
+//		System.out.println(Util.getOSName());
+//		validateWebServiceOffline();
+		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
 //		createDataSet();
 //		verifyFullModel();
@@ -189,7 +203,7 @@ public class WSInterface {
 	
 	protected static void validateWebServiceOffline() throws Exception {
 //		// get var grid object
-		String fn_reportIDList = "devIDList.xml";
+		String fn_reportIDList = "feedbackIDList.xml";
 		String fn_modelFnList = "modelList.0..xml";
 //		int topKwords = 5;
 //		boolean biasFeature = true;
@@ -199,11 +213,11 @@ public class WSInterface {
 //				fn_modelFnList, topKwords, biasFeature);	
 		
 //		List<String> reportIDList = Arrays.asList(new String[]{"0002", "0005"});
-		List<String> reportIDList = XMLUtil.getReportIDFromXMLList(Util.getOSPath(new String[]{Storage_Controller.getDocumentListFolder(),fn_reportIDList}));
-		// word tree
-		String rootWord = "biopsy";
-		System.out.println(new WordTree_Controller().getWordTree(reportIDList, rootWord));
-		countDocuments();
+//		List<String> reportIDList = XMLUtil.getReportIDFromXMLList(Util.getOSPath(new String[]{Storage_Controller.getDocumentListFolder(),fn_reportIDList}));
+//		// word tree
+//		String rootWord = "biopsy";
+//		System.out.println(new WordTree_Controller().getWordTree(reportIDList, rootWord));
+//		countDocuments();
 		
 		// verify word tree annotation handling
 //		verifyWordTreeAnnotation();
@@ -407,14 +421,14 @@ public class WSInterface {
 	protected static void validateFeedbackProcess() throws Exception {
 		FileTextCreateInitialDS initialFeedbackSession = new FileTextCreateInitialDS();
 
-		String fn_modelList = Util.getOSPath(new String[] {
-				Storage_Controller.getModelListFolder(), "modelList.0..xml" });
-		String fn_reportIDList = Util.getOSPath(new String[]{
-				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
-		// initial the whole back end dataset based on modelList.0..xml
-		initialFeedbackSession.initializeFeedbackFile(fn_modelList,
-				fn_reportIDList);
-		// initialFeedbackSession.validateFeedbackInstanceClass();
+//		String fn_modelList = Util.getOSPath(new String[] {
+//				Storage_Controller.getModelListFolder(), "modelList.0..xml" });
+//		String fn_reportIDList = Util.getOSPath(new String[]{
+//				Storage_Controller.getDocumentListFolder(), "feedbackIDList.xml"});
+//		// initial the whole back end dataset based on modelList.0..xml
+//		initialFeedbackSession.initializeFeedbackFile(fn_modelList,
+//				fn_reportIDList);
+//		// initialFeedbackSession.validateFeedbackInstanceClass();
 		
 //		String userID = "1";
 //		String feedbackFileName = Storage_Controller.getFeedbackFn();
@@ -434,7 +448,7 @@ public class WSInterface {
 //		feedbackManager.setUserID(userID);
 //		TextFileSessionManager sessionManager = new TextFileSessionManager(
 //				Storage_Controller.getSessionManagerFn());
-//
+
 //		List<Feedback_Model> batch;
 //		batch = initialFeedbackSession.addFeedBack1(userID);
 //		feedbackManager.processFeedback(batch);
@@ -446,16 +460,23 @@ public class WSInterface {
 //		feedbackManager.updateModels();
 //		// create new model list
 //		feedbackManager.createXMLPredictorFile();
-		
+//		
 //		batch = initialFeedbackSession.addFeedBack2(userID);
 //		feedbackManager.processFeedback(batch);
 //		
 //		sessionManager.deleteCurrentSessionID(userID);
 ////		String sessionID = "2";
 ////		sessionManager.deleteSession(sessionID, feedbackManager.getUserID()); // how about delete the whole session?
-//		
+		
 //		batch = initialFeedbackSession.addFeedBack3(userID);
 //		feedbackManager.processFeedback(batch);
+		
+		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
+		String fn_modelList = "modelList.0..xml";
+		String fn_reportIDList = "feedbackIDList.xml";
+		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
+				fn_modelList, fn_reportIDList);
+		System.out.println(map.get("msg"));
 	}
 	
 	protected static void validateOutputWebServiceWinApp() throws Exception {

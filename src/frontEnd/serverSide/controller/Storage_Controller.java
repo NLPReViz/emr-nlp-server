@@ -184,4 +184,12 @@ public class Storage_Controller {
 	public static String getTempLearningWeightFn() throws Exception {
 		return Util.getOSPath(new String[]{getLibSVMPath(), "temp-weight.txt"});
 	}
+	
+	public static String[] parseModelListFn(String modelListFn) throws Exception {
+		String[] parseResult = new String[2];
+		String[] tokenList = modelListFn.split("\\.");
+		parseResult[0] = tokenList[1]; // sessionID
+		parseResult[1] = tokenList[2]; // userID
+		return parseResult;
+	}
 }

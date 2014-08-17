@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.pitt.cs.nih.backend.featureVector.ColonoscopyDS_SVMLightFormat;
 import edu.pitt.cs.nih.backend.featureVector.Preprocess;
 import edu.pitt.cs.nih.backend.utils.TextUtil;
 import edu.pitt.cs.nih.backend.utils.Util;
@@ -29,6 +30,9 @@ import frontEnd.serverSide.model.Feedback_Document_Model;
  */
 public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackManagerLibSVM {
 
+	protected String fn_wordTreeFeedback;
+	protected String inferredKeyword = "inferred";
+	
 	/**
 	 * @param feedbackFileName
 	 * @param fn_sessionManager
@@ -39,9 +43,6 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	 * @param _globalFeatureName
 	 * @param _xmlPredictorFolder
 	 */
-	
-	protected String fn_wordTreeFeedback;
-	
 	public TextFileFeedbackManager_LibSVM_WordTree(String feedbackFileName,
 			String fn_sessionManager, String _learningFolder,
 			String _docsFolder, String _modelFolder,
@@ -68,7 +69,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 					feedbackMsg.lastIndexOf(".")); 
 		}
 		catch(Exception e) {
-			feedbackMsg = "Error: " + e.getMessage();
+			feedbackMsg = e.getMessage();
 		}
 		
 		System.out.println(feedbackMsg);
@@ -137,10 +138,10 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 									 documentValue + ")"
 									: "the document (" + documentValue + ")";
 
-							throw new Exception("In report " + docID
+							throw new Exception("Error: In report " + docID
 									+ " variable " + feedback.getVariableName() + 
 									", \n" + span1 + "\nand " + span2
-									+ "\n have different values!");
+									+ "\n have contradictory values!");
 						} else { // append the text span
 							// create selected, matched spans for this feedback
 							Map<String,String> spanMap = new HashMap<>();
@@ -173,7 +174,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 					// verify conflict
 					if(!feedbackMap.get(feedback.getVariableName()).get(feedback.getDocId())
 							.containsKey(feedback.getDocValue())) {
-						throw new Exception("Report " + feedback.getDocId() +
+						throw new Exception("Error: Report " + feedback.getDocId() +
 								" in variable " + feedback.getVariableName() +
 								" contains contradictory feedback!");
 					}
@@ -223,7 +224,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 				Feedback_Document_Model documentFeedback = (Feedback_Document_Model) abstractFeedback;
 				sb.append(documentFeedback.getDocId()).append(",");
 				sb.append(documentFeedback.getVariableName()).append(",");
-				sb.append("0,0,"); // spanStart, spanEnd
+				sb.append("0,0,"); // spanStart, spanEnd; 0,0 means doc level feedback while -1,-1 means inferred feedback
 				sb.append("create,-1,"); // change/create, pointer to old var value
 				sb.append(documentFeedback.getDocValue()).append("\n");
 			}
@@ -263,8 +264,13 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		try {
 			String[][] feedbackTable = Util.loadTable(fn_wordTreeFeedback);
 			// extract all feedback in this session
+			// Map<varID, Map<reportID, Map<value, List<String> text spans>>
 			Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = 
 					extractWordTreeAnnotation2Map(sessionID, feedbackTable);
+			// verify conflicting label values between
+			// the feedback session and existing data before create
+			// final annotation form
+			verifyConflictingLabel(feedbackMap, sessionID);
 			// from the structure, convert into final annotation
 			convert2FinalAnnotationFormat(feedbackMap, sessionID);
 		}
@@ -272,6 +278,30 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 			// can't convert into final feedback, roll back saved wordtree feedback
 			rollBackWordTreeFeedback(sessionID);
 			throw e;
+		}
+	}
+	
+	protected void verifyConflictingLabel(Map<String, Map<String, Map<String, List<Map<String,String>>>>>
+		feedbackMap, String sessionID) throws Exception {
+		Map<String, Map<String, String>> labelMap = new ColonoscopyDS_SVMLightFormat().getAllDocumentLabel(sessionID,
+				userID, fn_feedback);
+		Map<String, String> varLabelMap;
+		
+		// Map<varID, Map<reportID, Map<value, List<String> text spans>>
+		for(String varID : feedbackMap.keySet()) {
+			varLabelMap = labelMap.get(varID);
+			
+			Map<String, Map<String, List<Map<String,String>>>> reportFeedbackMap = 
+					feedbackMap.get(varID);
+			for(String reportID : reportFeedbackMap.keySet()) {
+				// verify conflict
+				if(varLabelMap.containsKey(reportID) && ! reportFeedbackMap.get(reportID).containsKey(varLabelMap.get(reportID))) {
+					// raise warning
+					throw new Exception("Warning: Report " + reportID +
+							" in variable " + varID +
+							" contains contradictory label value compared to existing training data");					
+				}
+			}
 		}
 	}
 	
@@ -297,17 +327,21 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	
 	/**
 	 * Convert word tree annotation format into data structure Map<varID, Map<reportID, Map<value, List<String> text spans>> 
+	 * each report branch (Map<reportID, Map<value, List<String> text spans>>) contains the report value and a pseudo key
+	 * "inferred" if the report value is inferred from a text span, not explicitly given by the user
+	 * 
 	 * <lu>
 	 * <li> lineID, sessionID, userID, requestID, docID, varID, spanStart, spanEnd, change/create, pointer to old var value (lineID), new value
 	 * <li> lineID, sessionID, userID, requestID, varID, value, "text span" (normalized), docID list 
 	 * </lu>
+	 * 
 	 * @param feedbackMap
 	 * @throws Exception
 	 */
 	protected Map<String, Map<String, Map<String, List<Map<String,String>>>>> extractWordTreeAnnotation2Map(String sessionID,
 			String[][] feedbackTable) throws Exception {
 		Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = new HashMap<>();
-		
+
 		for(int i = feedbackTable.length - 1; i > -1; i--) {
 			if(feedbackTable[i][1].equals(sessionID) &&
 					feedbackTable[i][2].equals(userID)) {
@@ -318,16 +352,21 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 						feedbackMap.put(feedbackTable[i][5], varMap);
 					}
 					
-					if(feedbackMap.get(feedbackTable[i][5])
+					if(feedbackMap.get(feedbackTable[i][5]) // is there a label value for this report?
 							.containsKey(feedbackTable[i][4])) { // 4: docID; verify class value
-						// verify conflict
+						// verify conflict between the current label value with the label value of this feedback
 						if (!feedbackMap.get(feedbackTable[i][5])
 								.get(feedbackTable[i][4]).containsKey(
-								feedbackTable[i][10])) { // 10: class value
-							throw new Exception("Report " + feedbackTable[i][4] +
+								feedbackTable[i][10])
+							) { // 10: class value
+							throw new Exception("Error: Report " + feedbackTable[i][4] +
 									" in variable " + feedbackTable[i][5] +
 									" contains contradictory feedback! (found in converting process)");
 						}
+						// if the current report value is inferred, then make it explicitly
+						// because the user said so
+						feedbackMap.get(feedbackTable[i][5])
+							.get(feedbackTable[i][4]).remove(inferredKeyword);
 					}
 					else { // add this document level feedback
 						Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
@@ -335,6 +374,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 						textSpanMap.put(feedbackTable[i][10], textSpanList);
 						feedbackMap.get(feedbackTable[i][5])
 							.put(feedbackTable[i][4], textSpanMap);
+						// explicit document label feedback, no need to create the key "inferred"
 					}
 				}
 				else { // span level feedback
@@ -363,7 +403,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 										 documentValue + ")"
 										: "the document (" + documentValue + ")";
 
-								throw new Exception("In report " + docID
+								throw new Exception("Error: In report " + docID
 										+ " in variable " + feedbackTable[i][4] 
 										+ ", \n" + span1 + "\nand " + span2
 										+ "\n have different values! (found in converting process)");
@@ -390,6 +430,8 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 									.deNormalizeTextSpan(feedbackTable[i][7]));
 							textSpanList.add(spanMap);
 							textSpanMap.put(classValue, textSpanList);
+							// add "inferred" key because the report value is inferred from this span feedback
+							textSpanMap.put(inferredKeyword, null);
 							feedbackMap.get(feedbackTable[i][4]).put(docID, textSpanMap);
 						}
 					}
@@ -430,7 +472,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		Map<String,String> spanMap;
 		String docValue, spanPosition;
 		int lineID = getFeedbackLineID(fn_feedback);
-		String[][] feedbackTable = Util.loadTable(fn_feedback);		
+		String[][] feedbackTable = Util.loadTable(fn_feedback);
 
 		ArrayList<String[]> sessionAddList = new ArrayList<>();
 		
@@ -451,8 +493,11 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 				feedbackLine.append(Feedback_Abstract_Model.getRequestID()).append(",");
 				feedbackLine.append(docID).append(",");
 				feedbackLine.append(varID).append(",");
-				// start, end = 0, 0
-				feedbackLine.append("0,0,");
+				String position = docMap.containsKey(inferredKeyword) ?
+						"-1,-1," : // start, end = -1, -1 for inferred document level label
+						"0,0,"; // start, end = 0, 0 for explicit document level label
+				
+				feedbackLine.append(position);
 				// change/create, old variable value line ID(pointer)
 		        String varValueType = "create";
 		        String oldVarValueLineID = "-1";

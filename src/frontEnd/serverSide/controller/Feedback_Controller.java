@@ -16,10 +16,9 @@ import frontEnd.serverSide.model.MLModel;
  * @author Phuong Pham
  * 
  */
-public enum Feedback_Controller {
-	instance;
-	
-	public Map<String,Object> getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
+public class Feedback_Controller {
+	public Map<String,Object> getFeedback(
+			List<Feedback_WordTree_JSON_Model> feedbackBatch,
 			String fn_modelFnList, String fn_reportIDList) throws Exception {
 		// parse the modelFnList to get userID, (previous) sessionID
 		// only use userID at this moment, NO, what if we start from initial
@@ -38,7 +37,8 @@ public enum Feedback_Controller {
 		feedbackResult.put("msg", returnMsg);
 		
 		// if success, load info of the new model
-		if(!returnMsg.contains("Error:")) {
+		if(!(returnMsg.contains("Error:") // contradictory error
+				|| returnMsg.contains("Warning:"))) { // override inferred document label value
 			feedbackResult.put("latestModel", returnMsg);
 			// msg
 			feedbackResult.put("msg", "OK");
@@ -49,11 +49,12 @@ public enum Feedback_Controller {
 			// gradVar object
 			int topKwords = 5;
 			boolean biasFeature = true;
+			String[] modelListInfo = Storage_Controller.parseModelListFn(returnMsg); 
 			Map<String, Object> gridVarObj = 
 //					GridVar_Controller.instance.getPrediction(fn_reportIDList,
 //							returnMsg + ".xml", topKwords, biasFeature);
-					new GridVar_Controller().getPrediction(fn_reportIDList,
-							returnMsg + ".xml", topKwords, biasFeature);
+					new GridVar_Controller().getPredictionAfterFeedback(fn_reportIDList,
+							returnMsg + ".xml", topKwords, biasFeature, modelListInfo[0], modelListInfo[1]);
 			feedbackResult.put("gridVarData", gridVarObj);
 		}
 
@@ -81,7 +82,7 @@ public enum Feedback_Controller {
 
 	protected String processFeedback(
 			List<Feedback_WordTree_JSON_Model> feedbackBatch, String userID)
-			throws Exception {
+					throws Exception {
 		String feedbackFileName = Storage_Controller.getFeedbackFn();
 		String fn_sessionManager = Storage_Controller.getSessionManagerFn();
 		String _learningFolder = Storage_Controller.getTrainingFileFolder();
@@ -94,10 +95,10 @@ public enum Feedback_Controller {
 		String _fn_wordTreeFeedback = Storage_Controller
 				.getWordTreeFeedbackFn();
 
-		TextFileFeedbackManager_LibSVM_WordTree manager = new TextFileFeedbackManager_LibSVM_WordTree(
-				feedbackFileName, fn_sessionManager, _learningFolder,
-				_docsFolder, _modelFolder, _featureWeightFolder,
-				_globalFeatureName, _xmlPredictorFolder, _fn_wordTreeFeedback);
+		TextFileFeedbackManager_LibSVM_WordTree manager = getFeedbackManager(
+				feedbackFileName, fn_sessionManager, _learningFolder, _docsFolder,
+				_modelFolder, _featureWeightFolder, _globalFeatureName,
+				_xmlPredictorFolder, _fn_wordTreeFeedback);
 		manager.setUserID(userID);
 		// got from the front-end
 		// intermediate step, convert Feedback_WordTree_JSON_Model into
@@ -109,5 +110,19 @@ public enum Feedback_Controller {
 		String feedbackMsg = manager.processFeedback(feedbackBatchBackEnd);
 
 		return feedbackMsg;
+	}
+	
+	protected TextFileFeedbackManager_LibSVM_WordTree getFeedbackManager(
+			String feedbackFileName, String fn_sessionManager, 
+			String _learningFolder, String _docsFolder, String _modelFolder,
+			String _featureWeightFolder, String	_globalFeatureName,
+			String _xmlPredictorFolder, String _fn_wordTreeFeedback) {
+		
+		TextFileFeedbackManager_LibSVM_WordTree manager = new TextFileFeedbackManager_LibSVM_WordTree(
+				feedbackFileName, fn_sessionManager, _learningFolder,
+				_docsFolder, _modelFolder, _featureWeightFolder,
+				_globalFeatureName, _xmlPredictorFolder, _fn_wordTreeFeedback);
+		
+		return manager;
 	}
 }
