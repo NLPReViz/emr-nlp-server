@@ -4,6 +4,7 @@
 package edu.pitt.cs.nih.backend.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.stanford.nlp.ling.CoreLabel;
@@ -14,7 +15,10 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.process.Morphology;
 import edu.stanford.nlp.util.CoreMap;
+
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Phuong Pham
@@ -220,4 +224,137 @@ public class TextUtil {
 		
 		return output;
 	}
+	
+	/**
+     * New line characters are manually inserted in medical text. We try to 
+     * reconstruct the original sentences of the document. We will replace new 
+     * line with a whitespace character to maintain each word's position
+     * 
+     * @param input
+     * @return
+     * @throws Exception 
+     */
+    public static String reconstructSentences(String input) throws Exception {
+        StringBuilder output = new StringBuilder();
+        String patternStr, currentLine;
+        Pattern pattern;
+        Matcher matcher;
+        int minWordInALine = 7, maxCharPerLine = 60, wordCount, nextLineIndex;
+        List<String> endLinePunctuationList = Arrays.asList(new String[] {".", "!", "?"});
+        List<String> normalEndLinePunctuationList = Arrays.asList(new String[] {",", ":", ";", "-"});
+        
+        String[] originalCutList = input.split("\n");
+        for(int i = 0; i < originalCutList.length; i++) {
+            if(originalCutList[i].equals("")) {
+                mergeSentence(output);
+                continue;
+            }
+            
+            // \ at the end of the line also signal to merge
+            if(originalCutList[i].substring(originalCutList[i].length() - 1).equals("\\")) {
+                output.append(originalCutList[i].substring(0, originalCutList[i].length() - 1));
+                mergeSentence(output);
+                continue;
+            }
+            output.append(originalCutList[i]);
+            
+            // all special character means we do not alter the new line
+            patternStr = "^[^a-z0-9]+$";
+            pattern = Pattern.compile(patternStr);
+            matcher = pattern.matcher(originalCutList[i]);
+            if(matcher.find()) {
+                noMergeSentence(output);
+                continue;
+            }
+            // if this line ends with .
+            currentLine = originalCutList[i].trim();
+            if(endLinePunctuationList.contains(currentLine.substring(currentLine.length() - 1))) {                
+                noMergeSentence(output);
+                continue;
+            }
+            // if the line has less than minWordInALine we do not alter the new line
+            patternStr = "\\s+";
+            pattern = Pattern.compile(patternStr);
+            matcher = pattern.matcher(originalCutList[i].replaceAll("\\s+", " "));
+            wordCount = 0;
+            while (matcher.find()) {
+                wordCount++;
+            }
+            if(wordCount <= minWordInALine && // small number of words
+                    originalCutList[i].replaceAll("\\s+", " ").length() < maxCharPerLine) { // but each word is also not too long
+                noMergeSentence(output);
+                continue;
+            }
+            
+            // if the next line is divider or head line then not alter
+            nextLineIndex = i + 1;
+            while(nextLineIndex < originalCutList.length) {
+                if(!originalCutList[nextLineIndex].equals("")) {
+                    break;
+                }
+                else {
+                    nextLineIndex++;
+                }
+            }
+            if(nextLineIndex > originalCutList.length - 1) continue;
+            // all special character means we do not alter the new line
+            patternStr = "^[^a-z0-9]+$";
+            pattern = Pattern.compile(patternStr);
+            matcher = pattern.matcher(originalCutList[nextLineIndex]);
+            if(matcher.find()) {
+                noMergeSentence(output);
+                continue;
+            }
+            
+            
+            // next line start with A-Z, no merge or -
+            patternStr = "^[A-Z]";
+            pattern = Pattern.compile(patternStr);
+            matcher = pattern.matcher(originalCutList[nextLineIndex]);
+            if(matcher.find()) {
+                // if the current line signal a continue, we will merge
+                if(!normalEndLinePunctuationList.contains(
+                        originalCutList[i].substring(originalCutList[i].length() - 1)) &&
+                        originalCutList[i].replaceAll("\\s+", "").length() < maxCharPerLine) { // heuristic if a line contains more than 60 chars (except whitespace) it should be full
+                    noMergeSentence(output);
+                    continue;
+                }
+            }
+            
+            // if next line start with - meaning bullets
+            patternStr = "^\\s*\\-";
+            pattern = Pattern.compile(patternStr);
+            matcher = pattern.matcher(originalCutList[nextLineIndex]);
+            if(matcher.find()) {
+                noMergeSentence(output);
+                continue;
+            }
+            
+            // in VITALS section
+            if(originalCutList[i].substring(originalCutList[i].length() - 3).equals("Wt:")) {
+                noMergeSentence(output);
+                continue;
+            }  
+            mergeSentence(output);
+        }
+        return output.toString();
+    }
+    
+    /**
+     * Do not merge sentence = insert newline at the end of the line
+     * @param sb
+     * @throws Exception 
+     */
+    protected static void noMergeSentence(StringBuilder sb) throws Exception {
+        sb.append("\n");
+    }
+    
+    /**
+     * Merge sentence = insert a whitespace at the end of the line to replace newline
+     * @param sb
+     * @throws Exception 
+     */
+    protected static void mergeSentence(StringBuilder sb) throws Exception {
+        sb.append(" ");
+    }
 }

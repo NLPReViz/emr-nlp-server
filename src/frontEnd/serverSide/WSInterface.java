@@ -474,7 +474,7 @@ public class WSInterface {
 		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
 		String fn_modelList = "modelList.0..xml";
 		String fn_reportIDList = "feedbackIDList.xml";
-		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
+		Map<String, Object> map = new Feedback_OverrideConflictLabel_Controller().getFeedback(batch,
 				fn_modelList, fn_reportIDList);
 		System.out.println(map.get("msg"));
 	}

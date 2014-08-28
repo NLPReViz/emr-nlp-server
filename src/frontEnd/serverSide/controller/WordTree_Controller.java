@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.pitt.cs.nih.backend.utils.TextUtil;
 import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
 
@@ -47,7 +48,7 @@ public class WordTree_Controller {
 		List<Map<String, Object>> rightList = new ArrayList<>();
 		
 //		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
-		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\\b" + rootWord + "\\b[^\n.]*)");
+		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\\b" + rootWord + "\\b[^\n.?!]*)");
 		Pattern tokenPattern = Pattern.compile("[\\w']+|[.,!?;]");
 		
 		
@@ -62,6 +63,8 @@ public class WordTree_Controller {
 			reportText = Util.loadTextFile(Util.getOSPath(new String[] {
 					m_docsFolder, reportID,
 					Storage_Controller.getColonoscopyReportFn() }));
+			// use heuristic merging sentences
+			reportText = TextUtil.reconstructSentences(reportText);
 			int oldCount = matchCount;
 			matchCount = parseWordTree(reportText, sentencePattern,
 					tokenPattern, leftList, rightList, reportID, rootWord,
@@ -74,6 +77,8 @@ public class WordTree_Controller {
 				reportText = Util.loadTextFile(Util.getOSPath(new String[] {
 						m_docsFolder, reportID,
 						Storage_Controller.getPathologyReportFn() }));
+				// use heuristic merging sentences
+				reportText = TextUtil.reconstructSentences(reportText);
 				matchCount = parseWordTree(reportText, sentencePattern,
 						tokenPattern, leftList, rightList, reportID, rootWord,
 						matchCount);
