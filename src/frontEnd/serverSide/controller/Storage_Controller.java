@@ -189,7 +189,17 @@ public class Storage_Controller {
 		String[] parseResult = new String[2];
 		String[] tokenList = modelListFn.split("\\.");
 		parseResult[0] = tokenList[1]; // sessionID
-		parseResult[1] = tokenList[2]; // userID
+		if(tokenList.length > 2) {
+			parseResult[1] = tokenList[2]; // userID
+		}
+		else {
+			parseResult[1] = "";
+		}
 		return parseResult;
+	}
+	
+	public static String getInitialIDFolder() throws Exception {
+		return Util.getOSPath(new String[]{getBaseFolder(),
+				"feedback", "initialIDList"});
 	}
 }

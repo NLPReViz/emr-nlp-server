@@ -280,26 +280,34 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 			throw e;
 		}
 	}
-	
-	protected void verifyConflictingLabel(Map<String, Map<String, Map<String, List<Map<String,String>>>>>
-		feedbackMap, String sessionID) throws Exception {
-		Map<String, Map<String, String>> labelMap = new ColonoscopyDS_SVMLightFormat().getAllDocumentLabel(sessionID,
-				userID, fn_feedback);
+
+	protected void verifyConflictingLabel(
+			Map<String, Map<String, Map<String, List<Map<String, String>>>>> feedbackMap,
+			String sessionID) throws Exception {
+		Map<String, Map<String, String>> labelMap = new ColonoscopyDS_SVMLightFormat()
+				.getAllDocumentLabel(sessionID, userID, fn_feedback);
 		Map<String, String> varLabelMap;
-		
+
 		// Map<varID, Map<reportID, Map<value, List<String> text spans>>
-		for(String varID : feedbackMap.keySet()) {
-			varLabelMap = labelMap.get(varID);
-			
-			Map<String, Map<String, List<Map<String,String>>>> reportFeedbackMap = 
-					feedbackMap.get(varID);
-			for(String reportID : reportFeedbackMap.keySet()) {
-				// verify conflict
-				if(varLabelMap.containsKey(reportID) && ! reportFeedbackMap.get(reportID).containsKey(varLabelMap.get(reportID))) {
-					// raise warning
-					throw new Exception("Warning: Report " + reportID +
-							" in variable " + varID +
-							" contains contradictory label value compared to existing training data");					
+		for (String varID : feedbackMap.keySet()) {
+			if (labelMap.containsKey(varID)) {
+				varLabelMap = labelMap.get(varID);
+
+				Map<String, Map<String, List<Map<String, String>>>> reportFeedbackMap = feedbackMap
+						.get(varID);
+				for (String reportID : reportFeedbackMap.keySet()) {
+					// verify conflict
+					if (varLabelMap.containsKey(reportID)
+							&& !reportFeedbackMap.get(reportID).containsKey(
+									varLabelMap.get(reportID))) {
+						// raise warning
+						throw new Exception(
+								"Warning: Report "
+										+ reportID
+										+ " in variable "
+										+ varID
+										+ " contains contradictory label value compared to existing training data");
+					}
 				}
 			}
 		}

@@ -101,7 +101,7 @@ public class TextFileSessionManager {
      * find the next sessionID of <code>sessionID</code>
      */
     public String getNextSessionID(String sessionID, String userID, String varID) {
-        String nextSessionID = "";
+        String nextSessionID = "0";
         String[][] metaTable = getMetaTable();
         int sessionIDNum = Integer.parseInt(sessionID);
         // go from the end to the beginning
@@ -145,7 +145,7 @@ public class TextFileSessionManager {
      * find the active sessionID of <code>userID, varID</code>
      */
     public String getCurrentSessionID(String userID, String varID) {
-        String curSessionID = "";
+        String curSessionID = "0";
         String[][] metaTable = getMetaTable();
         // go from the end to the beginning
         int i = metaTable.length - 1;
@@ -204,6 +204,7 @@ public class TextFileSessionManager {
         String newSessionID = "0";
         String[][] metaTable = getMetaTable();
         if(metaTable.length > 0) {
+        	// assume all IDs are accumulated chronicle 
             int sessionID = Integer.parseInt(metaTable[metaTable.length - 1][0]);
             newSessionID = Integer.toString(sessionID + 1);
         }

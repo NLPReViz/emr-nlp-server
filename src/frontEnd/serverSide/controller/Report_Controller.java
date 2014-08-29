@@ -148,51 +148,43 @@ public class Report_Controller {
 				
 //				sb.append(report.get("id") + "," + Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)) + "," + reportPrediction.getClassification().toUpperCase() + "," + predictionList[iModel][iInstance][1] + "\n");
 				
-				featureWeightTable = Util.loadTable(
-						Util.getOSPath(new String[]{m_weightFolder,
-								Storage_Controller.convertModelFn2FeatureWeightFn(
-										modelFnList.get(iModel))}));
-				allTokenList = topFeatureController.getStemmedTokenList(
-						getReportText((String)report.get("id")));
-				// get top negative features
-//				// weka
-//				topFeatureList = getTopNegativeWekaFeaturesInReport(
-//						reportInstance, featureIndexMap, featureWeightTable, topKwords);
-				// libSVM
-				topFeatureList = getTopNegativeLibSVMFeaturesInReport(
-						sparsedIndexData[iInstance], featureIndexMap, featureWeightTable, topKwords,
-						biasFeature);
-//				// debug
-//				System.out.println(Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)));
-//				System.out.print("Negative: ");
-				
-				topFeatureController.extractMatchedUnigram(topFeatureList, allTokenList);
-				reportPrediction.setTopNegative(topFeatureList);
-				
-//				for(FeatureWeight fw : topFeatureList) {
-//					System.out.print(fw.getTerm() + ", ");
-//				}
-//				System.out.println();
-				
-				// get top positive features
-//				// weka
-//				topFeatureList = getTopPositiveWekaFeaturesInReport(
-//						reportInstance, featureIndexMap, featureWeightTable, topKwords);
-				// libSVM
-				topFeatureList = getTopPositiveLibSVMFeaturesInReport(
-						sparsedIndexData[iInstance], featureIndexMap, featureWeightTable, topKwords,
-						biasFeature);
-//				// debug				
-//				System.out.print("Positive: ");
-				
-				topFeatureController.extractMatchedUnigram(topFeatureList, allTokenList);
-				reportPrediction.setTopPositive(topFeatureList);
-				
-//				for(FeatureWeight fw : topFeatureList) {
-//					System.out.print(fw.getTerm() + ", ");
-//				}
-//				System.out.println();
-				
+				if(Util.fileExists(Util.getOSPath(new String[]{m_weightFolder,
+						Storage_Controller.convertModelFn2FeatureWeightFn(
+								modelFnList.get(iModel))}))) {
+					
+					featureWeightTable = Util
+							.loadTable(Util.getOSPath(new String[] {
+									m_weightFolder,
+									Storage_Controller
+											.convertModelFn2FeatureWeightFn(modelFnList
+													.get(iModel)) }));
+					allTokenList = topFeatureController
+							.getStemmedTokenList(getReportText((String) report
+									.get("id")));
+					
+					// get top negative features
+					topFeatureList = getTopNegativeLibSVMFeaturesInReport(
+							sparsedIndexData[iInstance], featureIndexMap,
+							featureWeightTable, topKwords, biasFeature);
+
+					topFeatureController.extractMatchedUnigram(topFeatureList,
+							allTokenList);
+					reportPrediction.setTopNegative(topFeatureList);
+
+					// get top positive features
+					topFeatureList = getTopPositiveLibSVMFeaturesInReport(
+							sparsedIndexData[iInstance], featureIndexMap,
+							featureWeightTable, topKwords, biasFeature);
+
+					topFeatureController.extractMatchedUnigram(topFeatureList,
+							allTokenList);
+					reportPrediction.setTopPositive(topFeatureList);
+				}
+				else {
+					reportPrediction.setTopNegative(new ArrayList<FeatureWeight>());
+					reportPrediction.setTopPositive(new ArrayList<FeatureWeight>());
+				}
+
 				// update global top negative
 				mergeTopFeature2Global(globalTopNegative, iModel,
 						reportPrediction.getTopNegative(), topKwords);
@@ -225,7 +217,6 @@ public class Report_Controller {
 			}
 			reportList.add(report);
 		}
-//		Util.saveTextFile("jersey-dev.csv", sb.toString());
 		return reportList;
 	}
 	
@@ -370,15 +361,28 @@ public class Report_Controller {
 	
 	protected double[][] getLibSVMTestSetPrediction(String fn_featureTestSet,
 			String fn_model) throws Exception {
-//		LibSVMPredictor svm = new LibSVMPredictor();
-		LibLinearPredictor svm = new LibLinearPredictor();
-		String[] libSVMParamList = new String[4];
-		libSVMParamList[0] = Storage_Controller.getLibSVMPath();
-		libSVMParamList[1] = fn_featureTestSet;
-		libSVMParamList[2] = fn_model;
-		libSVMParamList[3] = Storage_Controller.getPredictionFn();
+		double[][] predictionProbabilityList = null;
 		
-		return svm.predict(libSVMParamList);
+		if(Util.fileExists(fn_model)) {
+	//		LibSVMPredictor svm = new LibSVMPredictor();
+			LibLinearPredictor svm = new LibLinearPredictor();
+			String[] libSVMParamList = new String[4];
+			libSVMParamList[0] = Storage_Controller.getLibSVMPath();
+			libSVMParamList[1] = fn_featureTestSet;
+			libSVMParamList[2] = fn_model;
+			libSVMParamList[3] = Storage_Controller.getPredictionFn();
+			
+			predictionProbabilityList = svm.predict(libSVMParamList);
+		}
+		else { // if the model does not exist, predict 0 for all classes
+			int numInstance = Util.loadList(fn_featureTestSet).length;
+			predictionProbabilityList = new double[numInstance][2];
+			for(double[] predictInstance : predictionProbabilityList) {
+				Arrays.fill(predictInstance, 0.0);
+			}
+		}
+		
+		return predictionProbabilityList;
 	}
 	
 	public Instances getWekaTestSet(List<String> reportIDList) throws Exception {

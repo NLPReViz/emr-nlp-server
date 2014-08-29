@@ -168,7 +168,7 @@ public static String DATASET_TYPE_COLON = "datasetcolonoscopy";
     		throws Exception {
     	List<String> modelNameList = new ArrayList<>();
     	
-		if (fn_xmlList != null) {
+		if (fn_xmlList != null && Util.fileExists(fn_xmlList)) {
 			org.w3c.dom.Document dom = null;
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();

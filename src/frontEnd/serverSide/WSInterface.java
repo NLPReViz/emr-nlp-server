@@ -6,6 +6,7 @@ package frontEnd.serverSide;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,7 @@ import frontEnd.serverSide.controller.Storage_Controller;
 import frontEnd.serverSide.controller.WordTree_Controller;
 import frontEnd.serverSide.model.Feedback_Abstract_Model;
 import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
+import frontEnd.serverSide.model.ReportPrediction_Model;
 
 /**
  * @author Phuong Pham
@@ -123,6 +125,32 @@ public class WSInterface {
 		return new WordTree_Controller().getWordTree(fn_reportIDList, rootWord); 
 	}
 	
+	/**
+	 * Fix a bug when the front end call get wordtree with empty rootword
+	 * @param fn_reportIDList
+	 * @param rootWord
+	 * @return
+	 * @throws Exception
+	 */
+	@GET
+	@Path("getWordTree/{fn_reportIDList}")
+//	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})	
+	@Produces(MediaType.APPLICATION_JSON)	
+	public Map<String, Object> getWordTreePseudo(
+			@PathParam("fn_reportIDList") String fn_reportIDList,
+			@PathParam("query") String rootWord)
+			throws Exception {
+		Map<String, Object> treeMap = new HashMap<>();
+		treeMap.put("matches", 0);
+		treeMap.put("matchedList", new ArrayList<String>());
+		treeMap.put("total", 0);
+		treeMap.put("query", "");
+		treeMap.put("lefts", new ArrayList<String>());
+		treeMap.put("rights", new ArrayList<String>());
+		
+		return treeMap;
+	}
+	
 	@PUT
 	@Path("putFeedback/{fn_modelFnList}/{fn_reportIDList}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -149,23 +177,11 @@ public class WSInterface {
 		return new Feedback_OverrideConflictLabel_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
-	@GET
-	@Path("testFeedback/{fn_modelFnList}/{fn_reportIDList}")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Map<String,Object> testFeedback(@PathParam("fn_modelFnList") String fn_modelFnList,
-			@PathParam("fn_reportIDList") String fn_reportIDList)
-			throws Exception {
-//		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();		
-//		List<Feedback_WordTree_JSON_Model> feedbackBatch = dataSet.addWordTreeJSONAnnotation();
-		String jsonStr = "[{\"kind\":\"TYPE_WORDTREE\",\"selected\":\"biopsy\",\"span\":\"biopsy\",\"classification\":\"positive\",\"variable\":\"biopsy\",\"docList\":[\"0509\",\"0667\",\"0293\",\"0366\",\"0592\",\"0436\",\"0980\",\"0750\",\"0202\",\"0629\",\"0842\",\"0468\",\"0696\",\"0059\",\"0865\",\"0364\",\"0774\",\"0299\",\"0863\",\"0545\",\"0178\",\"0177\",\"0350\",\"0068\",\"0184\",\"0703\",\"0614\",\"0412\",\"0438\",\"0874\",\"0041\",\"0281\",\"1041\",\"0736\",\"0018\",\"0805\",\"0989\",\"0147\",\"0535\",\"1031\",\"0939\",\"0748\",\"0009\",\"0186\",\"0779\",\"0356\",\"0099\"]}]";
-		List<Feedback_WordTree_JSON_Model> feedbackBatch = new ObjectMapper().readValue(jsonStr, List.class);
-		
-//		System.out.println("There are " + feedbackBatch.size() + " feedback");		
-//		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
-		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
-	}
-	
+	/**
+	 * Create a data set with an initial training set and models built on the training set
+	 * @return
+	 * @throws Exception
+	 */
 	@GET
 	@Path("resetDB")
 	public String resetDB()
@@ -182,18 +198,43 @@ public class WSInterface {
 		return "resetDB: OK";
 	}
 	
+	
+	/**
+	 * Create an empty data set with no initial models and no initial training instances
+	 * @return
+	 * @throws Exception
+	 */
+	@GET
+	@Path("resetDBEmpty")
+	public String resetDBEmpty()
+			throws Exception {
+		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
+		// re-create the whole dataset
+		dataSet.initializeFeedbackFileEmpty();
+		
+		return "resetDBEmpty: OK";
+	}
+	
 	public static void main(String[] args) throws Exception {
 //		long startTime = System.currentTimeMillis();
 //		System.out.println(Util.getOSName());
-//		validateWebServiceOffline();
-		validateFeedbackProcess();
+		validateWebServiceOffline();
+//		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
 //		createDataSet();
 //		verifyFullModel();
+//		verifyWordTree();
 		
 //		long endTime = System.currentTimeMillis();
 //		long totalTime = (endTime - startTime) / 1000;
 //	    System.out.println(Util.convertTimeTick2String(totalTime));
+	}
+	
+	protected static void verifyWordTree() throws Exception {
+		String fn_reportIDList = "initialIDList.xml";
+		String rootWord = "";
+		Map<String, Object> map = new WordTree_Controller().getWordTree(fn_reportIDList, rootWord);
+		int temp = 0;
 	}
 	
 	protected static void verifyFullModel() throws Exception {
@@ -203,14 +244,17 @@ public class WSInterface {
 	
 	protected static void validateWebServiceOffline() throws Exception {
 //		// get var grid object
-		String fn_reportIDList = "feedbackIDList.xml";
+		String fn_reportIDList = "devIDList.xml";
 		String fn_modelFnList = "modelList.0..xml";
-//		int topKwords = 5;
-//		boolean biasFeature = true;
+		int topKwords = 5;
+		boolean biasFeature = true;
 //		// get grid var
 //		Map<String, Object> classifierList = 
 //		GridVar_Controller.instance.getPrediction(fn_reportIDList, 
 //				fn_modelFnList, topKwords, biasFeature);	
+		Map<String, Object> gridVarObj = 
+				new GridVar_Controller().getPrediction(fn_reportIDList,
+						fn_modelFnList, topKwords, biasFeature);
 		
 //		List<String> reportIDList = Arrays.asList(new String[]{"0002", "0005"});
 //		List<String> reportIDList = XMLUtil.getReportIDFromXMLList(Util.getOSPath(new String[]{Storage_Controller.getDocumentListFolder(),fn_reportIDList}));
@@ -230,6 +274,26 @@ public class WSInterface {
 //		feedbackBatch.add(singleFeedback);
 		
 //		new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+		
+//		int topKwords = 5;
+//		boolean biasFeature = true;
+//		Map<String, Object> gridVarObj = 
+//				new GridVar_Controller().getPrediction(fn_reportIDList,
+//						fn_modelFnList, topKwords, biasFeature);
+//		List<Map<String, Object>> reportList = (List<Map<String, Object>>) gridVarObj.get("gridData");
+//		StringBuilder sb = new StringBuilder();
+//		for(Map<String, Object> report : reportList) {
+//			sb.append(report.get("id")).append(",");
+//			for(int iModel = 0; iModel < FileTextCreateInitialDS.varIDList.length; iModel++) {
+//				ReportPrediction_Model reportPrediction =
+//						(ReportPrediction_Model) report.get(
+//								Storage_Controller.getVarIdFromFn(FileTextCreateInitialDS.varIDList[iModel]));
+//				
+//				sb.append(reportPrediction.getClassification()).append(",");
+//			}
+//			sb.append("\n");
+//		}
+//		Util.saveTextFile("perf-initialSet.csv", sb.toString());
 	}
 	
 	protected static void verifyWordTreeAnnotation() throws Exception {
@@ -471,12 +535,28 @@ public class WSInterface {
 //		batch = initialFeedbackSession.addFeedBack3(userID);
 //		feedbackManager.processFeedback(batch);
 		
-		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
-		String fn_modelList = "modelList.0..xml";
-		String fn_reportIDList = "feedbackIDList.xml";
-		Map<String, Object> map = new Feedback_OverrideConflictLabel_Controller().getFeedback(batch,
-				fn_modelList, fn_reportIDList);
-		System.out.println(map.get("msg"));
+		String fn_modelList = Util.getOSPath(new String[] {
+				Storage_Controller.getModelListFolder(), "modelList.0..xml"});
+		String fn_reportIDList = Util.getOSPath(new String[]{
+				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
+		new FileTextCreateInitialDS().initializeFeedbackFile(fn_modelList, fn_reportIDList);
+//		new FileTextCreateInitialDS().initializeFeedbackFileEmpty();
+		
+//		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
+//		fn_modelList = "modelList.0..xml";
+//		fn_reportIDList = "devIDList.xml";
+//		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
+//				fn_modelList, fn_reportIDList);
+//		System.out.println(map.get("msg"));	
+		
+//		createInitialIDListForSession0();
+	}
+	
+	protected static void createInitialIDListForSession0() throws Exception {
+		String initialFolder = Storage_Controller.getInitialIDFolder();
+		String fn_reportIDList = Util.getOSPath(new String[]{
+				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});		
+		new FileTextCreateInitialDS().createInitialIDListForSession0(fn_reportIDList, initialFolder);
 	}
 	
 	protected static void validateOutputWebServiceWinApp() throws Exception {

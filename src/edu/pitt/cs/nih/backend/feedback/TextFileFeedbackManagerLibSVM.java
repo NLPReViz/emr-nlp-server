@@ -650,7 +650,7 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
 //                LibSVMPredictor model = new LibSVMPredictor();
             	LibLinearPredictor model = new LibLinearPredictor();
                 updateModels(currentSession[0], currentSession[1], 
-                        currentSession[2], model);
+                        currentSession[2], model);                
             }
         }
     }
@@ -672,7 +672,9 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
         String fn_model = getModelFileName(sessionID, userID, varID);
 //        HashMap<String, Double> predictorFeatureWeightMap;
 
-        if(! Util.fileExists(fn_model)) {
+        if(!Util.fileExists(fn_model) &&
+        		Util.loadTextFile(Storage_Controller.getLearningFeatureFn( // if the learning file does not exist then this is the "fake" model built from no training, no need to train
+            			sessionID, userID, varID)).length() > 0) {
         	// get the training file
         	String fn_featureVectorOut = Storage_Controller.getLearningFeatureFn(
         			sessionID, userID, varID);
@@ -727,7 +729,8 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
     
     public static String getModelFileName(String modelFolder, String varID,
             String sessionID, String userID) throws Exception {
-        if(sessionID.equals("0")) {
+        if(sessionID.equals("0") && Util.fileExists(
+        		Util.getOSPath(new String[] {modelFolder, sessionID + ".." + varID + "." + "model"}))) { // default user exist 0..
             userID = "";
         }
         String fn_model = sessionID + "." + userID + "." + varID + "." + "model";
@@ -802,7 +805,7 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
         String[] sessionIDList = new String[currentSessionList.length];
         String[] userIDList = new String[currentSessionList.length];
         String[] varIDList = new String[currentSessionList.length];
-        int maxSessionID = -1;
+        int maxSessionID = Integer.MIN_VALUE;
         for(int i = 0; i < currentSessionList.length; i++) {
             sessionIDList[i] = currentSessionList[i][0];
             userIDList[i] = currentSessionList[i][1];

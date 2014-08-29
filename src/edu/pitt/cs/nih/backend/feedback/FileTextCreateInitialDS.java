@@ -12,6 +12,7 @@ import edu.pitt.cs.nih.backend.utils.Util;
 import edu.pitt.cs.nih.backend.utils.XMLUtil;
 import emr_vis_nlp.ml.LibLinearPredictor;
 import emr_vis_nlp.ml.LibSVMPredictor;
+import frontEnd.serverSide.controller.Feedback_Controller;
 import frontEnd.serverSide.controller.Storage_Controller;
 import frontEnd.serverSide.controller.WordTree_Controller;
 import frontEnd.serverSide.model.FeedbackSpan_Model;
@@ -19,10 +20,13 @@ import frontEnd.serverSide.model.FeedbackSpan_WordTree_Model;
 import frontEnd.serverSide.model.Feedback_Abstract_Model;
 import frontEnd.serverSide.model.Feedback_Document_Model;
 import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
+import frontEnd.serverSide.model.ReportPrediction_Model;
 import frontEnd.serverSide.model.TextSpan_Model;
 
+import java.nio.channels.SeekableByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,8 +45,14 @@ import java.util.regex.Pattern;
  */
 public class FileTextCreateInitialDS {
 	
+	public static String[] varIDList = new String[]{
+			"any-adenoma", "appendiceal-orifice", "asa", "biopsy", "cecum",
+			"ileo-cecal-valve", "indication-type", "informed-consent",
+			"nursing-report", "prep-adequateNo", "prep-adequateNot",
+			"prep-adequateYes", "proc-aborted", "withdraw-time"};
+	
 	/**
-	 * Intialize session management file and feedback file from the default initial list
+	 * Initialize session management file and feedback file from the default initial list
 	 * modelList.0..xml
 	 * 
 	 * @param fn_modelList
@@ -52,74 +62,58 @@ public class FileTextCreateInitialDS {
 			String fn_instanceIDList) throws Exception {
 //		initializeFeedbackFileWeka(XMLUtil.getModelFnFromXMLList(fn_modelList),
 //		XMLUtil.getReportIDFromXMLList(fn_instanceIDList));
-		initializeFeedbackFileLibSVM(XMLUtil.getModelFnFromXMLList(fn_modelList),
+//		initializeFeedbackFileLibSVM(XMLUtil.getModelFnFromXMLList(fn_modelList),
+//				XMLUtil.getReportIDFromXMLList(fn_instanceIDList));
+		initializeFeedbackLibSVM(XMLUtil.getModelFnFromXMLList(fn_modelList),
 				XMLUtil.getReportIDFromXMLList(fn_instanceIDList));
 	}
 	
-	public void softResetDB(String fn_modelList,
-			String fn_instanceIDList) throws Exception {
+	/**
+	 * Initialize session management file and feedback file with no initial 
+	 * training set and no initial models (an empty data set)
+	 * 
+	 * @param fn_modelList
+	 * @throws Exception
+	 */
+	public void initializeFeedbackFileEmpty() throws Exception {   	
+    	// reset the feedback file
+    	Util.saveTextFile(Storage_Controller.getFeedbackFn(), "");
+
+    	// clear modelList folder
+    	Util.clearFolder(Storage_Controller.getModelListFolder());
+    	// add a fake model list with non-existed filenames
+    	String[] sessionIDList = new String[varIDList.length];
+    	Arrays.fill(sessionIDList, "-1");
+    	String[] userIDList = new String[varIDList.length];
+    	Arrays.fill(userIDList, "");
+    	String fn_initialModelList = Util.getOSPath(new String[]{
+    			Storage_Controller.getModelListFolder(),
+				"modelList.-1..xml"});
+    	XMLUtil.createXMLPredictor(sessionIDList, userIDList, varIDList,
+    			Storage_Controller.getModelListFolder(), "0", "",
+    			fn_initialModelList);
+    	// reset the session manager file
 		String userID = ""; // default user is ""
-    	String sessionID = "0"; // default sessionID = "1"
-    	ColonoscopyDS_SVMLightFormat svm = new ColonoscopyDS_SVMLightFormat();
-    	List<String> modelFnList = XMLUtil.getModelFnFromXMLList(fn_modelList);
-    	List<String> instanceIDList = XMLUtil.getReportIDFromXMLList(fn_instanceIDList);
+    	String sessionID = "0"; // default sessionID = "-1"
     	
-    	// initialize the session manager file
     	if(Util.fileExists(Storage_Controller.getSessionManagerFn())) {
     		Util.deleteFile(Storage_Controller.getSessionManagerFn());
     	}
+    	List<String> modelFnList = XMLUtil.getModelFnFromXMLList(fn_initialModelList);
     	createSessionEntries(modelFnList, sessionID, userID,
     			Storage_Controller.getSessionManagerFn());
     	
-    	// initialize the feedback file
-    	if(Util.fileExists(Storage_Controller.getFeedbackFn())) {
-    		Util.deleteFile(Storage_Controller.getFeedbackFn());
-    	}
-    	createFeedbackEntries(modelFnList, sessionID, userID,
-    			Storage_Controller.getFeedbackFn(), instanceIDList);
-
-    	// clear word tree annotation feedback file
-    	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
-
-    	// clean modelList folder
-    	String[] fnList = Util.loadFileList(Storage_Controller.getModelListFolder());
-    	for(int i = 0; i < fnList.length; i++) {
-    		String fnModel = fnList[i];
-    		if(!fnModel.contains("modelList.0.")) { // the initial session
-    			Util.deleteFile(Util.getOSPath(new String[]{
-    					Storage_Controller.getModelListFolder(), fnModel}));
-    		}
-    	}
     	// clear learning folder
-    	fnList = Util.loadFileList(Storage_Controller.getTrainingFileFolder());
-    	for(int i = 0; i < fnList.length; i++) {
-    		String fnModel = fnList[i];
-    		if(!fnModel.substring(0, 3).equals("0..") || // the initial session
-    				!fnModel.substring(0, 3).equals("dev")) { // development session
-    			Util.deleteFile(Util.getOSPath(new String[]{
-    					Storage_Controller.getModelListFolder(), fnModel}));
-    		}
-    	}
+    	Util.clearFolder(Storage_Controller.getTrainingFileFolder());
     	
     	// clear model folder
-    	fnList = Util.loadFileList(Storage_Controller.getModelFolder());
-    	for(int i = 0; i < fnList.length; i++) {
-    		String fnModel = fnList[i];
-    		if(!fnModel.substring(0, 3).equals("0..")){ // initial session
-    			Util.deleteFile(Util.getOSPath(new String[]{
-    					Storage_Controller.getModelListFolder(), fnModel}));
-    		}
-    	}
+    	Util.clearFolder(Storage_Controller.getModelFolder());
     	
     	// clear weight folder
-    	fnList = Util.loadFileList(Storage_Controller.getWeightFolder());
-    	for(int i = 0; i < fnList.length; i++) {
-    		String fnModel = fnList[i];
-    		if(!fnModel.substring(0, 3).equals("0..")){ // initial session
-    			Util.deleteFile(Util.getOSPath(new String[]{
-    					Storage_Controller.getModelListFolder(), fnModel}));
-    		}
-    	}
+    	Util.clearFolder(Storage_Controller.getWeightFolder());
+    	
+    	// clear word tree annotation feedback file
+    	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
 	}
 	
 	/**
@@ -145,25 +139,17 @@ public class FileTextCreateInitialDS {
     	if(Util.fileExists(Storage_Controller.getFeedbackFn())) {
     		Util.deleteFile(Storage_Controller.getFeedbackFn());
     	}
-    	createFeedbackEntries(modelFnList, sessionID, userID,
-    			Storage_Controller.getFeedbackFn(), instanceIDList);
+//    	createFeedbackEntries(sessionID, userID,
+//    			Storage_Controller.getFeedbackFn(),
+//    			Storage_Controller.getInitialIDFolder());
+    	createFeedbackEntries(modelFnList, sessionID, userID, Storage_Controller.getFeedbackFn(), instanceIDList);
 
     	// clean modelList folder
-    	String[] fnList = Util.loadFileList(Storage_Controller.getModelListFolder());
-    	for(int i = 0; i < fnList.length; i++) {
-    		String fnModel = fnList[i];
-    		if(!fnModel.contains("modelList.0.")) { // the initial session
-    			Util.deleteFile(Util.getOSPath(new String[]{
-    					Storage_Controller.getModelListFolder(), fnModel}));
-    		}
-    	}
+    	Util.clearFolder(Storage_Controller.getModelListFolder());
     	// clear learning folder
     	Util.clearFolder(Storage_Controller.getTrainingFileFolder());
     	// initialize learning files from modelList linked with feedback file
     	svm.createLearningFileFromSession(sessionID, userID);
-    	// create dev set
-    	createLearningFileFromFn(Util.getOSPath(new String[]{
-    					Storage_Controller.getDocumentListFolder(), "devIDList.xml"}));
     	
     	String feedbackFileName = Storage_Controller.getFeedbackFn();
     	String fn_sessionManager = Storage_Controller.getSessionManagerFn();
@@ -186,37 +172,103 @@ public class FileTextCreateInitialDS {
     	
     	// clear word tree annotation feedback file
     	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
-    	
-    	// legacy
-//    	String[] fnList;
-//    	// remove additional weight files
-//    	fnList = Util.loadFileList(Storage_Controller.getWeightFolder());
-//    	for(int i = 0; i < fnList.length; i++) {
-//    		if(fnList[i].charAt(0) != '0') { // e.g. 1.1.biopsy.weight.csv
-//    			Util.deleteFile(Util.getOSPath(new String[]{
-//    					Storage_Controller.getWeightFolder(), fnList[i]}));
-//    		}
-//    	}
-//    	
-//    	// remove additional model files
-//    	fnList = Util.loadFileList(Storage_Controller.getModelFolder());
-//    	for(int i = 0; i < fnList.length; i++) {
-//    		if(fnList[i].charAt(0) != '0') { // e.g. 1.1.biopsy.weight.csv
-//    			Util.deleteFile(Util.getOSPath(new String[]{
-//    					Storage_Controller.getModelFolder(), fnList[i]}));
-//    		}
-//    	}
-//    	
-//    	// remove additional model list
-//    	fnList = Util.loadFileList(Storage_Controller.getModelListFolder());
-//    	for(int i = 0; i < fnList.length; i++) {
-//    		int index = fnList[i].indexOf(".");
-//    		if(!fnList[i].substring(index + 1, index + 2).equals("0")) { // e.g. modelList.1.1.xml
-//    			Util.deleteFile(Util.getOSPath(new String[]{
-//    					Storage_Controller.getModelListFolder(), fnList[i]}));
-//    		}
-//    	}
     }
+	
+//	/**
+//     * create initial session manager and feedback file from training files of a model list
+//     * 
+//     * @param modelFnList
+//     * @throws Exception
+//     */
+//    public void initializeFeedbackFileLibSVM(List<String> modelFnList,
+//    		List<String> instanceIDList) throws Exception {
+//    	String userID = ""; // default user is ""
+//    	String sessionID = "0"; // default sessionID = "1"
+//    	ColonoscopyDS_SVMLightFormat svm = new ColonoscopyDS_SVMLightFormat();
+//    	
+//    	// initialize the session manager file
+//    	if(Util.fileExists(Storage_Controller.getSessionManagerFn())) {
+//    		Util.deleteFile(Storage_Controller.getSessionManagerFn());
+//    	}
+//    	createSessionEntries(modelFnList, sessionID, userID,
+//    			Storage_Controller.getSessionManagerFn());
+//    	
+//    	// initialize the feedback file
+//    	if(Util.fileExists(Storage_Controller.getFeedbackFn())) {
+//    		Util.deleteFile(Storage_Controller.getFeedbackFn());
+//    	}
+//    	createFeedbackEntries(modelFnList, sessionID, userID,
+//    			Storage_Controller.getFeedbackFn(), instanceIDList);
+//
+//    	// clean modelList folder
+//    	String[] fnList = Util.loadFileList(Storage_Controller.getModelListFolder());
+//    	for(int i = 0; i < fnList.length; i++) {
+//    		String fnModel = fnList[i];
+//    		if(!fnModel.contains("modelList.0.")) { // the initial session
+//    			Util.deleteFile(Util.getOSPath(new String[]{
+//    					Storage_Controller.getModelListFolder(), fnModel}));
+//    		}
+//    	}
+//    	// clear learning folder
+//    	Util.clearFolder(Storage_Controller.getTrainingFileFolder());
+//    	// initialize learning files from modelList linked with feedback file
+//    	svm.createLearningFileFromSession(sessionID, userID);
+//    	// create dev set
+//    	createLearningFileFromFn(Util.getOSPath(new String[]{
+//    					Storage_Controller.getDocumentListFolder(), "devIDList.xml"}));
+//    	
+//    	String feedbackFileName = Storage_Controller.getFeedbackFn();
+//    	String fn_sessionManager = Storage_Controller.getSessionManagerFn();
+//    	String learningFolder = Storage_Controller.getTrainingFileFolder();
+//    	String docsFolder = Storage_Controller.getDocsFolder();
+//    	String modelFolder = Storage_Controller.getModelFolder();
+//    	String featureWeightFolder = Storage_Controller.getWeightFolder();
+//    	String globalFeatureName = Storage_Controller.getGlobalFeatureVectorFn();
+//    	String xmlPredictorFolder = Storage_Controller.getModelListFolder();
+//    	// clear model folder
+//    	Util.clearFolder(modelFolder);
+//    	// clear weight folder
+//    	Util.clearFolder(featureWeightFolder);
+//    	// update the current (0..) model
+//    	TextFileFeedbackManagerLibSVM feedbackManager = new TextFileFeedbackManagerLibSVM(feedbackFileName,
+//    			fn_sessionManager, learningFolder, docsFolder, modelFolder, featureWeightFolder,
+//    			globalFeatureName, xmlPredictorFolder);
+//    	feedbackManager.setUserID(userID);
+//    	feedbackManager.updateModels();
+//    	
+//    	// clear word tree annotation feedback file
+//    	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
+//    	
+//    	// legacy
+////    	String[] fnList;
+////    	// remove additional weight files
+////    	fnList = Util.loadFileList(Storage_Controller.getWeightFolder());
+////    	for(int i = 0; i < fnList.length; i++) {
+////    		if(fnList[i].charAt(0) != '0') { // e.g. 1.1.biopsy.weight.csv
+////    			Util.deleteFile(Util.getOSPath(new String[]{
+////    					Storage_Controller.getWeightFolder(), fnList[i]}));
+////    		}
+////    	}
+////    	
+////    	// remove additional model files
+////    	fnList = Util.loadFileList(Storage_Controller.getModelFolder());
+////    	for(int i = 0; i < fnList.length; i++) {
+////    		if(fnList[i].charAt(0) != '0') { // e.g. 1.1.biopsy.weight.csv
+////    			Util.deleteFile(Util.getOSPath(new String[]{
+////    					Storage_Controller.getModelFolder(), fnList[i]}));
+////    		}
+////    	}
+////    	
+////    	// remove additional model list
+////    	fnList = Util.loadFileList(Storage_Controller.getModelListFolder());
+////    	for(int i = 0; i < fnList.length; i++) {
+////    		int index = fnList[i].indexOf(".");
+////    		if(!fnList[i].substring(index + 1, index + 2).equals("0")) { // e.g. modelList.1.1.xml
+////    			Util.deleteFile(Util.getOSPath(new String[]{
+////    					Storage_Controller.getModelListFolder(), fnList[i]}));
+////    		}
+////    	}
+//    }
 	
     /**
      * create initial session manager and feedback file from training files of a model list
@@ -349,6 +401,57 @@ public class FileTextCreateInitialDS {
         }
         // overwrite the current feedback meta file
         Util.saveTextFile(fn_feedbackMeta, feedbackText.toString());
+    }
+    
+    /**
+     * @param modelFnList
+     * @param sessionID
+     * @param userID
+     * @param fn_feedbackMeta
+     * @param initialFolder
+     * @throws Exception
+     */
+    protected void createFeedbackEntries(String sessionID,
+            String userID, String fn_feedbackMeta, String initialFolder)
+            		throws Exception {
+        String requestID, instanceID, instanceClass;        
+        int iCount = 0;
+        StringBuilder feedbackText = new StringBuilder(); 
+        Map<String,String> classValueMap;
+        
+        requestID = new SimpleDateFormat("yyyyMMddHHmmss").format(
+                Calendar.getInstance().getTime());
+        
+        for(String varID : varIDList) {
+        	classValueMap = ColonoscopyDS_SVMLightFormat.getClassMap(varID);
+        	String[] instanceIDList = Util.loadList(Util.getOSPath(new String[]{
+        			initialFolder, varID + "-id.txt"}));
+        	for(int i = 0; i < instanceIDList.length; i++) {
+        		instanceID = instanceIDList[i];        		
+        		instanceClass = classValueMap.get(instanceID).equals("1") ?
+        				"True" : "False";
+        		
+        		feedbackText.append(iCount++).append(",").append(sessionID);
+        		feedbackText.append(",").append(userID).append(",").append(requestID);
+        		feedbackText.append(",").append(instanceID).append(",");
+        		feedbackText.append(varID).append(",0,0"); // instance level affects the whole document, no need for span
+        		feedbackText.append(",create,-1,").append(instanceClass).append("\n");
+        	}
+        }
+        // overwrite the current feedback meta file
+        Util.saveTextFile(fn_feedbackMeta, feedbackText.toString());
+    }
+    
+    public void createInitialIDListForSession0(String fn_reportIDXML,
+    		String initialFolder) throws Exception {
+    	List<String> reportIDList = XMLUtil.getReportIDFromXMLList(fn_reportIDXML);
+    	Collections.sort(reportIDList);
+    	String[] initialReportID = reportIDList.toArray(new String[reportIDList.size()]);
+    	String idContent = Util.joinString(initialReportID, "\n");
+    	for(String varID : varIDList) {
+    		Util.saveTextFile(Util.getOSPath(new String[]{
+    				initialFolder, varID + "-id.txt"}), idContent);    		
+    	}
     }
     
     
@@ -979,5 +1082,172 @@ public class FileTextCreateInitialDS {
     	batch.add(feedback);
     	
     	return batch;
+    }
+	
+	public void softResetDB(String fn_modelList,
+			String fn_instanceIDList) throws Exception {
+		String userID = ""; // default user is ""
+    	String sessionID = "0"; // default sessionID = "1"
+//    	ColonoscopyDS_SVMLightFormat svm = new ColonoscopyDS_SVMLightFormat();
+    	List<String> modelFnList = XMLUtil.getModelFnFromXMLList(fn_modelList);
+    	List<String> instanceIDList = XMLUtil.getReportIDFromXMLList(fn_instanceIDList);
+    	
+    	// initialize the session manager file
+    	if(Util.fileExists(Storage_Controller.getSessionManagerFn())) {
+    		Util.deleteFile(Storage_Controller.getSessionManagerFn());
+    	}
+    	createSessionEntries(modelFnList, sessionID, userID,
+    			Storage_Controller.getSessionManagerFn());
+    	
+    	// initialize the feedback file
+    	if(Util.fileExists(Storage_Controller.getFeedbackFn())) {
+    		Util.deleteFile(Storage_Controller.getFeedbackFn());
+    	}
+    	createFeedbackEntries(modelFnList, sessionID, userID,
+    			Storage_Controller.getFeedbackFn(), instanceIDList);
+
+    	// clear word tree annotation feedback file
+    	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
+
+    	// clean modelList folder
+    	String[] fnList = Util.loadFileList(Storage_Controller.getModelListFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.contains("modelList.0.")) { // the initial session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
+    	// clear learning folder
+    	fnList = Util.loadFileList(Storage_Controller.getTrainingFileFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.substring(0, 3).equals("0..") || // the initial session
+    				!fnModel.substring(0, 3).equals("dev")) { // development session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
+    	
+    	// clear model folder
+    	fnList = Util.loadFileList(Storage_Controller.getModelFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.substring(0, 3).equals("0..")){ // initial session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
+    	
+    	// clear weight folder
+    	fnList = Util.loadFileList(Storage_Controller.getWeightFolder());
+    	for(int i = 0; i < fnList.length; i++) {
+    		String fnModel = fnList[i];
+    		if(!fnModel.substring(0, 3).equals("0..")){ // initial session
+    			Util.deleteFile(Util.getOSPath(new String[]{
+    					Storage_Controller.getModelListFolder(), fnModel}));
+    		}
+    	}
+	}
+	
+	/**
+     * create initial session manager and feedback file from training files of a model list
+     * 
+     * @param modelFnList
+     * @throws Exception
+     */
+    public void initializeFeedbackLibSVM(List<String> modelFnList,
+    		List<String> instanceIDList) throws Exception {
+    	// reset the feedback file
+    	Util.saveTextFile(Storage_Controller.getFeedbackFn(), "");
+
+    	// clear modelList folder
+    	Util.clearFolder(Storage_Controller.getModelListFolder());
+    	// add a fake model list with non-existed filenames
+    	String[] sessionIDList = new String[varIDList.length];
+    	Arrays.fill(sessionIDList, "-1");
+    	String[] userIDList = new String[varIDList.length];
+    	Arrays.fill(userIDList, "");
+    	String fn_initialModelList = Util.getOSPath(new String[]{
+    			Storage_Controller.getModelListFolder(),
+				"modelList.-1..xml"});
+    	XMLUtil.createXMLPredictor(sessionIDList, userIDList, varIDList,
+    			Storage_Controller.getModelListFolder(), "0", "",
+    			fn_initialModelList);
+    	
+    	// reset session file
+    	Util.saveTextFile(Storage_Controller.getSessionManagerFn(), "");
+    	
+    	// clear learning folder
+    	Util.clearFolder(Storage_Controller.getTrainingFileFolder());
+    	
+    	// clear model folder
+    	Util.clearFolder(Storage_Controller.getModelFolder());
+    	
+    	// clear weight folder
+    	Util.clearFolder(Storage_Controller.getWeightFolder());
+    	
+    	// clear word tree annotation feedback file
+    	Util.saveTextFile(Storage_Controller.getWordTreeFeedbackFn(), "");
+    	
+    	// add feedback objects
+    	List<Feedback_WordTree_JSON_Model> batch = new ArrayList<>();
+    	Feedback_WordTree_JSON_Model feedback;
+    	String instanceID, instanceClass;       
+        Map<String,String> classValueMap;
+        
+        String initialFolder = Storage_Controller.getInitialIDFolder();
+        
+        if(!Util.fileExists(initialFolder)) {
+        	String fn_initialList = Util.getOSPath(new String[]{
+        			Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
+        	Util.createFolder(initialFolder);
+        	createInitialIDListForSession0(fn_initialList, initialFolder);
+        }
+        
+        for(String varID : varIDList) {
+        	classValueMap = ColonoscopyDS_SVMLightFormat.getClassMap(varID);
+        	String[] instanceIDArray = Util.loadList(Util.getOSPath(new String[]{
+        			initialFolder, varID + "-id.txt"}));
+        	for(int i = 0; i < instanceIDArray.length; i++) {
+        		instanceID = instanceIDArray[i];        		
+        		instanceClass = classValueMap.get(instanceID).equals("1") ?
+        				"positive" : "negative";
+        		
+        		feedback = new Feedback_WordTree_JSON_Model();
+            	feedback.setClassification(instanceClass);
+            	feedback.setKind("TYPE_DOC");
+            	feedback.setVariable(varID);
+            	feedback.setDocList(instanceID);
+            	batch.add(feedback);
+        	}
+        }
+
+        // create initial dataset
+        String fn_modelList = "modelList.0..xml";
+		String fn_reportIDList = "initialIDList.xml";
+		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
+				fn_modelList, fn_reportIDList);
+//    	// add verify result here
+//		Map<String,Map<String,String>> labelMap = new HashMap<>();
+//		for(String varID : varIDList) {
+//			classValueMap = ColonoscopyDS_SVMLightFormat.getClassMap(varID);
+//			labelMap.put(varID, classValueMap);
+//		}
+//		StringBuilder sb = new StringBuilder();
+//		Map<String, Object> gridVarObj = (Map<String, Object>) map.get("gridVarData");
+//		List<Map<String, Object>> reportList = (List<Map<String, Object>>) gridVarObj.get("gridData");
+//		for(Map<String, Object> report : reportList) {
+//			sb.append(report.get("id")).append(",");
+//			for(int iModel = 0; iModel < varIDList.length; iModel++) {
+//				ReportPrediction_Model reportPrediction =
+//						(ReportPrediction_Model) report.get(
+//								Storage_Controller.getVarIdFromFn(varIDList[iModel]));
+//				
+//				sb.append(reportPrediction.getClassification()).append(",");
+//			}
+//			sb.append("\n");
+//		}
+//		Util.saveTextFile("perf-empty.csv", sb.toString());
     }
 }

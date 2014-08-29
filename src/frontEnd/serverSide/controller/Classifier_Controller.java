@@ -56,13 +56,13 @@ public class Classifier_Controller {
 	protected Classifier_Model intializeClassifier(String fn_modelInList,
 			int topKwords) throws Exception {
 		Classifier_Model classifier = new Classifier_Model();
-		// classifier.setClassifierName(getVarIdFromFn(fn_modelInList));
-		// get top k features
-		String[][] featureWeightTable = Util
-				.loadTable(Util.getOSPath(new String[] {
-						m_weightFolder,
-						Storage_Controller
-								.convertModelFn2FeatureWeightFn(fn_modelInList) }));
+//		// classifier.setClassifierName(getVarIdFromFn(fn_modelInList));
+//		// get top k features
+//		String[][] featureWeightTable = Util
+//				.loadTable(Util.getOSPath(new String[] {
+//						m_weightFolder,
+//						Storage_Controller
+//								.convertModelFn2FeatureWeightFn(fn_modelInList) }));
 //		classifier.setTopNegative(getTopKNegativeFeatures(featureWeightTable,
 //				topKwords));
 //		classifier.setTopPositive(getTopKPositiveFeatures(featureWeightTable,
