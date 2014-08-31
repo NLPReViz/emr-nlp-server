@@ -739,9 +739,10 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
     
     public static String getFeatureWeightFileName(String modelFolder, String varID,
             String sessionID, String userID) throws Exception {
-//        if(sessionID.equals("0")) {
-//            userID = "";
-//        }
+        if(sessionID.equals("0") && Util.fileExists(
+        		Util.getOSPath(new String[] {modelFolder, sessionID + ".." + varID + "." + "model"}))) { // default user exist 0..
+            userID = "";
+        }
         String fn_featureWeight = sessionID + "." + userID + "." + varID + "." + 
                 "weight" + "." + "csv";
         return Util.getOSPath(new String[] {modelFolder, fn_featureWeight});
@@ -749,7 +750,8 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
     
     public static String getKeywordFeatureWeightFileName(String modelFolder, String varID,
             String sessionID, String userID) throws Exception {
-        if(sessionID.equals("0")) {
+    	if(sessionID.equals("0") && Util.fileExists(
+        		Util.getOSPath(new String[] {modelFolder, sessionID + ".." + varID + "." + "model"}))) { // default user exist 0..
             userID = "";
         }
         String fn_featureWeight = sessionID + "." + userID + "." + varID + "." + 
@@ -757,6 +759,7 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
         return Util.getOSPath(new String[] {modelFolder, fn_featureWeight});
     }
     
+    @Deprecated
     public static String getInstanceTrainingFileName(String trainingFolder,
             String varID, String sessionID, String userID) throws Exception {
         if(sessionID.equals("0")) {
@@ -767,6 +770,7 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
         return Util.getOSPath(new String[] {trainingFolder, fn_instanceSet});
     }
     
+    @Deprecated
     public static String getFeedbackTrainingFileName(String trainingFolder,
             String varID, String sessionID, String userID) throws Exception {
         if(sessionID.equals("0")) {
@@ -777,6 +781,7 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
         return Util.getOSPath(new String[] {trainingFolder, fn_feedbackSet});
     }
     
+    @Deprecated
     public static String getXMLPredictorFileName(String xmlFolder, String sessionID,
             String userID) throws Exception {
         if(sessionID.equals("0")) {
@@ -786,6 +791,7 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
         return Util.getOSPath(new String[] {xmlFolder, fn_xmlPredictor});
     }
     
+    @Deprecated
     public static String getXMLDocListFileName(String xmlFolder, String sessionID,
             String userID) throws Exception {
         if(sessionID.equals("0")) {
