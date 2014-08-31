@@ -739,9 +739,9 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
     
     public static String getFeatureWeightFileName(String modelFolder, String varID,
             String sessionID, String userID) throws Exception {
-        if(sessionID.equals("0")) {
-            userID = "";
-        }
+//        if(sessionID.equals("0")) {
+//            userID = "";
+//        }
         String fn_featureWeight = sessionID + "." + userID + "." + varID + "." + 
                 "weight" + "." + "csv";
         return Util.getOSPath(new String[] {modelFolder, fn_featureWeight});
