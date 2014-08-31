@@ -215,6 +215,18 @@ public class WSInterface {
 		return "resetDBEmpty: OK";
 	}
 	
+	/**
+	 * Checks login
+	 * @return
+	 * @throws Exception
+	 */
+	@GET
+	@Path("login")
+	public String checkLogin()
+			throws Exception {
+		return "login: OK";
+	}
+	
 	public static void main(String[] args) throws Exception {
 //		long startTime = System.currentTimeMillis();
 //		System.out.println(Util.getOSName());
