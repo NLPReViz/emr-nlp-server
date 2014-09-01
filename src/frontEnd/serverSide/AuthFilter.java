@@ -34,6 +34,8 @@ public class AuthFilter implements ContainerRequestFilter {
             throw new WebApplicationException(Status.UNAUTHORIZED);
         }
  
+        containerRequest.getRequestHeaders().add("uid", uid);
+        
         return containerRequest;
     }
     

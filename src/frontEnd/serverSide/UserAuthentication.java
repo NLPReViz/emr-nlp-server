@@ -38,8 +38,6 @@ public class UserAuthentication {
     public static String authenticate(String user, String password) {
     	String uid = null; 
     	
-    	System.out.println("User: " + user);
-    	
 //    	SHA for "password" is 5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8
     	
     	if (user.equals("username") && getHash(password).equals("5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8"))

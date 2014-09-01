@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -64,9 +65,10 @@ public class WSInterface {
 	@Path("getVarDatasetList")
 //	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})	
 	@Produces(MediaType.APPLICATION_JSON)	
-	public Map<String, Object> getDataSet_ModelList() throws Exception {
+	public Map<String, Object> getDataSet_ModelList(@HeaderParam("uid") String uid) throws Exception {
 //		System.out.println("Data folder is at: " + Storage_Controller.getBaseFolder());
 //		return Dataset_MLModel_Controller.instance.getAllDataSetModel(); 
+		System.out.println("Userid: " + uid);
 		return new Dataset_MLModel_Controller().getAllDataSetModel();
 	}
 //	@Produces("application/x-javascript")
