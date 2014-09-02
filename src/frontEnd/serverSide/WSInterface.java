@@ -157,12 +157,13 @@ public class WSInterface {
 	@Path("putFeedback/{fn_modelFnList}/{fn_reportIDList}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Map<String,Object> getFeedback(List<Feedback_WordTree_JSON_Model> feedbackBatch,
+	public Map<String,Object> getFeedback(@HeaderParam("uid") String uid,
+			List<Feedback_WordTree_JSON_Model> feedbackBatch,
 			@PathParam("fn_modelFnList") String fn_modelFnList,
 			@PathParam("fn_reportIDList") String fn_reportIDList)
 			throws Exception {
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
-		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList, uid);
 //		return new Feedback_OverrideConflictLabel_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 	}
 	
@@ -170,52 +171,53 @@ public class WSInterface {
 	@Path("putFeedbackOverride/{fn_modelFnList}/{fn_reportIDList}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Map<String,Object> getFeedbackOverride(List<Feedback_WordTree_JSON_Model> feedbackBatch,
+	public Map<String,Object> getFeedbackOverride(@HeaderParam("uid") String uid,
+			List<Feedback_WordTree_JSON_Model> feedbackBatch,
 			@PathParam("fn_modelFnList") String fn_modelFnList,
 			@PathParam("fn_reportIDList") String fn_reportIDList)
 			throws Exception {
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
 //		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
-		return new Feedback_OverrideConflictLabel_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
+		return new Feedback_OverrideConflictLabel_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList, uid);
 	}
 	
-	/**
-	 * Create a data set with an initial training set and models built on the training set
-	 * @return
-	 * @throws Exception
-	 */
-	@GET
-	@Path("resetDB")
-	public String resetDB()
-			throws Exception {
-		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
-		// re-create the data set files
-    	String fn_modelList = Util.getOSPath(new String[] {
-				Storage_Controller.getModelListFolder(), "modelList.0..xml" });
-		String fn_reportIDList = Util.getOSPath(new String[]{
-				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
-		// re-create the whole dataset
-		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
-		
-		return "resetDB: OK";
-	}
+//	/**
+//	 * Create a data set with an initial training set and models built on the training set
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	@GET
+//	@Path("resetDB")
+//	public String resetDB()
+//			throws Exception {
+//		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
+//		// re-create the data set files
+//    	String fn_modelList = Util.getOSPath(new String[] {
+//				Storage_Controller.getModelListFolder(), "modelList.0..xml" });
+//		String fn_reportIDList = Util.getOSPath(new String[]{
+//				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
+//		// re-create the whole dataset
+//		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
+//		
+//		return "resetDB: OK";
+//	}
 	
 	
-	/**
-	 * Create an empty data set with no initial models and no initial training instances
-	 * @return
-	 * @throws Exception
-	 */
-	@GET
-	@Path("resetDBEmpty")
-	public String resetDBEmpty()
-			throws Exception {
-		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
-		// re-create the whole dataset
-		dataSet.initializeFeedbackFileEmpty();
-		
-		return "resetDBEmpty: OK";
-	}
+//	/**
+//	 * Create an empty data set with no initial models and no initial training instances
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	@GET
+//	@Path("resetDBEmpty")
+//	public String resetDBEmpty()
+//			throws Exception {
+//		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
+//		// re-create the whole dataset
+//		dataSet.initializeFeedbackFileEmpty();
+//		
+//		return "resetDBEmpty: OK";
+//	}
 	
 	/**
 	 * Checks login

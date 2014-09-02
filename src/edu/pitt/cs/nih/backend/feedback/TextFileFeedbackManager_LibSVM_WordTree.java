@@ -61,9 +61,22 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	public String processFeedback(List<Feedback_Abstract_Model> batch) throws Exception {
 		String feedbackMsg = "";
 		try {
+			// save Feedback_Abstract_Model objects in wordtree-feedback.txt
+			// then convert feedbacks in wordtree-feedback.txt into 
+			// final feedback format in feedback.txt for the new sessionID
 			saveFeedbackBatch(batch);
+			// from feedback.txt, extract all instance / span feedback 
+			// of previous to current feedback of the userID
+			// independent of previous session
+			// note document level feedback will take the latest label value 
+			// if there are conflictions
+			// only span feedback having the same latest document label value
+			// will be used in this learning
 			createLearningFiles();
+			// generate models and weights directly from learning files
 			updateModels();
+			// get the current sessionIDs of all varID
+			// the modelList ID is the max sessionID
 			feedbackMsg = createXMLPredictorFile();
 			feedbackMsg = feedbackMsg.substring(feedbackMsg.lastIndexOf("modelList."),
 					feedbackMsg.lastIndexOf(".")); 
@@ -605,12 +618,12 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 							+ Integer.toString(m.end() + offset);
 				}
 				else { // can't find the span in pathology report
-					throw new Exception("Cannot find \"" + spanMap.get("selected") +
+					throw new Exception("Error: Cannot find \"" + spanMap.get("selected") +
 							"\" in report " + docID);
 				}
 			}
 			else {
-				throw new Exception("Cannot find \"" + spanMap.get("selected") +
+				throw new Exception("Error: Cannot find \"" + spanMap.get("selected") +
 						"\" in report " + docID);
 			}
 		}

@@ -19,7 +19,7 @@ import frontEnd.serverSide.model.MLModel;
 public class Feedback_Controller {
 	public Map<String,Object> getFeedback(
 			List<Feedback_WordTree_JSON_Model> feedbackBatch,
-			String fn_modelFnList, String fn_reportIDList) throws Exception {
+			String fn_modelFnList, String fn_reportIDList, String uid) throws Exception {
 		// parse the modelFnList to get userID, (previous) sessionID
 		// only use userID at this moment, NO, what if we start from initial
 		// set?
@@ -28,20 +28,29 @@ public class Feedback_Controller {
 
 		String userID;
 //		userID = modelListArgMap.get("userID");
-		userID = "1"; // current setting
+		userID = uid; // current setting
 		// how to convert json upload to a List object?
 		String returnMsg = processFeedback(feedbackBatch,
 				userID);
 		
 		Map<String, Object> feedbackResult = new HashMap<>();
-		feedbackResult.put("msg", returnMsg);
 		
-		// if success, load info of the new model
-		if(!(returnMsg.contains("Error:") // contradictory error
-				|| returnMsg.contains("Warning:"))) { // override inferred document label value
+		if(returnMsg.startsWith("Error:")) {// contradictory error
+			// set status and remove "Error:" from msg
+			feedbackResult.put("msg", returnMsg.replaceAll("Error:", "").trim()); 
+			feedbackResult.put("status", "Error");
+		}
+		else if (returnMsg.startsWith("Warning:")) {// override inferred document label value
+			// set status and remove "Error:" from msg
+			feedbackResult.put("msg", returnMsg.replaceAll("Warning:", "").trim()); 
+			feedbackResult.put("status", "Warning");
+		}		
+		else {// if success, load info of the new model
 			feedbackResult.put("latestModel", returnMsg);
 			// msg
 			feedbackResult.put("msg", "OK");
+			// duplicate here
+			feedbackResult.put("status", "OK");
 			// modelList
 //			List<MLModel> modelList = Dataset_MLModel_Controller.instance.getMLModelList();
 			List<MLModel> modelList = new Dataset_MLModel_Controller().getMLModelList();

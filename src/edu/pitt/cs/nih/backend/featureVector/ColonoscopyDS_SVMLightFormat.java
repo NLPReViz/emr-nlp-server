@@ -198,8 +198,8 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
         
         // extract text spans from span feedbacks
         StringBuilder rawTextColon, rawTextPathology;
-        int totalFeedback = 0;
-        int totalInstance = featureSet.m_Instances.size();
+//        int totalFeedback = 0;
+//        int totalInstance = featureSet.m_Instances.size();
         for(String report_ID : feedbackSpanDocList.keySet()) {
             rawTextColon = new StringBuilder(Util.loadTextFile(Util.getOSPath(new String[] {dataFolder,
                     report_ID, Storage_Controller.getColonoscopyReportFn()})));
@@ -317,7 +317,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 					featureSet
 							.addInstance(spanID, instanceTextList, reportType);
 					classValueTable.put(spanID, spanLabelMap.get(span));
-					++totalFeedback;
+//					++totalFeedback;
 				}
 			}
 		}
