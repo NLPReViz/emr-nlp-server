@@ -188,7 +188,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 					if(!feedbackMap.get(feedback.getVariableName()).get(feedback.getDocId())
 							.containsKey(feedback.getDocValue())) {
 						throw new Exception("Error: Report " + feedback.getDocId() +
-								" in variable " + feedback.getVariableName() +
+								" for variable " + feedback.getVariableName() +
 								" contains contradictory feedback!");
 					}
 				} else {
@@ -326,9 +326,9 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 						// accumulate all warnings (conflicts)
 						errorMsg.append("Warning: Report ")
 								.append(reportID)
-								.append(" in variable ")
+								.append(" for variable ")
 								.append(varID)
-								.append(" contains contradictory label value compared to existing training data\n");
+								.append(" contradicts previous feedback.\n");
 					}
 				}
 			}
@@ -395,7 +395,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 								feedbackTable[i][10])
 							) { // 10: class value
 							throw new Exception("Error: Report " + feedbackTable[i][4] +
-									" in variable " + feedbackTable[i][5] +
+									" for variable " + feedbackTable[i][5] +
 									" contains contradictory feedback! (found in converting process)");
 						}
 						// if the current report value is inferred, then make it explicitly
