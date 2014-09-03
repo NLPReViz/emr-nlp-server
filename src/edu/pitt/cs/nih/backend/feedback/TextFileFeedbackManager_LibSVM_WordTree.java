@@ -300,6 +300,9 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		Map<String, Map<String, String>> labelMap = new ColonoscopyDS_SVMLightFormat()
 				.getAllDocumentLabel(sessionID, userID, fn_feedback);
 		Map<String, String> varLabelMap;
+		
+		// error msg contains all possible warnings
+		StringBuilder errorMsg = new StringBuilder();
 
 		// Map<varID, Map<reportID, Map<value, List<String> text spans>>
 		for (String varID : feedbackMap.keySet()) {
@@ -313,16 +316,27 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 					if (varLabelMap.containsKey(reportID)
 							&& !reportFeedbackMap.get(reportID).containsKey(
 									varLabelMap.get(reportID))) {
-						// raise warning
-						throw new Exception(
-								"Warning: Report "
-										+ reportID
-										+ " in variable "
-										+ varID
-										+ " contains contradictory label value compared to existing training data");
+//						// raise warning the first encountered conflict
+//						throw new Exception(
+//								"Warning: Report "
+//										+ reportID
+//										+ " in variable "
+//										+ varID
+//										+ " contains contradictory label value compared to existing training data");
+						// accumulate all warnings (conflicts)
+						errorMsg.append("Warning: Report ")
+								.append(reportID)
+								.append(" in variable ")
+								.append(varID)
+								.append(" contains contradictory label value compared to existing training data\n");
 					}
 				}
 			}
+		}
+		
+		// if there are warnings, raise an Exception
+		if(errorMsg.length() > 0) {
+			throw new Exception (errorMsg.insert(0, "Warning: ").toString());
 		}
 	}
 	

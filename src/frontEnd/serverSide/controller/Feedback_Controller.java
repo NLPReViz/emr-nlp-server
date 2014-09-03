@@ -3,6 +3,7 @@
  */
 package frontEnd.serverSide.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,9 @@ public class Feedback_Controller {
 			feedbackResult.put("status", "Error");
 		}
 		else if (returnMsg.startsWith("Warning:")) {// override inferred document label value
-			// set status and remove "Error:" from msg
-			feedbackResult.put("msg", returnMsg.replaceAll("Warning:", "").trim()); 
+			// create a list of warnings and remove "Error:" from msg
+			String[] warningList = returnMsg.replaceAll("Warning:", "").trim().split("\n");
+			feedbackResult.put("msg", Arrays.asList(warningList)); 
 			feedbackResult.put("status", "Warning");
 		}		
 		else {// if success, load info of the new model
