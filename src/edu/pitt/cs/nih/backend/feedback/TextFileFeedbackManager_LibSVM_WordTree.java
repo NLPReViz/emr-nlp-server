@@ -152,8 +152,8 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 									: "the document (" + documentValue + ")";
 
 							throw new Exception("Error: In report " + docID
-									+ " variable " + feedback.getVariableName() + 
-									", \n" + span1 + "\nand " + span2
+									+ " variable '" + feedback.getVariableName() + 
+									"', \n" + span1 + "\nand " + span2
 									+ "\n have contradictory values!");
 						} else { // append the text span
 							// create selected, matched spans for this feedback
@@ -188,8 +188,8 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 					if(!feedbackMap.get(feedback.getVariableName()).get(feedback.getDocId())
 							.containsKey(feedback.getDocValue())) {
 						throw new Exception("Error: Report " + feedback.getDocId() +
-								" for variable " + feedback.getVariableName() +
-								" contains contradictory feedback!");
+								" for variable '" + feedback.getVariableName() +
+								"' contains contradictory feedback!");
 					}
 				} else {
 					if(!feedbackMap.containsKey(feedback.getVariableName())) {
@@ -326,9 +326,9 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 						// accumulate all warnings (conflicts)
 						errorMsg.append("Warning: Report ")
 								.append(reportID)
-								.append(" for variable ")
+								.append(" for variable '")
 								.append(varID)
-								.append(" contradicts previous feedback.\n");
+								.append("' contradicts previous feedback.\n");
 					}
 				}
 			}
@@ -395,8 +395,8 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 								feedbackTable[i][10])
 							) { // 10: class value
 							throw new Exception("Error: Report " + feedbackTable[i][4] +
-									" for variable " + feedbackTable[i][5] +
-									" contains contradictory feedback! (found in converting process)");
+									" for variable '" + feedbackTable[i][5] +
+									"' contains contradictory feedback! (found in converting process)");
 						}
 						// if the current report value is inferred, then make it explicitly
 						// because the user said so
