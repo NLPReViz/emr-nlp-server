@@ -151,10 +151,9 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 									 documentValue + ")"
 									: "the document (" + documentValue + ")";
 
-							throw new Exception("Error: In report " + docID
-									+ " variable '" + feedback.getVariableName() + 
-									"', \n" + span1 + "\nand " + span2
-									+ "\n have contradictory values!");
+							throw new Exception("Error: Cannot set '" + feedback.getVariableName() + 
+									"' to be both True and False (using '" 
+									+ span1 + "' and '" + span2 + "') in Doc #" + docID + "!");
 						} else { // append the text span
 							// create selected, matched spans for this feedback
 							Map<String,String> spanMap = new HashMap<>();
@@ -187,9 +186,9 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 					// verify conflict
 					if(!feedbackMap.get(feedback.getVariableName()).get(feedback.getDocId())
 							.containsKey(feedback.getDocValue())) {
-						throw new Exception("Error: Report " + feedback.getDocId() +
-								" for variable '" + feedback.getVariableName() +
-								"' contains contradictory feedback!");
+						throw new Exception("Error: Cannot set '"
+								+ feedback.getVariableName() + "' to be both True and False in Doc #" 
+								+ feedback.getDocId() + "!");
 					}
 				} else {
 					if(!feedbackMap.containsKey(feedback.getVariableName())) {
@@ -324,11 +323,11 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 //										+ varID
 //										+ " contains contradictory label value compared to existing training data");
 						// accumulate all warnings (conflicts)
-						errorMsg.append("Warning: Report ")
-								.append(reportID)
-								.append(" for variable '")
+						errorMsg.append("Value for '")
 								.append(varID)
-								.append("' contradicts previous feedback.\n");
+								.append("' contradicts previous feedback in Doc #")
+								.append(reportID)
+								.append(".\n");
 					}
 				}
 			}
@@ -394,9 +393,13 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 								.get(feedbackTable[i][4]).containsKey(
 								feedbackTable[i][10])
 							) { // 10: class value
-							throw new Exception("Error: Report " + feedbackTable[i][4] +
-									" for variable '" + feedbackTable[i][5] +
-									"' contains contradictory feedback! (found in converting process)");
+							
+//							throw new Exception("Error: Report " + feedbackTable[i][4] +
+//									" for variable '" + feedbackTable[i][5] +
+//									"' contains contradictory feedback! (found in converting process)");
+							throw new Exception("Error: Cannot set'" + feedbackTable[i][5] + 
+									"' to be both True and False (inferred from text-span) in '" + 
+									" in Doc #" + feedbackTable[i][4]);
 						}
 						// if the current report value is inferred, then make it explicitly
 						// because the user said so
@@ -438,10 +441,15 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 										 documentValue + ")"
 										: "the document (" + documentValue + ")";
 
-								throw new Exception("Error: In report " + docID
-										+ " in variable " + feedbackTable[i][4] 
-										+ ", \n" + span1 + "\nand " + span2
-										+ "\n have different values! (found in converting process)");
+//								throw new Exception("Error: In report " + docID
+//										+ " in variable " + feedbackTable[i][4] 
+//										+ ", \n" + span1 + "\nand " + span2
+//										+ "\n have different values! (found in converting process)");
+								
+								throw new Exception("Error: Cannot set'" + feedbackTable[i][4] + 
+										"' to be both True and False (inferred from '" +
+										span1 +"' and '"+ span2 +"') in '" + 
+										" in Doc #" + docID);
 							} else { // append the text span
 								Map<String,String> spanMap = new HashMap<>();
 								spanMap.put("selected", FeedbackSpan_WordTree_Model
@@ -633,12 +641,12 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 				}
 				else { // can't find the span in pathology report
 					throw new Exception("Error: Cannot find \"" + spanMap.get("selected") +
-							"\" in report " + docID);
+							"\" in Doc #" + docID);
 				}
 			}
 			else {
 				throw new Exception("Error: Cannot find \"" + spanMap.get("selected") +
-						"\" in report " + docID);
+						"\" in Doc #" + docID);
 			}
 		}
 
