@@ -333,6 +333,14 @@ public class WSInterface {
 //		io.evaluateOnDevSet(fn_initialModelList);
 //		verifyTrainingFile();
 //		buildFullModel();
+		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
+		// re-create the data set files
+    	String fn_modelList = Util.getOSPath(new String[] {
+				Storage_Controller.getModelListFolder(), "modelList.0..xml" });
+		String fn_reportIDList = Util.getOSPath(new String[]{
+				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
+		// re-create the whole dataset
+		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
 	}
 	
 	protected static void buildFullModel() throws Exception {
@@ -569,9 +577,11 @@ public class WSInterface {
 		String fn_modelList = "modelList.0..xml";
 		String fn_reportIDList = "devIDList.xml";
 		String uid = "1";
-		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
+//		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
+//				fn_modelList, fn_reportIDList, uid);
+		Map<String, Object> map = new Feedback_OverrideConflictLabel_Controller().getFeedback(batch,
 				fn_modelList, fn_reportIDList, uid);
-		System.out.println(map.get("msg"));	
+		System.out.println(map.get("status"));	
 		
 //		createInitialIDListForSession0();
 	}

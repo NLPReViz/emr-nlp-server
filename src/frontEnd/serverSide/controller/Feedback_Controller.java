@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.pitt.cs.nih.backend.feedback.FeedbackErrorException;
+import edu.pitt.cs.nih.backend.feedback.FeedbackWarningException;
 import edu.pitt.cs.nih.backend.feedback.TextFileFeedbackManager_LibSVM_WordTree;
 import frontEnd.serverSide.model.Feedback_Abstract_Model;
 import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
@@ -42,6 +43,11 @@ public class Feedback_Controller {
 					userID);
 		} catch(FeedbackErrorException e) {
 			e.injectFeedbackError(feedbackBatch);
+			feedbackResult.put("errorList", e.getErrorMsgComponentList());
+			feedbackResult.put("feedbackList", feedbackBatch);
+			// may not need this
+			feedbackResult.put("status", "Error");
+			
 			// debug
 			for(Feedback_WordTree_JSON_Model feedback : feedbackBatch) {
 				System.out.print(feedback.getFeedbackID() + ":" + feedback.getStatus() + ":");
@@ -51,21 +57,45 @@ public class Feedback_Controller {
 					}
 				}
 				System.out.println();
+				for(Map<String,String> errorMsg : e.getErrorMsgComponentList()) {
+					System.out.print("\t");
+					for(String key : errorMsg.keySet()) {
+						System.out.print(key + ":" + errorMsg.get(key) + ",");
+					}
+					System.out.println();
+				}
+			}
+		} catch(FeedbackWarningException e) {
+			e.injectFeedbackError(feedbackBatch);
+			feedbackResult.put("warningList", e.getErrorMsgComponentList());
+			feedbackResult.put("feedbackList", feedbackBatch);
+			// may not need this
+			feedbackResult.put("status", "Error");
+			
+			// debug
+			for(Feedback_WordTree_JSON_Model feedback : feedbackBatch) {
+				System.out.print(feedback.getFeedbackID() + ":" + feedback.getStatus() + ":");
+				if(feedback.getConflictList() != null) {
+					for(String conflictID : feedback.getConflictList()) {
+						System.out.print(conflictID + ",");
+					}
+				}
+				System.out.println();
+				for(Map<String,String> errorMsg : e.getErrorMsgComponentList()) {
+					System.out.print("\t");
+					for(String key : errorMsg.keySet()) {
+						System.out.print(key + ":" + errorMsg.get(key) + ",");
+					}
+					System.out.println();
+				}
 			}
 		}
 		
-		if(returnMsg.startsWith("Error:")) {// contradictory error
-			// set status and remove "Error:" from msg
-			feedbackResult.put("msg", returnMsg.replaceAll("Error:", "").trim()); 
-			feedbackResult.put("status", "Error");
-		}
-		else if (returnMsg.startsWith("Warning:")) {// override inferred document label value
-			// create a list of warnings and remove "Error:" from msg
-			String[] warningList = returnMsg.replaceAll("Warning:", "").trim().split("\n");
-			feedbackResult.put("msg", Arrays.asList(warningList)); 
-			feedbackResult.put("status", "Warning");
-		}		
-		else {// if success, load info of the new model
+		
+		// at this point, it must be an OK msg
+		// empty errorList and warningList
+		if(!feedbackResult.containsKey("errorList") 
+				&& !feedbackResult.containsKey("warningList")) {
 			feedbackResult.put("latestModel", returnMsg);
 			// msg
 			feedbackResult.put("msg", "OK");
@@ -85,7 +115,46 @@ public class Feedback_Controller {
 					new GridVar_Controller().getPredictionAfterFeedback(fn_reportIDList,
 							returnMsg + ".xml", topKwords, biasFeature, modelListInfo[0], modelListInfo[1]);
 			feedbackResult.put("gridVarData", gridVarObj);
+			feedbackResult.put("feedbackList", feedbackBatch);
 		}
+		
+		// debug
+		for(String key : feedbackResult.keySet()) {
+			System.out.println(key);
+		}
+		
+//		if(returnMsg.startsWith("Error:")) {// contradictory error
+//			// set status and remove "Error:" from msg
+//			feedbackResult.put("msg", returnMsg.replaceAll("Error:", "").trim()); 
+//			feedbackResult.put("status", "Error");
+//		}
+//		else if (returnMsg.startsWith("Warning:")) {// override inferred document label value
+//			// create a list of warnings and remove "Error:" from msg
+//			String[] warningList = returnMsg.replaceAll("Warning:", "").trim().split("\n");
+//			feedbackResult.put("msg", Arrays.asList(warningList)); 
+//			feedbackResult.put("status", "Warning");
+//		}		
+//		else {// if success, load info of the new model
+//			feedbackResult.put("latestModel", returnMsg);
+//			// msg
+//			feedbackResult.put("msg", "OK");
+//			// duplicate here
+//			feedbackResult.put("status", "OK");
+//			// modelList
+////			List<MLModel> modelList = Dataset_MLModel_Controller.instance.getMLModelList();
+//			List<MLModel> modelList = new Dataset_MLModel_Controller().getMLModelList();
+//			feedbackResult.put("modelList", modelList);
+//			// gradVar object
+//			int topKwords = 5;
+//			boolean biasFeature = true;
+//			String[] modelListInfo = Storage_Controller.parseModelListFn(returnMsg); 
+//			Map<String, Object> gridVarObj = 
+////					GridVar_Controller.instance.getPrediction(fn_reportIDList,
+////							returnMsg + ".xml", topKwords, biasFeature);
+//					new GridVar_Controller().getPredictionAfterFeedback(fn_reportIDList,
+//							returnMsg + ".xml", topKwords, biasFeature, modelListInfo[0], modelListInfo[1]);
+//			feedbackResult.put("gridVarData", gridVarObj);
+//		}
 
 		return feedbackResult;
 	}

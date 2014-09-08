@@ -104,7 +104,8 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		// where selected is the skipped n-gram selected from the word tree
 		// matched is the real span that matched in the text
 		// from selected and matched, we can get the skipped n-gram patterns (skipped position, n words to be skipped)
-		validateFeedbackBatch(feedbackBatch);		
+		Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>>
+			feedbackMap = validateFeedbackBatch(feedbackBatch);		
 		// save wordTree stand off annotation
 		String sessionID = saveWordTreeAnnotationFile(feedbackBatch);
 
@@ -112,7 +113,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		// it seems to be redundant when converting word tree annotation from file to 
 		// however, this make sure we have a stand off annotation and 
 		// later annotation types can be turned into the final annotation
-		convertWordTreeAnnotation2FinalAnnotation(sessionID);
+		convertWordTreeAnnotation2FinalAnnotation(sessionID, feedbackMap);
 	}
 
 //	/**
@@ -413,13 +414,15 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	 * @param sessionID
 	 * @throws Exception
 	 */
-	protected void convertWordTreeAnnotation2FinalAnnotation(String sessionID) throws Exception {		
+	protected void convertWordTreeAnnotation2FinalAnnotation(String sessionID,
+			Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>> feedbackMap)
+					throws Exception {		
 		try {
 			String[][] feedbackTable = Util.loadTable(fn_wordTreeFeedback);
-			// extract all feedback in this session
-			// Map<varID, Map<reportID, Map<value, List<String> text spans>>
-			Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = 
-					extractWordTreeAnnotation2Map(sessionID, feedbackTable);
+//			// extract all feedback in this session
+//			// Map<varID, Map<reportID, Map<value, List<String> text spans>>
+//			Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = 
+//					extractWordTreeAnnotation2Map(sessionID, feedbackTable);
 			// verify conflicting label values between
 			// the feedback session and existing data before create
 			// final annotation form
@@ -434,49 +437,121 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		}
 	}
 
+//	/**
+//	 * Verify if any feedback in this session conflicts with annotated training data
+//	 * 
+//	 * @param feedbackMap
+//	 * @param sessionID
+//	 * @throws Exception
+//	 */
+//	protected void verifyConflictingLabel(
+//			Map<String, Map<String, Map<String, List<Map<String, String>>>>> feedbackMap,
+//			String sessionID) throws Exception {
+//		Map<String, Map<String, String>> labelMap = new ColonoscopyDS_SVMLightFormat()
+//				.getAllDocumentLabel(sessionID, userID, fn_feedback);
+//		Map<String, String> varLabelMap;
+//		
+//		// error msg contains all possible warnings
+//		StringBuilder errorMsg = new StringBuilder();
+//
+//		// Map<varID, Map<reportID, Map<value, List<String> text spans>>
+//		for (String varID : feedbackMap.keySet()) {
+//			if (labelMap.containsKey(varID)) {
+//				varLabelMap = labelMap.get(varID);
+//
+//				Map<String, Map<String, List<Map<String, String>>>> reportFeedbackMap = feedbackMap
+//						.get(varID);
+//				for (String reportID : reportFeedbackMap.keySet()) {
+//					// verify conflict
+//					if (varLabelMap.containsKey(reportID)
+//							&& !reportFeedbackMap.get(reportID).containsKey(
+//									varLabelMap.get(reportID))) {
+////						// raise warning the first encountered conflict
+////						throw new Exception(
+////								"Warning: Report "
+////										+ reportID
+////										+ " in variable "
+////										+ varID
+////										+ " contains contradictory label value compared to existing training data");
+//						// accumulate all warnings (conflicts)
+//						errorMsg.append("Value for '")
+//								.append(varID)
+//								.append("' contradicts previous feedback in Doc #")
+//								.append(reportID)
+//								.append(".\n");
+//					}
+//				}
+//			}
+//		}
+//		
+//		// if there are warnings, raise an Exception
+//		if(errorMsg.length() > 0) {
+//			throw new Exception (errorMsg.insert(0, "Warning: ").toString());
+//		}
+//	}
+	
+	/**
+	 * Verify if any feedback in this session conflicts with annotated training data
+	 * 
+	 * @param feedbackMap
+	 * @param sessionID
+	 * @throws Exception
+	 */
 	protected void verifyConflictingLabel(
-			Map<String, Map<String, Map<String, List<Map<String, String>>>>> feedbackMap,
+			Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>> feedbackMap,
 			String sessionID) throws Exception {
 		Map<String, Map<String, String>> labelMap = new ColonoscopyDS_SVMLightFormat()
 				.getAllDocumentLabel(sessionID, userID, fn_feedback);
 		Map<String, String> varLabelMap;
 		
 		// error msg contains all possible warnings
-		StringBuilder errorMsg = new StringBuilder();
+		// <fbId,reportID>
+		List<Entry<String,String>> warningFbIdList = new ArrayList<>();
 
-		// Map<varID, Map<reportID, Map<value, List<String> text spans>>
+		// structure Map<varID, Map<reportID, Map<<value,fbId>, List<Map<String,String>> selected, matched spans, fbId>>
 		for (String varID : feedbackMap.keySet()) {
 			if (labelMap.containsKey(varID)) {
 				varLabelMap = labelMap.get(varID);
 
-				Map<String, Map<String, List<Map<String, String>>>> reportFeedbackMap = feedbackMap
-						.get(varID);
+				Map<String, Map<Entry<String,String>, List<Map<String,String>>>> reportFeedbackMap = 
+						feedbackMap.get(varID);
 				for (String reportID : reportFeedbackMap.keySet()) {
-					// verify conflict
-					if (varLabelMap.containsKey(reportID)
-							&& !reportFeedbackMap.get(reportID).containsKey(
-									varLabelMap.get(reportID))) {
-//						// raise warning the first encountered conflict
-//						throw new Exception(
-//								"Warning: Report "
-//										+ reportID
-//										+ " in variable "
-//										+ varID
-//										+ " contains contradictory label value compared to existing training data");
-						// accumulate all warnings (conflicts)
-						errorMsg.append("Value for '")
-								.append(varID)
-								.append("' contradicts previous feedback in Doc #")
-								.append(reportID)
-								.append(".\n");
+					Map<Entry<String,String>, List<Map<String,String>>> 
+						reportValueFeedbackMap = reportFeedbackMap.get(reportID);
+					// verify conflict, at this stage, each reportID contains 1 label value
+					// otherwise, an exception had been thrown before with ERROR status
+					if (varLabelMap.containsKey(reportID)) {
+						String prevLabel = varLabelMap.get(reportID); 
+						// search for this report's label value in the current feedback batch
+						for(Entry<String, String> value_fbIdKey : reportValueFeedbackMap.keySet()) {
+							String reportFeedbackValue = value_fbIdKey.getKey();
+							if(!reportFeedbackValue.equals(prevLabel)) {
+								// if there is a doc level feedback, it also conflicts with prev ann
+								if(value_fbIdKey.getValue().length() > 0) {
+									Entry<String,String> warningID = new AbstractMap.SimpleEntry(
+											value_fbIdKey.getValue(),reportID);
+									warningFbIdList.add(warningID);
+								}
+								// all spans in this branch will conflicts with prev annotation
+								List<Map<String,String>> spanMap = reportValueFeedbackMap.get(value_fbIdKey);
+								for(Map<String,String> spanValueMap : spanMap) {
+									// one feedback may lead to many warnings
+									// e.g. wordtree feedback contains many reportIDs
+									// <fbId,reportID>
+									Entry<String,String> warningID = new AbstractMap.SimpleEntry(
+											spanValueMap.get("fbId"),reportID);
+									warningFbIdList.add(warningID);
+								}
+							}
+						}
 					}
 				}
 			}
 		}
 		
 		// if there are warnings, raise an Exception
-		if(errorMsg.length() > 0) {
-			throw new Exception (errorMsg.insert(0, "Warning: ").toString());
+		if(warningFbIdList.size() > 0) {
+			throw new FeedbackWarningException("Warning", warningFbIdList);
 		}
 	}
 	
@@ -500,134 +575,134 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		Util.saveTextFile(fn_wordTreeFeedback, sb.toString());
 	}
 	
-	/**
-	 * Convert word tree annotation format into data structure Map<varID, Map<reportID, Map<value, List<String> text spans>> 
-	 * each report branch (Map<reportID, Map<value, List<String> text spans>>) contains the report value and a pseudo key
-	 * "inferred" if the report value is inferred from a text span, not explicitly given by the user
-	 * 
-	 * <lu>
-	 * <li> lineID, sessionID, userID, requestID, docID, varID, spanStart, spanEnd, change/create, pointer to old var value (lineID), new value
-	 * <li> lineID, sessionID, userID, requestID, varID, value, "text span" (normalized), docID list 
-	 * </lu>
-	 * 
-	 * @param feedbackMap
-	 * @throws Exception
-	 */
-	protected Map<String, Map<String, Map<String, List<Map<String,String>>>>> extractWordTreeAnnotation2Map(String sessionID,
-			String[][] feedbackTable) throws Exception {
-		Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = new HashMap<>();
-
-		for(int i = feedbackTable.length - 1; i > -1; i--) {
-			if(feedbackTable[i][1].equals(sessionID) &&
-					feedbackTable[i][2].equals(userID)) {
-				if(feedbackTable[i][6].equals("0") &&
-						feedbackTable[i][7].equals("0")) { // document level feedback
-					if(!feedbackMap.containsKey(feedbackTable[i][5])) { // 5: varID
-						Map<String, Map<String, List<Map<String,String>>>> varMap = new HashMap<>();
-						feedbackMap.put(feedbackTable[i][5], varMap);
-					}
-					
-					if(feedbackMap.get(feedbackTable[i][5]) // is there a label value for this report?
-							.containsKey(feedbackTable[i][4])) { // 4: docID; verify class value
-						// verify conflict between the current label value with the label value of this feedback
-						if (!feedbackMap.get(feedbackTable[i][5])
-								.get(feedbackTable[i][4]).containsKey(
-								feedbackTable[i][10])
-							) { // 10: class value
-							
-//							throw new Exception("Error: Report " + feedbackTable[i][4] +
-//									" for variable '" + feedbackTable[i][5] +
-//									"' contains contradictory feedback! (found in converting process)");
-							throw new Exception("Error: Cannot set'" + feedbackTable[i][5] + 
-									"' to be both True and False (inferred from text-span) in '" + 
-									" in Doc #" + feedbackTable[i][4]);
-						}
-						// if the current report value is inferred, then make it explicitly
-						// because the user said so
-						feedbackMap.get(feedbackTable[i][5])
-							.get(feedbackTable[i][4]).remove(inferredKeyword);
-					}
-					else { // add this document level feedback
-						Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
-						List<Map<String,String>> textSpanList = new ArrayList<>();
-						textSpanMap.put(feedbackTable[i][10], textSpanList);
-						feedbackMap.get(feedbackTable[i][5])
-							.put(feedbackTable[i][4], textSpanMap);
-						// explicit document label feedback, no need to create the key "inferred"
-					}
-				}
-				else { // span level feedback
-					String classValue = feedbackTable[i][5];
-					if(!feedbackMap.containsKey(feedbackTable[i][4])) { // 4: varID
-						Map<String, Map<String, List<Map<String,String>>>> varMap = new HashMap<>();
-						feedbackMap.put(feedbackTable[i][4], varMap);
-					}
-					
-					for(int j = 8; j < feedbackTable[i].length; j++) {
-						String docID = feedbackTable[i][j];						
-						if (feedbackMap.get(feedbackTable[i][4]).containsKey(docID)) {
-							// verify document value with span value
-							if (!feedbackMap.get(feedbackTable[i][4])
-									.get(docID).containsKey(classValue)) { // conflict
-								String span1 = "span \""
-										+ feedbackTable[i][6] + "\" (" + // 6: text span 
-										classValue + ")";
-
-								String documentValue = classValue.equals(
-										"True") ? "False" : "True";
-								String span2 = feedbackMap.get(feedbackTable[i][4])
-										.get(docID).get(documentValue).size() > 0 ?
-												"span \"" + feedbackMap.get(feedbackTable[i][4])
-												.get(docID).get(documentValue).get(0).get("selected") + "\" (" +
-										 documentValue + ")"
-										: "the document (" + documentValue + ")";
-
-//								throw new Exception("Error: In report " + docID
-//										+ " in variable " + feedbackTable[i][4] 
-//										+ ", \n" + span1 + "\nand " + span2
-//										+ "\n have different values! (found in converting process)");
-								
-								throw new Exception("Error: Cannot set'" + feedbackTable[i][4] + 
-										"' to be both True and False (inferred from '" +
-										span1 +"' and '"+ span2 +"') in '" + 
-										" in Doc #" + docID);
-							} else { // append the text span
-								Map<String,String> spanMap = new HashMap<>();
-								spanMap.put("selected", FeedbackSpan_WordTree_Model
-										.deNormalizeTextSpan(feedbackTable[i][6]));
-								spanMap.put("matched", FeedbackSpan_WordTree_Model
-										.deNormalizeTextSpan(feedbackTable[i][7]));
-								feedbackMap.get(feedbackTable[i][4])
-										.get(docID)
-										.get(classValue)
-										.add(spanMap);
-							}
-						} else { // create a new document level feedback agrees with
-									// this span level feedback
-							Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
-							List<Map<String,String>> textSpanList = new ArrayList<>();
-							// append the text span
-							Map<String,String> spanMap = new HashMap<>();
-							spanMap.put("selected", FeedbackSpan_WordTree_Model
-									.deNormalizeTextSpan(feedbackTable[i][6]));
-							spanMap.put("matched", FeedbackSpan_WordTree_Model
-									.deNormalizeTextSpan(feedbackTable[i][7]));
-							textSpanList.add(spanMap);
-							textSpanMap.put(classValue, textSpanList);
-							// add "inferred" key because the report value is inferred from this span feedback
-							textSpanMap.put(inferredKeyword, null);
-							feedbackMap.get(feedbackTable[i][4]).put(docID, textSpanMap);
-						}
-					}
-				}
-			}
-			else if(feedbackMap.size() > 0) { // extracted all feedback from the sessionID
-				break;
-			}
-		}
-		
-		return feedbackMap;
-	}
+//	/**
+//	 * Convert word tree annotation format into data structure Map<varID, Map<reportID, Map<value, List<String> text spans>> 
+//	 * each report branch (Map<reportID, Map<value, List<String> text spans>>) contains the report value and a pseudo key
+//	 * "inferred" if the report value is inferred from a text span, not explicitly given by the user
+//	 * 
+//	 * <lu>
+//	 * <li> lineID, sessionID, userID, requestID, docID, varID, spanStart, spanEnd, change/create, pointer to old var value (lineID), new value
+//	 * <li> lineID, sessionID, userID, requestID, varID, value, "text span" (normalized), docID list 
+//	 * </lu>
+//	 * 
+//	 * @param feedbackMap
+//	 * @throws Exception
+//	 */
+//	protected Map<String, Map<String, Map<String, List<Map<String,String>>>>> extractWordTreeAnnotation2Map(String sessionID,
+//			String[][] feedbackTable) throws Exception {
+//		Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = new HashMap<>();
+//
+//		for(int i = feedbackTable.length - 1; i > -1; i--) {
+//			if(feedbackTable[i][1].equals(sessionID) &&
+//					feedbackTable[i][2].equals(userID)) {
+//				if(feedbackTable[i][6].equals("0") &&
+//						feedbackTable[i][7].equals("0")) { // document level feedback
+//					if(!feedbackMap.containsKey(feedbackTable[i][5])) { // 5: varID
+//						Map<String, Map<String, List<Map<String,String>>>> varMap = new HashMap<>();
+//						feedbackMap.put(feedbackTable[i][5], varMap);
+//					}
+//					
+//					if(feedbackMap.get(feedbackTable[i][5]) // is there a label value for this report?
+//							.containsKey(feedbackTable[i][4])) { // 4: docID; verify class value
+//						// verify conflict between the current label value with the label value of this feedback
+//						if (!feedbackMap.get(feedbackTable[i][5])
+//								.get(feedbackTable[i][4]).containsKey(
+//								feedbackTable[i][10])
+//							) { // 10: class value
+//							
+////							throw new Exception("Error: Report " + feedbackTable[i][4] +
+////									" for variable '" + feedbackTable[i][5] +
+////									"' contains contradictory feedback! (found in converting process)");
+//							throw new Exception("Error: Cannot set'" + feedbackTable[i][5] + 
+//									"' to be both True and False (inferred from text-span) in '" + 
+//									" in Doc #" + feedbackTable[i][4]);
+//						}
+//						// if the current report value is inferred, then make it explicitly
+//						// because the user said so
+//						feedbackMap.get(feedbackTable[i][5])
+//							.get(feedbackTable[i][4]).remove(inferredKeyword);
+//					}
+//					else { // add this document level feedback
+//						Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
+//						List<Map<String,String>> textSpanList = new ArrayList<>();
+//						textSpanMap.put(feedbackTable[i][10], textSpanList);
+//						feedbackMap.get(feedbackTable[i][5])
+//							.put(feedbackTable[i][4], textSpanMap);
+//						// explicit document label feedback, no need to create the key "inferred"
+//					}
+//				}
+//				else { // span level feedback
+//					String classValue = feedbackTable[i][5];
+//					if(!feedbackMap.containsKey(feedbackTable[i][4])) { // 4: varID
+//						Map<String, Map<String, List<Map<String,String>>>> varMap = new HashMap<>();
+//						feedbackMap.put(feedbackTable[i][4], varMap);
+//					}
+//					
+//					for(int j = 8; j < feedbackTable[i].length; j++) {
+//						String docID = feedbackTable[i][j];						
+//						if (feedbackMap.get(feedbackTable[i][4]).containsKey(docID)) {
+//							// verify document value with span value
+//							if (!feedbackMap.get(feedbackTable[i][4])
+//									.get(docID).containsKey(classValue)) { // conflict
+//								String span1 = "span \""
+//										+ feedbackTable[i][6] + "\" (" + // 6: text span 
+//										classValue + ")";
+//
+//								String documentValue = classValue.equals(
+//										"True") ? "False" : "True";
+//								String span2 = feedbackMap.get(feedbackTable[i][4])
+//										.get(docID).get(documentValue).size() > 0 ?
+//												"span \"" + feedbackMap.get(feedbackTable[i][4])
+//												.get(docID).get(documentValue).get(0).get("selected") + "\" (" +
+//										 documentValue + ")"
+//										: "the document (" + documentValue + ")";
+//
+////								throw new Exception("Error: In report " + docID
+////										+ " in variable " + feedbackTable[i][4] 
+////										+ ", \n" + span1 + "\nand " + span2
+////										+ "\n have different values! (found in converting process)");
+//								
+//								throw new Exception("Error: Cannot set'" + feedbackTable[i][4] + 
+//										"' to be both True and False (inferred from '" +
+//										span1 +"' and '"+ span2 +"') in '" + 
+//										" in Doc #" + docID);
+//							} else { // append the text span
+//								Map<String,String> spanMap = new HashMap<>();
+//								spanMap.put("selected", FeedbackSpan_WordTree_Model
+//										.deNormalizeTextSpan(feedbackTable[i][6]));
+//								spanMap.put("matched", FeedbackSpan_WordTree_Model
+//										.deNormalizeTextSpan(feedbackTable[i][7]));
+//								feedbackMap.get(feedbackTable[i][4])
+//										.get(docID)
+//										.get(classValue)
+//										.add(spanMap);
+//							}
+//						} else { // create a new document level feedback agrees with
+//									// this span level feedback
+//							Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
+//							List<Map<String,String>> textSpanList = new ArrayList<>();
+//							// append the text span
+//							Map<String,String> spanMap = new HashMap<>();
+//							spanMap.put("selected", FeedbackSpan_WordTree_Model
+//									.deNormalizeTextSpan(feedbackTable[i][6]));
+//							spanMap.put("matched", FeedbackSpan_WordTree_Model
+//									.deNormalizeTextSpan(feedbackTable[i][7]));
+//							textSpanList.add(spanMap);
+//							textSpanMap.put(classValue, textSpanList);
+//							// add "inferred" key because the report value is inferred from this span feedback
+//							textSpanMap.put(inferredKeyword, null);
+//							feedbackMap.get(feedbackTable[i][4]).put(docID, textSpanMap);
+//						}
+//					}
+//				}
+//			}
+//			else if(feedbackMap.size() > 0) { // extracted all feedback from the sessionID
+//				break;
+//			}
+//		}
+//		
+//		return feedbackMap;
+//	}
 	
 	/**
 	 * From data structure Map<varID, Map<reportID, Map<value, List<String> text spans>> to final annotation format 
@@ -647,19 +722,20 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	 * @throws Exception
 	 */
 	protected void convert2FinalAnnotationFormat(
-			Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap,
+			Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>> feedbackMap,
 			String sessionID) throws Exception {
 		StringBuilder feedbackLine = new StringBuilder(Util.loadTextFile(fn_feedback));
-		Map<String, Map<String, List<Map<String,String>>>> varMap;
-		Map<String, List<Map<String,String>>> docMap;
-		List<Map<String,String>> spanList;
+		Map<String, Map<Entry<String,String>, List<Map<String,String>>>> varMap;
+		Map<Entry<String,String>, List<Map<String,String>>> docMap;
+		List<Map<String,String>> spanList = null;
 		Map<String,String> spanMap;
-		String docValue, spanPosition;
+		String docValue = null, spanPosition;
 		int lineID = getFeedbackLineID(fn_feedback);
 		String[][] feedbackTable = Util.loadTable(fn_feedback);
 
 		ArrayList<String[]> sessionAddList = new ArrayList<>();
 		
+		// structure Map<varID, Map<reportID, Map<<value,fbId>, List<Map<String,String>> selected, matched spans, fbId>>
 		for(String varID : feedbackMap.keySet()) {
 			// update the session manager
 			addNewFeedbackSessionItem(userID, varID, sessionAddList);
@@ -668,7 +744,11 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 			
 			for(String docID : varMap.keySet()) {
 				docMap = varMap.get(docID);
-				docValue = docMap.containsKey("True") ? "True" : "False";
+//				docValue = docMap.containsKey("True") ? "True" : "False";
+				// docMap contains only 1 entry (the feedback label value)
+				for(Entry<String,String> value_fbIdKey : docMap.keySet()) {
+					docValue = value_fbIdKey.getKey();
+				}
 				
 				// save the document level feedback
 				feedbackLine.append(++lineID).append(",");
@@ -701,7 +781,10 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		        feedbackLine.append(docValue).append("\n");
 		        
 		        // save all spans
-		        spanList = docMap.get(docValue);
+		        for(Entry<String,String> value_fbIdKey : docMap.keySet()) {
+		        	spanList = docMap.get(value_fbIdKey);
+				}
+//		        spanList = docMap.get(docValue);
 		        // modify at this point to specific how many span feedback will be used
 //		        for(int i = 0; i < 1; i++) {
 		        for(int i = 0; i < spanList.size(); i++) {

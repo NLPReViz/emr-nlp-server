@@ -49,6 +49,11 @@ public class FeedbackErrorException extends Exception {
     	return errorMsgComponentList;
     }
     
+    /**
+     * Inject status and conflict reportIDs to the original feedback batch
+     * 
+     * @param feedbackBatch
+     */
     public void injectFeedbackError(List<Feedback_WordTree_JSON_Model> feedbackBatch) {
     	for(Entry<String,String> errorKey : errorMap.keySet()) {
     		String varID = errorKey.getKey();
@@ -134,11 +139,12 @@ public class FeedbackErrorException extends Exception {
 		    			errorMsg.put("variable", varID);
 		    			errorMsg.put("span1", errorFeedback.getSelected());
 		    			errorMsg.put("type", "errorDocSpan");
+		    			errorMsgComponentList.add(errorMsg);
 					}
     		}
     		else if(falseDocFbId != null) { // doc level feedback conflicts with true list
 				Feedback_WordTree_JSON_Model docFeedback = feedbackBatch.get(
-						Integer.parseInt(trueDocFbId));
+						Integer.parseInt(falseDocFbId));
 				docFeedback.setStatus(this.message);
 				for(Map<String,String> feedbackError : trueList) {
 					String feedbackErrorId = feedbackError.get("fbId");
@@ -164,6 +170,7 @@ public class FeedbackErrorException extends Exception {
 	    			errorMsg.put("variable", varID);
 	    			errorMsg.put("span1", errorFeedback.getSelected());
 	    			errorMsg.put("type", "errorDocSpan");
+	    			errorMsgComponentList.add(errorMsg);
 				}
 			}
 			
@@ -202,6 +209,7 @@ public class FeedbackErrorException extends Exception {
 	    			errorMsg.put("span1", errorFeedback.getSelected());
 	    			errorMsg.put("span2", conflictFeedback.getSelected());
 	    			errorMsg.put("type", "errorSpanSpan");
+	    			errorMsgComponentList.add(errorMsg);
 				}
 			}
     	}

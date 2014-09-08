@@ -5,6 +5,7 @@ package edu.pitt.cs.nih.backend.feedback;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.pitt.cs.nih.backend.utils.Util;
 
@@ -43,13 +44,16 @@ public class TextFileFeedbackManager_LibSVM_WordTree_OverrideConflictLabel exten
 	 * @param sessionID
 	 * @throws Exception
 	 */
-	protected void convertWordTreeAnnotation2FinalAnnotation(String sessionID) throws Exception {		
+	protected void convertWordTreeAnnotation2FinalAnnotation(String sessionID,
+			Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>> feedbackMap)
+					throws Exception {		
 		try {
 			String[][] feedbackTable = Util.loadTable(fn_wordTreeFeedback);
-			// extract all feedback in this session
-			// Map<varID, Map<reportID, Map<value, List<String> text spans>>
-			Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = 
-					extractWordTreeAnnotation2Map(sessionID, feedbackTable);
+			// we got this from the error checking process
+//			// extract all feedback in this session
+//			// Map<varID, Map<reportID, Map<value, List<String> text spans>>
+//			Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = 
+//					extractWordTreeAnnotation2Map(sessionID, feedbackTable);
 			
 			// no need to verify conflict
 //			// verify conflicting label values between
