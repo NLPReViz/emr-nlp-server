@@ -4,13 +4,16 @@
 package edu.pitt.cs.nih.backend.feedback;
 
 import java.nio.channels.SeekableByteChannel;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import weka.gui.beans.AbstractDataSinkBeanInfo;
 import edu.pitt.cs.nih.backend.featureVector.ColonoscopyDS_SVMLightFormat;
 import edu.pitt.cs.nih.backend.featureVector.Preprocess;
 import edu.pitt.cs.nih.backend.utils.TextUtil;
@@ -82,11 +85,14 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 					feedbackMsg.lastIndexOf(".")); 
 		}
 		catch(Exception e) {
-			feedbackMsg = e.getMessage();
+//			feedbackMsg = e.getMessage();
+			// forward exception
+			throw e;
 		}
 		
 		System.out.println(feedbackMsg);
-		
+
+		// only reach this point if OK
 		return feedbackMsg;
 	}
 	
@@ -109,6 +115,105 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		convertWordTreeAnnotation2FinalAnnotation(sessionID);
 	}
 
+//	/**
+//	 * Group all feedback into a data structure and verify if feedback 
+//	 * violate rationale approach.
+//	 * Highlight text spans explaining why a document was classified as it is
+//	 * 
+//	 * @param feedbackBatch
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	protected Map<String, Map<String, Map<String, List<Map<String,String>>>>> validateFeedbackBatch(
+//			List<Feedback_Abstract_Model> feedbackBatch) throws Exception {
+//		// structure Map<varID, Map<reportID, Map<value, List<Map<String,String>> selected, matched spans>>
+//		Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = new HashMap<>();
+//		for (Feedback_Abstract_Model abstractFeedback : feedbackBatch) {
+//			if (abstractFeedback instanceof FeedbackSpan_WordTree_Model) { // span level feedback
+//				FeedbackSpan_WordTree_Model feedback = 
+//						(FeedbackSpan_WordTree_Model) abstractFeedback;
+//				// scan through all docIDs
+//				for(String docID : feedback.getReportIDList()) {
+//					if(!feedbackMap.containsKey(feedback.getVariableName())) {
+//						Map<String, Map<String, List<Map<String,String>>>> varMap = new HashMap<>();
+//						feedbackMap.put(feedback.getVariableName(), varMap);
+//					}
+//					
+//					if (feedbackMap.get(feedback.getVariableName()).containsKey(docID)) {
+//						// verify document value with span value
+//						if (!feedbackMap.get(feedback.getVariableName())
+//								.get(docID).containsKey(
+//								feedback.getDocValue())) { // conflict
+//							String span1 = "span \""
+//									+ feedback.getMatchedTextSpan() + "\" (" + 
+//									feedback.getDocValue() + ")";
+//
+//							String documentValue = feedback.getDocValue().equals(
+//									"True") ? "False" : "True";
+//							String span2 = feedbackMap.get(feedback.getVariableName())
+//									.get(docID).get(documentValue).size() > 0 ? 
+//											"span \"" + feedbackMap.get(feedback.getVariableName())
+//											.get(docID).get(documentValue).get(0).get("selected") + "\" (" +
+//									 documentValue + ")"
+//									: "the document (" + documentValue + ")";
+//
+//							throw new Exception("Error: Cannot set '" + feedback.getVariableName() + 
+//									"' to be both True and False (using '" 
+//									+ span1 + "' and '" + span2 + "') in Doc #" + docID + "!");
+//						} else { // append the text span
+//							// create selected, matched spans for this feedback
+//							Map<String,String> spanMap = new HashMap<>();
+//							spanMap.put("selected", feedback.getSelectedTextSpan());
+//							spanMap.put("matched", feedback.getMatchedTextSpan());
+//							feedbackMap.get(feedback.getVariableName())
+//									.get(docID)
+//									.get(feedback.getDocValue())
+//									.add(spanMap);
+//						}
+//					} else { // create a new document level feedback agrees with
+//								// this span level feedback
+//						Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
+//						List<Map<String,String>> textSpanList = new ArrayList<>();
+//						// append the text span
+//						Map<String,String> spanMap = new HashMap<>();
+//						spanMap.put("selected", feedback.getSelectedTextSpan());
+//						spanMap.put("matched", feedback.getMatchedTextSpan());
+//						textSpanList.add(spanMap);
+//						textSpanMap.put(feedback.getDocValue(), textSpanList);
+//						feedbackMap.get(feedback.getVariableName()).put(docID, textSpanMap);
+//					}
+//				}
+//				
+//			} else { // document level feedback
+//				Feedback_Document_Model feedback = 
+//						(Feedback_Document_Model) abstractFeedback;
+//				if(feedbackMap.containsKey(feedback.getVariableName()) &&
+//						feedbackMap.get(feedback.getVariableName()).containsKey(feedback.getDocId())) {
+//					// verify conflict
+//					if(!feedbackMap.get(feedback.getVariableName()).get(feedback.getDocId())
+//							.containsKey(feedback.getDocValue())) {
+//						throw new Exception("Error: Cannot set '"
+//								+ feedback.getVariableName() + "' to be both True and False in Doc #" 
+//								+ feedback.getDocId() + "!");
+//					}
+//				} else {
+//					if(!feedbackMap.containsKey(feedback.getVariableName())) {
+//						Map<String, Map<String, List<Map<String,String>>>> varMap = new HashMap<>();
+//						feedbackMap.put(feedback.getVariableName(), varMap);
+//					}
+//
+//					Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
+//					List<Map<String,String>> textSpanList = new ArrayList<>();
+//					textSpanMap.put(feedback.getDocValue(), textSpanList);
+//					
+//					feedbackMap.get(feedback.getVariableName()).put(feedback.getDocId(), textSpanMap);
+//				}
+//			}
+//		}
+//
+//		return feedbackMap;
+//	}
+	
 	/**
 	 * Group all feedback into a data structure and verify if feedback 
 	 * violate rationale approach.
@@ -118,94 +223,130 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	 * @return
 	 * @throws Exception
 	 */
-	protected Map<String, Map<String, Map<String, List<Map<String,String>>>>> validateFeedbackBatch(
+	protected Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>> validateFeedbackBatch(
 			List<Feedback_Abstract_Model> feedbackBatch) throws Exception {
-		// structure Map<varID, Map<reportID, Map<value, List<Map<String,String>> selected, matched spans>>
-		Map<String, Map<String, Map<String, List<Map<String,String>>>>> feedbackMap = new HashMap<>();
+		
+		// structure Map<varID, Map<reportID, Map<<value,fbId>, List<Map<String,String>> selected, matched spans, fbId>>
+		Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>>
+			feedbackMap = new HashMap<>();
 		for (Feedback_Abstract_Model abstractFeedback : feedbackBatch) {
 			if (abstractFeedback instanceof FeedbackSpan_WordTree_Model) { // span level feedback
 				FeedbackSpan_WordTree_Model feedback = 
 						(FeedbackSpan_WordTree_Model) abstractFeedback;
 				// scan through all docIDs
-				for(String docID : feedback.getReportIDList()) {
+				for(String docID : feedback.getReportIDList()) { // add the span with fbId
+					// if the varID doesn't exist, we add
 					if(!feedbackMap.containsKey(feedback.getVariableName())) {
-						Map<String, Map<String, List<Map<String,String>>>> varMap = new HashMap<>();
+						Map<String, Map<Entry<String,String>, List<Map<String,String>>>>
+							varMap = new HashMap<>();
 						feedbackMap.put(feedback.getVariableName(), varMap);
 					}
 					
-					if (feedbackMap.get(feedback.getVariableName()).containsKey(docID)) {
-						// verify document value with span value
-						if (!feedbackMap.get(feedback.getVariableName())
-								.get(docID).containsKey(
-								feedback.getDocValue())) { // conflict
-							String span1 = "span \""
-									+ feedback.getMatchedTextSpan() + "\" (" + 
-									feedback.getDocValue() + ")";
-
-							String documentValue = feedback.getDocValue().equals(
-									"True") ? "False" : "True";
-							String span2 = feedbackMap.get(feedback.getVariableName())
-									.get(docID).get(documentValue).size() > 0 ? 
-											"span \"" + feedbackMap.get(feedback.getVariableName())
-											.get(docID).get(documentValue).get(0).get("selected") + "\" (" +
-									 documentValue + ")"
-									: "the document (" + documentValue + ")";
-
-							throw new Exception("Error: Cannot set '" + feedback.getVariableName() + 
-									"' to be both True and False (using '" 
-									+ span1 + "' and '" + span2 + "') in Doc #" + docID + "!");
-						} else { // append the text span
-							// create selected, matched spans for this feedback
-							Map<String,String> spanMap = new HashMap<>();
-							spanMap.put("selected", feedback.getSelectedTextSpan());
-							spanMap.put("matched", feedback.getMatchedTextSpan());
-							feedbackMap.get(feedback.getVariableName())
-									.get(docID)
-									.get(feedback.getDocValue())
-									.add(spanMap);
-						}
-					} else { // create a new document level feedback agrees with
-								// this span level feedback
-						Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
-						List<Map<String,String>> textSpanList = new ArrayList<>();
-						// append the text span
-						Map<String,String> spanMap = new HashMap<>();
-						spanMap.put("selected", feedback.getSelectedTextSpan());
-						spanMap.put("matched", feedback.getMatchedTextSpan());
-						textSpanList.add(spanMap);
-						textSpanMap.put(feedback.getDocValue(), textSpanList);
+					// if the reportID doesn't exist, we add
+					if(!feedbackMap.get(feedback.getVariableName()).containsKey(docID)) {
+						Map<Entry<String,String>, List<Map<String,String>>>
+							textSpanMap = new HashMap<>();
 						feedbackMap.get(feedback.getVariableName()).put(docID, textSpanMap);
 					}
+					
+					// if the span label value doesn't exist in the report, we add without fbId
+					boolean hasValue = false;
+					Entry<String,String> value_fbId = null;
+					// only 2 possible keys, OK to scan through
+					for(Entry<String,String> value : 
+						feedbackMap.get(feedback.getVariableName()).get(docID).keySet()) {
+						if(value.getKey().equals(feedback.getDocValue())) {
+							hasValue = true;
+							value_fbId = value;
+							break;
+						}
+					}
+					if(!hasValue) {
+						value_fbId = new AbstractMap.SimpleEntry(feedback.getDocValue(), "");
+						List<Map<String,String>> textSpanList = new ArrayList<>();
+						feedbackMap.get(feedback.getVariableName()).get(docID)
+							.put(value_fbId, textSpanList);
+					}
+					
+					// lastly, add the span and fbId
+					Map<String,String> spanMap = new HashMap<>();
+					spanMap.put("selected", feedback.getSelectedTextSpan());
+					spanMap.put("matched", feedback.getMatchedTextSpan());
+					spanMap.put("fbId", feedback.getFeedbackID());
+					feedbackMap.get(feedback.getVariableName()).get(docID)
+						.get(value_fbId).add(spanMap);
 				}
 				
-			} else { // document level feedback
+			} else { // document level feedback, add the doc feedback with fbId
 				Feedback_Document_Model feedback = 
 						(Feedback_Document_Model) abstractFeedback;
-				if(feedbackMap.containsKey(feedback.getVariableName()) &&
-						feedbackMap.get(feedback.getVariableName()).containsKey(feedback.getDocId())) {
-					// verify conflict
-					if(!feedbackMap.get(feedback.getVariableName()).get(feedback.getDocId())
-							.containsKey(feedback.getDocValue())) {
-						throw new Exception("Error: Cannot set '"
-								+ feedback.getVariableName() + "' to be both True and False in Doc #" 
-								+ feedback.getDocId() + "!");
-					}
-				} else {
-					if(!feedbackMap.containsKey(feedback.getVariableName())) {
-						Map<String, Map<String, List<Map<String,String>>>> varMap = new HashMap<>();
-						feedbackMap.put(feedback.getVariableName(), varMap);
-					}
-
-					Map<String, List<Map<String,String>>> textSpanMap = new HashMap<>();
-					List<Map<String,String>> textSpanList = new ArrayList<>();
-					textSpanMap.put(feedback.getDocValue(), textSpanList);
-					
+				// if the varID doesn't exist, we add
+				if(!feedbackMap.containsKey(feedback.getVariableName())) {
+					Map<String, Map<Entry<String,String>, List<Map<String,String>>>>
+						varMap = new HashMap<>();
+					feedbackMap.put(feedback.getVariableName(), varMap);
+				}
+				
+				// if the reportID doesn't exist, we add
+				if(!feedbackMap.get(feedback.getVariableName()).containsKey(feedback.getDocId())) {
+					Map<Entry<String,String>, List<Map<String,String>>>
+						textSpanMap = new HashMap<>();
 					feedbackMap.get(feedback.getVariableName()).put(feedback.getDocId(), textSpanMap);
+				}
+				
+				// if the report value doesn't exist, we add with fbId
+				boolean hasValue = false;
+				Entry<String,String> value_fbId;
+				// only 2 possible keys, OK to scan through
+				for(Entry<String,String> value : 
+					feedbackMap.get(feedback.getVariableName()).get(feedback.getDocId()).keySet()) {
+					if(value.getKey().equals(feedback.getDocValue())) {
+						hasValue = true;
+						// update fbId
+						value.setValue(feedback.getFeedbackID());
+						break;
+					}
+				}
+				if(!hasValue) { // add new report value with fbId
+					value_fbId = new AbstractMap.SimpleEntry(feedback.getDocValue(),
+							feedback.getFeedbackID());
+					List<Map<String,String>> textSpanList = new ArrayList<>();
+					feedbackMap.get(feedback.getVariableName()).get(feedback.getDocId())
+						.put(value_fbId, textSpanList);
 				}
 			}
 		}
+		
+		// extract error feedback (if any)
+		Map<Entry<String,String>, Map<Entry<String,String>, List<Map<String,String>>>>
+			errorMap =  extractErrorMap(feedbackMap);
+		if(errorMap.size() > 0) {
+			throw new FeedbackErrorException("Error", errorMap);
+		}
 
 		return feedbackMap;
+	}
+	
+	public Map<Entry<String,String>, Map<Entry<String,String>, List<Map<String,String>>>> extractErrorMap(
+			Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>> feedbackMap) {
+		
+		Map<Entry<String,String>, Map<Entry<String,String>, List<Map<String,String>>>> errorMap = new HashMap<>();
+		
+		for(String varID : feedbackMap.keySet()) { // scan through varID
+			Map<String, Map<Entry<String,String>, List<Map<String,String>>>> docMap = feedbackMap.get(varID);
+			for(String reportID : docMap.keySet()) { // scan through reportID
+				Map<Entry<String,String>, List<Map<String,String>>> docValueMap = docMap.get(reportID);
+				// an error happens when a reportID contains 2 children
+				if(docValueMap.size() > 1) {
+					// Map<<varID,docID>, Map<<value,fbId>,List<Map<selected,matched,fbId>>>
+					Entry<String,String> errorKey = new AbstractMap.SimpleEntry(varID, reportID);
+					Map<Entry<String,String>, List<Map<String,String>>> errorValue = docMap.get(reportID);
+					errorMap.put(errorKey, errorValue);
+				}
+			}
+		}
+		
+		return errorMap;
 	}
 	
 	/**

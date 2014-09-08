@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.pitt.cs.nih.backend.feedback.FeedbackErrorException;
 import edu.pitt.cs.nih.backend.feedback.TextFileFeedbackManager_LibSVM_WordTree;
 import frontEnd.serverSide.model.Feedback_Abstract_Model;
 import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
@@ -30,11 +31,28 @@ public class Feedback_Controller {
 		String userID;
 //		userID = modelListArgMap.get("userID");
 		userID = uid; // current setting
-		// how to convert json upload to a List object?
-		String returnMsg = processFeedback(feedbackBatch,
-				userID);
 		
+		// auto add feedbackID
+		Feedback_WordTree_JSON_Model.autoSetFeedbackID(feedbackBatch);
+
 		Map<String, Object> feedbackResult = new HashMap<>();
+		String returnMsg = "";
+		try {
+			 returnMsg = processFeedback(feedbackBatch,
+					userID);
+		} catch(FeedbackErrorException e) {
+			e.injectFeedbackError(feedbackBatch);
+			// debug
+			for(Feedback_WordTree_JSON_Model feedback : feedbackBatch) {
+				System.out.print(feedback.getFeedbackID() + ":" + feedback.getStatus() + ":");
+				if(feedback.getConflictList() != null) {
+					for(String conflictID : feedback.getConflictList()) {
+						System.out.print(conflictID + ",");
+					}
+				}
+				System.out.println();
+			}
+		}
 		
 		if(returnMsg.startsWith("Error:")) {// contradictory error
 			// set status and remove "Error:" from msg

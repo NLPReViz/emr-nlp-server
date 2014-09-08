@@ -14,6 +14,7 @@ public class Feedback_Abstract_Model {
 	protected String m_requestId;
 	protected String m_classifierId;
 	protected String m_docValue;
+	protected String m_feedbackID;
 	
 	public String getRequestId() {
 		return m_requestId;
@@ -37,6 +38,14 @@ public class Feedback_Abstract_Model {
 	
 	public void setDocValue(String docValue) {
 		m_docValue = docValue;
+	}
+	
+	public String getFeedbackID() {
+		return m_feedbackID;
+	}
+	
+	public void setFeedbackID(String feedbackID) {
+		m_feedbackID = feedbackID;
 	}
 	
 	public static String getRequestID() throws Exception {

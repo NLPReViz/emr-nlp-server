@@ -24,6 +24,9 @@ public class Feedback_WordTree_JSON_Model {
 	private String m_varID; // varID
 //	private List<String> m_docIDList; // list of reportID
 	private Object m_docIDList;
+	private String m_feedbackID;
+	private String m_status; // OK | ERROR | WARNING
+	private List<String> m_conflictList;
 	
 	public Feedback_WordTree_JSON_Model(){};
 	
@@ -84,6 +87,30 @@ public class Feedback_WordTree_JSON_Model {
 		m_docIDList = docIDList;
 	}
 	
+	public String getFeedbackID() {
+		return m_feedbackID;
+	}
+	
+	public void setFeedbackID(String feedbackID) {
+		m_feedbackID = feedbackID;
+	}
+	
+	public String getStatus() {
+		return m_status;
+	}
+	
+	public void setStatus(String status) {
+		m_status = status;
+	}
+	
+	public List<String> getConflictList() {
+		return m_conflictList;
+	}
+	
+	public void setConflictList(List<String> conflictList) {
+		m_conflictList = conflictList;
+	}
+	
 	public Feedback_Abstract_Model toFeedbackModel() throws Exception {
 		Feedback_Abstract_Model feedback = null;
 		if(m_type.toUpperCase().equals("TYPE_DOC")) {
@@ -92,6 +119,7 @@ public class Feedback_WordTree_JSON_Model {
 			docFeedback.setDocId(docId); // docID is the first element
 			docFeedback.setDocValue(m_value);
 			docFeedback.setVariableName(m_varID);
+			docFeedback.setFeedbackID(m_feedbackID);
 			feedback = docFeedback;
 		}
 		else if(m_type.toUpperCase().equals("TYPE_TEXT")) {
@@ -109,6 +137,7 @@ public class Feedback_WordTree_JSON_Model {
 			ArrayList<String> docIdList = new ArrayList<>();
 			docIdList.add((String) m_docIDList);
 			spanFeedback.setReportIDList(docIdList);
+			spanFeedback.setFeedbackID(m_feedbackID);
 			feedback = spanFeedback;
 		}
 		else if(m_type.toUpperCase().equals("TYPE_WORDTREE")) {
@@ -124,6 +153,7 @@ public class Feedback_WordTree_JSON_Model {
 			spanFeedback.setMatchedTextSpan(m_matchedSpan);
 			List<String> docIdList = (List<String>) m_docIDList;
 			spanFeedback.setReportIDList(docIdList);
+			spanFeedback.setFeedbackID(m_feedbackID);
 			feedback = spanFeedback;
 		}
 		else {
@@ -138,6 +168,8 @@ public class Feedback_WordTree_JSON_Model {
 		List<Feedback_Abstract_Model> abstractFeedbackBatch = new ArrayList<>();
 		
 		for(Feedback_WordTree_JSON_Model feedback : feedbackBatch) {
+			// set default status OK
+			feedback.setStatus("OK");
 			abstractFeedbackBatch.add(feedback.toFeedbackModel());
 		}
 		
@@ -147,5 +179,18 @@ public class Feedback_WordTree_JSON_Model {
 //		}
 		
 		return abstractFeedbackBatch;
+	}
+	
+	/**
+	 * For now, set feedbackID of a feedback = the order of the feedback in the batch
+	 * 
+	 * @param feedbackBatch
+	 * @throws Exception
+	 */
+	public static void autoSetFeedbackID(List<Feedback_WordTree_JSON_Model> feedbackBatch) throws Exception {
+		for(int i = 0; i < feedbackBatch.size(); i++) {
+			Feedback_WordTree_JSON_Model feedback = feedbackBatch.get(i);
+			feedback.setFeedbackID(Integer.toString(i));
+		}
 	}
 }

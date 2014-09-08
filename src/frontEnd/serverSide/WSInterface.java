@@ -43,6 +43,7 @@ import frontEnd.serverSide.controller.Dataset_MLModel_Controller;
 import frontEnd.serverSide.controller.Feedback_Controller;
 import frontEnd.serverSide.controller.Feedback_OverrideConflictLabel_Controller;
 import frontEnd.serverSide.controller.GridVar_Controller;
+import frontEnd.serverSide.controller.PlotLearningCurve;
 import frontEnd.serverSide.controller.Report_Controller;
 import frontEnd.serverSide.controller.Storage_Controller;
 import frontEnd.serverSide.controller.WordTree_Controller;
@@ -232,18 +233,24 @@ public class WSInterface {
 	}
 	
 	public static void main(String[] args) throws Exception {
-//		long startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 //		System.out.println(Util.getOSName());
-		validateWebServiceOffline();
-//		validateFeedbackProcess();
+//		validateWebServiceOffline();
+		validateFeedbackProcess();
 //		evaluateInitialSetOnDevSet();
 //		createDataSet();
 //		verifyFullModel();
 //		verifyWordTree();
+//		plotLearningCurve();
 		
-//		long endTime = System.currentTimeMillis();
-//		long totalTime = (endTime - startTime) / 1000;
-//	    System.out.println(Util.convertTimeTick2String(totalTime));
+		long endTime = System.currentTimeMillis();
+		long totalTime = (endTime - startTime) / 1000;
+	    System.out.println(Util.convertTimeTick2String(totalTime));
+	}
+	
+	public static void plotLearningCurve() {
+		PlotLearningCurve plotter = new PlotLearningCurve();
+		plotter.runExp();
 	}
 	
 	protected static void verifyWordTree() throws Exception {
@@ -551,19 +558,20 @@ public class WSInterface {
 //		batch = initialFeedbackSession.addFeedBack3(userID);
 //		feedbackManager.processFeedback(batch);
 		
-		String fn_modelList = Util.getOSPath(new String[] {
-				Storage_Controller.getModelListFolder(), "modelList.0..xml"});
-		String fn_reportIDList = Util.getOSPath(new String[]{
-				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
-		new FileTextCreateInitialDS().initializeFeedbackFile(fn_modelList, fn_reportIDList);
-//		new FileTextCreateInitialDS().initializeFeedbackFileEmpty();
+//		String fn_modelList = Util.getOSPath(new String[] {
+//				Storage_Controller.getModelListFolder(), "modelList.0..xml"});
+//		String fn_reportIDList = Util.getOSPath(new String[]{
+//				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
+//		new FileTextCreateInitialDS().initializeFeedbackFile(fn_modelList, fn_reportIDList);
+////		new FileTextCreateInitialDS().initializeFeedbackFileEmpty();
 		
-//		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
-//		fn_modelList = "modelList.0..xml";
-//		fn_reportIDList = "devIDList.xml";
-//		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
-//				fn_modelList, fn_reportIDList);
-//		System.out.println(map.get("msg"));	
+		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
+		String fn_modelList = "modelList.0..xml";
+		String fn_reportIDList = "devIDList.xml";
+		String uid = "1";
+		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
+				fn_modelList, fn_reportIDList, uid);
+		System.out.println(map.get("msg"));	
 		
 //		createInitialIDListForSession0();
 	}

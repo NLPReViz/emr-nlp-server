@@ -185,6 +185,10 @@ public class Storage_Controller {
 		return Util.getOSPath(new String[]{getLibSVMPath(), "temp-weight.txt"});
 	}
 	
+	public static String getTempModelFn() throws Exception {
+		return Util.getOSPath(new String[]{getLibSVMPath(), "temp-model.txt"});
+	}
+	
 	public static String[] parseModelListFn(String modelListFn) throws Exception {
 		String[] parseResult = new String[2];
 		String[] tokenList = modelListFn.split("\\.");

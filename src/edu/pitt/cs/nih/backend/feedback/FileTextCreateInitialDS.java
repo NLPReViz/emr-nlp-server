@@ -1065,17 +1065,17 @@ public class FileTextCreateInitialDS {
     	List<Feedback_WordTree_JSON_Model> batch = new ArrayList<>();
     	Feedback_WordTree_JSON_Model feedback;
     	
-//    	feedback = new Feedback_WordTree_JSON_Model();
-//    	feedback.setClassification("negative");
-//    	feedback.setKind("TYPE_TEXT");
-//    	feedback.setVariable("any-adenoma");
-//    	feedback.setSelected("alternatives of the procedure");
-//    	feedback.setDocList("0001");
-//    	batch.add(feedback);
+    	feedback = new Feedback_WordTree_JSON_Model();
+    	feedback.setClassification("negative");
+    	feedback.setKind("TYPE_DOC");
+    	feedback.setVariable("any-adenoma");
+    	feedback.setSelected("alternatives of the procedure");
+    	feedback.setDocList("0001");
+    	batch.add(feedback);
     	
     	feedback = new Feedback_WordTree_JSON_Model();
     	feedback.setClassification("positive");
-    	feedback.setKind("TYPE_TEXT");
+    	feedback.setKind("TYPE_DOC");
     	feedback.setVariable("any-adenoma");
     	feedback.setSelected("After the risks");
     	feedback.setDocList("0001");
@@ -1226,8 +1226,9 @@ public class FileTextCreateInitialDS {
         // create initial dataset
         String fn_modelList = "modelList.0..xml";
 		String fn_reportIDList = "initialIDList.xml";
+		String uid = "1";
 		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
-				fn_modelList, fn_reportIDList);
+				fn_modelList, fn_reportIDList, uid);
 //    	// add verify result here
 //		Map<String,Map<String,String>> labelMap = new HashMap<>();
 //		for(String varID : varIDList) {
