@@ -1065,13 +1065,13 @@ public class FileTextCreateInitialDS {
     	List<Feedback_WordTree_JSON_Model> batch = new ArrayList<>();
     	Feedback_WordTree_JSON_Model feedback;
     	
-//    	feedback = new Feedback_WordTree_JSON_Model();
-//    	feedback.setClassification("negative");
-//    	feedback.setKind("TYPE_DOC");
-//    	feedback.setVariable("any-adenoma");
-//    	feedback.setSelected("alternatives of the procedure");
-//    	feedback.setDocList("0001");
-//    	batch.add(feedback);
+    	feedback = new Feedback_WordTree_JSON_Model();
+    	feedback.setClassification("negative");
+    	feedback.setKind("TYPE_DOC");
+    	feedback.setVariable("any-adenoma");
+    	feedback.setSelected("alternatives of the procedure");
+    	feedback.setDocList("0001");
+    	batch.add(feedback);
     	
 //    	feedback = new Feedback_WordTree_JSON_Model();
 //    	feedback.setClassification("positive");
@@ -1081,16 +1081,16 @@ public class FileTextCreateInitialDS {
 //    	feedback.setDocList("0001");
 //    	batch.add(feedback);
     	
-    	feedback = new Feedback_WordTree_JSON_Model();
-    	feedback.setClassification("positive");
-    	feedback.setKind("TYPE_WORDTREE");
-    	feedback.setVariable("any-adenoma");
-    	feedback.setSelected("After the risks");
-    	feedback.setSpan("After the risks");
-    	List<String> docList = new ArrayList<>();
-    	docList.add("0001");
-    	feedback.setDocList(docList);
-    	batch.add(feedback);
+//    	feedback = new Feedback_WordTree_JSON_Model();
+//    	feedback.setClassification("positive");
+//    	feedback.setKind("TYPE_WORDTREE");
+//    	feedback.setVariable("any-adenoma");
+//    	feedback.setSelected("After the risks");
+//    	feedback.setSpan("After the risks");
+//    	List<String> docList = new ArrayList<>();
+//    	docList.add("0001");
+//    	feedback.setDocList(docList);
+//    	batch.add(feedback);
     	
     	return batch;
     }

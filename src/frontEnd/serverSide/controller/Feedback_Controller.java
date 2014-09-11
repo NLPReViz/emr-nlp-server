@@ -70,7 +70,7 @@ public class Feedback_Controller {
 			feedbackResult.put("warningList", e.getErrorMsgComponentList());
 			feedbackResult.put("feedbackList", feedbackBatch);
 			// may not need this
-			feedbackResult.put("status", "Error");
+			feedbackResult.put("status", "Warning");
 			
 			// debug
 			for(Feedback_WordTree_JSON_Model feedback : feedbackBatch) {

@@ -573,12 +573,17 @@ public class WSInterface {
 //		new FileTextCreateInitialDS().initializeFeedbackFile(fn_modelList, fn_reportIDList);
 ////		new FileTextCreateInitialDS().initializeFeedbackFileEmpty();
 		
-		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
 		String fn_modelList = "modelList.0..xml";
-		String fn_reportIDList = "devIDList.xml";
+		String fn_reportIDList = "data\\documentList\\initialIDList.xml";
+//		// re-create the whole dataset
+//		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
+//		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
+		// verify feedback
+		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
 		String uid = "1";
 //		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
 //				fn_modelList, fn_reportIDList, uid);
+		fn_reportIDList = "devIDList.xml";
 		Map<String, Object> map = new Feedback_OverrideConflictLabel_Controller().getFeedback(batch,
 				fn_modelList, fn_reportIDList, uid);
 		System.out.println(map.get("status"));	
