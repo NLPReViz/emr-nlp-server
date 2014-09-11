@@ -66,17 +66,24 @@ public class FeedbackErrorException extends Exception {
     		List<Map<String,String>> falseList = null;
     		String trueDocFbId = null;
     		String falseDocFbId = null;
-    		for(Entry<String,String> docValueKey : errorValue.keySet()) {
-    			String docValue = docValueKey.getKey();    			
+    		// there is a bug, which I don't know why
+    		// but iterate using keySet will not work here
+    		for(Entry<Entry<String,String>, List<Map<String,String>>> docValueKeyValue :
+    			errorValue.entrySet()) {
+    			Entry<String,String> docValueKey = docValueKeyValue.getKey();
+    			List<Map<String,String>> docValueValue = docValueKeyValue.getValue();
+    			String docValue = docValueKey.getKey();
     			
     			if(docValue.equals("True")) {
-    				trueList = errorValue.get(docValueKey);
+//    				trueList = errorValue.get(docValueKey);
+    				trueList = docValueValue;
     				if(docValueKey.getValue().length() > 0) {
         				trueDocFbId = docValueKey.getValue();
         			}
     			}
     			else {
-    				falseList = errorValue.get(docValueKey);
+//    				falseList = errorValue.get(docValueKey);
+    				falseList = docValueValue;
     				if(docValueKey.getValue().length() > 0) {
         				falseDocFbId = docValueKey.getValue();
         			}
@@ -111,7 +118,7 @@ public class FeedbackErrorException extends Exception {
     			errorMsg.put("type", "errorDoc");
     			errorMsgComponentList.add(errorMsg);
     		}
-    		else if(trueDocFbId != null) {
+    		if(trueDocFbId != null && falseList != null) { // all span in the false list conflict with this doc level feedback
 				Feedback_WordTree_JSON_Model docFeedback = feedbackBatch.get(
 						Integer.parseInt(trueDocFbId));
 				docFeedback.setStatus(this.message);
@@ -142,7 +149,7 @@ public class FeedbackErrorException extends Exception {
 		    			errorMsgComponentList.add(errorMsg);
 					}
     		}
-    		else if(falseDocFbId != null) { // doc level feedback conflicts with true list
+    		if(falseDocFbId != null && trueList != null) { // doc level feedback conflicts with true list
 				Feedback_WordTree_JSON_Model docFeedback = feedbackBatch.get(
 						Integer.parseInt(falseDocFbId));
 				docFeedback.setStatus(this.message);
@@ -175,43 +182,52 @@ public class FeedbackErrorException extends Exception {
 			}
 			
 			
-			// each feedback in this list will conflict with all feedback in the other list
-			for(Map<String,String> feedbackError : trueList) {
-				String feedbackErrorId = feedbackError.get("fbId");
-				Feedback_WordTree_JSON_Model errorFeedback = feedbackBatch.get(
-						Integer.parseInt(feedbackErrorId));
-				// set status = ERROR
-				errorFeedback.setStatus(this.message);
-				// cross reference with the other list
-				for(Map<String,String> conflictError : falseList) {
-					String conflictErrorId = conflictError.get("fbId");
-					Feedback_WordTree_JSON_Model conflictFeedback = feedbackBatch.get(
-							Integer.parseInt(conflictErrorId));
+			// each feedback in this list will conflict with all feedback in the
+			// other list
+			if (trueList != null && falseList != null) {
+				for (Map<String, String> feedbackError : trueList) {
+					String feedbackErrorId = feedbackError.get("fbId");
+					Feedback_WordTree_JSON_Model errorFeedback = feedbackBatch
+							.get(Integer.parseInt(feedbackErrorId));
 					// set status = ERROR
-					conflictFeedback.setStatus(this.message);
-					// add conflict list
-					try {
-						errorFeedback.getConflictList().add(conflictErrorId);
-					} catch(NullPointerException e) {
-						errorFeedback.setConflictList(new ArrayList<String>());
-						errorFeedback.getConflictList().add(conflictErrorId);
+					errorFeedback.setStatus(this.message);
+					// cross reference with the other list
+					for (Map<String, String> conflictError : falseList) {
+						String conflictErrorId = conflictError.get("fbId");
+						Feedback_WordTree_JSON_Model conflictFeedback = feedbackBatch
+								.get(Integer.parseInt(conflictErrorId));
+						// set status = ERROR
+						conflictFeedback.setStatus(this.message);
+						// add conflict list
+						try {
+							errorFeedback.getConflictList()
+									.add(conflictErrorId);
+						} catch (NullPointerException e) {
+							errorFeedback
+									.setConflictList(new ArrayList<String>());
+							errorFeedback.getConflictList()
+									.add(conflictErrorId);
+						}
+						try {
+							conflictFeedback.getConflictList().add(
+									feedbackErrorId);
+						} catch (NullPointerException e) {
+							conflictFeedback
+									.setConflictList(new ArrayList<String>());
+							conflictFeedback.getConflictList().add(
+									feedbackErrorId);
+						}
+						// add error msg
+						Map<String, String> errorMsg = new HashMap<>();
+						errorMsg.put("docId", reportID);
+						errorMsg.put("variable", varID);
+						errorMsg.put("span1", errorFeedback.getSelected());
+						errorMsg.put("span2", conflictFeedback.getSelected());
+						errorMsg.put("type", "errorSpanSpan");
+						errorMsgComponentList.add(errorMsg);
 					}
-					try {
-						conflictFeedback.getConflictList().add(feedbackErrorId);
-					} catch(NullPointerException e) {
-						conflictFeedback.setConflictList(new ArrayList<String>());
-						conflictFeedback.getConflictList().add(feedbackErrorId);
-					}
-					// add error msg
-	    			Map<String,String> errorMsg = new HashMap<>();
-	    			errorMsg.put("docId", reportID);
-	    			errorMsg.put("variable", varID);
-	    			errorMsg.put("span1", errorFeedback.getSelected());
-	    			errorMsg.put("span2", conflictFeedback.getSelected());
-	    			errorMsg.put("type", "errorSpanSpan");
-	    			errorMsgComponentList.add(errorMsg);
 				}
 			}
-    	}
+		}
     }
 }

@@ -3,6 +3,7 @@
  */
 package frontEnd.serverSide;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -573,6 +575,19 @@ public class WSInterface {
 //		new FileTextCreateInitialDS().initializeFeedbackFile(fn_modelList, fn_reportIDList);
 ////		new FileTextCreateInitialDS().initializeFeedbackFileEmpty();
 		
+//		Map<Entry<String,String>, List<Map<String,String>>>
+//			errorMap = new HashMap<>();
+//		Entry<String,String> key = new AbstractMap.SimpleEntry("True", "1");
+//		List<Map<String,String>> value = new ArrayList<>();
+//		Map<String,String> span = new HashMap<>();
+////		span.put("fnId", "2");
+////		value.add(span);
+//		errorMap.put(key, value);
+//		List<Map<String,String>> trueList = null;
+//		for(Entry<String,String> k : errorMap.keySet()) {
+//			trueList = errorMap.get(k);
+//		}
+		
 		String fn_modelList = "modelList.0..xml";
 		String fn_reportIDList = "data\\documentList\\initialIDList.xml";
 //		// re-create the whole dataset
@@ -581,11 +596,11 @@ public class WSInterface {
 		// verify feedback
 		List<Feedback_WordTree_JSON_Model> batch = initialFeedbackSession.addFeedback4();
 		String uid = "1";
-//		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
-//				fn_modelList, fn_reportIDList, uid);
 		fn_reportIDList = "devIDList.xml";
-		Map<String, Object> map = new Feedback_OverrideConflictLabel_Controller().getFeedback(batch,
-				fn_modelList, fn_reportIDList, uid);
+		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
+		fn_modelList, fn_reportIDList, uid);		
+//		Map<String, Object> map = new Feedback_OverrideConflictLabel_Controller().getFeedback(batch,
+//				fn_modelList, fn_reportIDList, uid);
 		System.out.println(map.get("status"));	
 		
 //		createInitialIDListForSession0();

@@ -1066,20 +1066,30 @@ public class FileTextCreateInitialDS {
     	Feedback_WordTree_JSON_Model feedback;
     	
     	feedback = new Feedback_WordTree_JSON_Model();
+    	feedback.setClassification("positive");
+    	feedback.setKind("TYPE_TEXT");
+    	feedback.setVariable("any-adenoma");
+    	feedback.setSelected("Metoprolol 50 mg twice a day");
+    	feedback.setDocList("0004");
+    	batch.add(feedback);
+    	
+    	feedback = new Feedback_WordTree_JSON_Model();
     	feedback.setClassification("negative");
     	feedback.setKind("TYPE_DOC");
     	feedback.setVariable("any-adenoma");
-    	feedback.setSelected("alternatives of the procedure");
-    	feedback.setDocList("0001");
+//    	feedback.setSelected("alternatives of the procedure");
+    	feedback.setDocList("0004");
     	batch.add(feedback);
     	
-//    	feedback = new Feedback_WordTree_JSON_Model();
-//    	feedback.setClassification("positive");
-//    	feedback.setKind("TYPE_TEXT");
-//    	feedback.setVariable("any-adenoma");
+    	feedback = new Feedback_WordTree_JSON_Model();
+    	feedback.setClassification("positive");
+    	feedback.setKind("TYPE_DOC");
+    	feedback.setVariable("any-adenoma");
 //    	feedback.setSelected("alternatives of the procedure");
-//    	feedback.setDocList("0001");
-//    	batch.add(feedback);
+    	feedback.setDocList("0004");
+    	batch.add(feedback);
+    	
+    	
     	
 //    	feedback = new Feedback_WordTree_JSON_Model();
 //    	feedback.setClassification("positive");
