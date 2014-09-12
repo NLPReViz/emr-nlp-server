@@ -42,51 +42,37 @@ public class Feedback_Controller {
 			 returnMsg = processFeedback(feedbackBatch,
 					userID);
 		} catch(FeedbackErrorException e) {
-			e.injectFeedbackError(feedbackBatch);
+			List<Map<String,Object>> feedbackList = e.injectFeedbackError(feedbackBatch);
 			feedbackResult.put("errorList", e.getErrorMsgComponentList());
-			feedbackResult.put("feedbackList", feedbackBatch);
+			feedbackResult.put("feedbackList", feedbackList);
 			// may not need this
 			feedbackResult.put("status", "Error");
 			
 			// debug
-			for(Feedback_WordTree_JSON_Model feedback : feedbackBatch) {
-				System.out.print(feedback.getFeedbackID() + ":" + feedback.getStatus() + ":");
-				if(feedback.getConflictList() != null) {
-					for(String conflictID : feedback.getConflictList()) {
-						System.out.print(conflictID + ",");
-					}
+			for(int i = 0; i < feedbackList.size(); i++) {
+				System.out.print(Integer.toString(i) + ": " + feedbackList.get(i).get("status") + " [");
+				if(feedbackList.get(i).containsKey("conflictList")) {
+					for(String conflict : (List<String>)feedbackList.get(i).get("conflictList")) {
+						System.out.print(conflict + ",");
+					}					
 				}
-				System.out.println();
-				for(Map<String,String> errorMsg : e.getErrorMsgComponentList()) {
-					System.out.print("\t");
-					for(String key : errorMsg.keySet()) {
-						System.out.print(key + ":" + errorMsg.get(key) + ",");
-					}
-					System.out.println();
-				}
+				System.out.println("]");
 			}
 		} catch(FeedbackWarningException e) {
-			e.injectFeedbackError(feedbackBatch);
+			List<Map<String,Object>> feedbackList = e.injectFeedbackError(feedbackBatch);
 			feedbackResult.put("warningList", e.getErrorMsgComponentList());
-			feedbackResult.put("feedbackList", feedbackBatch);
+			feedbackResult.put("feedbackList", feedbackList);
 			// may not need this
 			feedbackResult.put("status", "Warning");
 			
-			// debug
-			for(Feedback_WordTree_JSON_Model feedback : feedbackBatch) {
-				System.out.print(feedback.getFeedbackID() + ":" + feedback.getStatus() + ":");
-				if(feedback.getConflictList() != null) {
-					for(String conflictID : feedback.getConflictList()) {
-						System.out.print(conflictID + ",");
+//			// debug
+			for(int i = 0; i < feedbackList.size(); i++) {
+				System.out.print(Integer.toString(i) + ": " + feedbackList.get(i).get("status") + " [");
+				if(feedbackList.get(i).containsKey("conflictList")) {
+					for(String conflict : (List<String>)feedbackList.get(i).get("conflictList")) {
+						System.out.print(conflict + ",");
 					}
-				}
-				System.out.println();
-				for(Map<String,String> errorMsg : e.getErrorMsgComponentList()) {
-					System.out.print("\t");
-					for(String key : errorMsg.keySet()) {
-						System.out.print(key + ":" + errorMsg.get(key) + ",");
-					}
-					System.out.println();
+					System.out.println("]");
 				}
 			}
 		}
@@ -115,7 +101,7 @@ public class Feedback_Controller {
 					new GridVar_Controller().getPredictionAfterFeedback(fn_reportIDList,
 							returnMsg + ".xml", topKwords, biasFeature, modelListInfo[0], modelListInfo[1]);
 			feedbackResult.put("gridVarData", gridVarObj);
-			feedbackResult.put("feedbackList", feedbackBatch);
+//			feedbackResult.put("feedbackList", feedbackBatch);
 		}
 		
 		// debug

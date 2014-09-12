@@ -51,16 +51,28 @@ public class FeedbackWarningException extends Exception {
      * 
      * @param feedbackBatch
      */
-    public void injectFeedbackError(List<Feedback_WordTree_JSON_Model> feedbackBatch) {
+    public List<Map<String,Object>> injectFeedbackError(List<Feedback_WordTree_JSON_Model> feedbackBatch) {
+    	List<Map<String,Object>> feedbackReturnStructure = new ArrayList<>();
+    	for(int i = 0; i < feedbackBatch.size(); i++) {
+    		Map<String,Object> feedbackReturnEntry = new HashMap<>();
+    		feedbackReturnEntry.put("status", "OK");
+    		feedbackReturnStructure.add(feedbackReturnEntry);
+    	}
+    	
     	for(Entry<String,String> warningID : fbIdList) {
     		String feedbackID = warningID.getKey();
     		String reportID = warningID.getValue();
     		Feedback_WordTree_JSON_Model feedback = feedbackBatch.get(Integer.parseInt(feedbackID));
     		feedback.setStatus("WARNING");
+    		Map<String,Object> feedbackReturnEntry = 
+    				feedbackReturnStructure.get(Integer.parseInt(feedbackID));
+    		feedbackReturnEntry.put("status", "Warning");
     		Map<String,String> errorMsg = new HashMap<>();
     		errorMsg.put("docId", reportID);
     		errorMsg.put("variable", feedback.getVariable());
     		errorMsgComponentList.add(errorMsg);
     	}
+    	
+    	return feedbackReturnStructure;
     }
 }

@@ -54,7 +54,14 @@ public class FeedbackErrorException extends Exception {
      * 
      * @param feedbackBatch
      */
-    public void injectFeedbackError(List<Feedback_WordTree_JSON_Model> feedbackBatch) {
+    public List<Map<String,Object>> injectFeedbackError(List<Feedback_WordTree_JSON_Model> feedbackBatch) {
+    	List<Map<String,Object>> feedbackReturnStructure = new ArrayList<>();
+    	for(int i = 0; i < feedbackBatch.size(); i++) {
+    		Map<String,Object> feedbackReturnEntry = new HashMap<>();
+    		feedbackReturnEntry.put("status", "OK");
+    		feedbackReturnStructure.add(feedbackReturnEntry);
+    	}
+    	
     	for(Entry<String,String> errorKey : errorMap.keySet()) {
     		String varID = errorKey.getKey();
     		String reportID = errorKey.getValue();
@@ -92,23 +99,41 @@ public class FeedbackErrorException extends Exception {
     		
     		// if there is a doc level feedback, it conflicts with all spans in the other list
     		if(trueDocFbId != null && falseDocFbId != null) { // doc level conflict
-    			Feedback_WordTree_JSON_Model trueDocFeedback = feedbackBatch.get(
-						Integer.parseInt(trueDocFbId));
-    			Feedback_WordTree_JSON_Model falseDocFeedback = feedbackBatch.get(
-						Integer.parseInt(falseDocFbId));
-    			trueDocFeedback.setStatus(this.message);
-    			falseDocFeedback.setStatus(this.message);
+//    			Feedback_WordTree_JSON_Model trueDocFeedback = feedbackBatch.get(
+//						Integer.parseInt(trueDocFbId));
+//    			Feedback_WordTree_JSON_Model falseDocFeedback = feedbackBatch.get(
+//						Integer.parseInt(falseDocFbId));
+//    			trueDocFeedback.setStatus(this.message);
+    			feedbackReturnStructure.get(Integer.parseInt(trueDocFbId))
+    				.put("status", message);
+//    			falseDocFeedback.setStatus(this.message);
+    			feedbackReturnStructure.get(Integer.parseInt(falseDocFbId))
+    				.put("status", message);
     			try {
-    				trueDocFeedback.getConflictList().add(falseDocFbId);
+//    				trueDocFeedback.getConflictList().add(falseDocFbId);
+    				List<String> conflictList = (List<String>) feedbackReturnStructure.get(
+    						Integer.parseInt(trueDocFbId)).get("conflictList");
+    				conflictList.add(falseDocFbId);
     			} catch(NullPointerException e) {
-					trueDocFeedback.setConflictList(new ArrayList<String>());
-					trueDocFeedback.getConflictList().add(falseDocFbId);
+//					trueDocFeedback.setConflictList(new ArrayList<String>());
+//					trueDocFeedback.getConflictList().add(falseDocFbId);
+    				List<String> conflictList = new ArrayList<>();
+    				conflictList.add(falseDocFbId);
+    				feedbackReturnStructure.get(Integer.parseInt(trueDocFbId))
+    					.put("conflictList", conflictList);
 				}
     			try {
-    				falseDocFeedback.getConflictList().add(falseDocFbId);
+//    				falseDocFeedback.getConflictList().add(falseDocFbId);
+    				List<String> conflictList = (List<String>) feedbackReturnStructure.get(
+    						Integer.parseInt(falseDocFbId)).get("conflictList");
+        			conflictList.add(trueDocFbId);
     			} catch(NullPointerException e) {
-					falseDocFeedback.setConflictList(new ArrayList<String>());
-					falseDocFeedback.getConflictList().add(trueDocFbId);
+//					falseDocFeedback.setConflictList(new ArrayList<String>());
+//					falseDocFeedback.getConflictList().add(trueDocFbId);
+    				List<String> conflictList = new ArrayList<>();
+    				conflictList.add(trueDocFbId);
+    				feedbackReturnStructure.get(Integer.parseInt(falseDocFbId))
+    					.put("conflictList", conflictList);
 				}
     			
     			// add error msg
@@ -118,70 +143,108 @@ public class FeedbackErrorException extends Exception {
     			errorMsg.put("type", "errorDoc");
     			errorMsgComponentList.add(errorMsg);
     		}
-    		if(trueDocFbId != null && falseList != null) { // all span in the false list conflict with this doc level feedback
-				Feedback_WordTree_JSON_Model docFeedback = feedbackBatch.get(
-						Integer.parseInt(trueDocFbId));
-				docFeedback.setStatus(this.message);
-					for(Map<String,String> feedbackError : falseList) {
-						String feedbackErrorId = feedbackError.get("fbId");
-						Feedback_WordTree_JSON_Model errorFeedback = feedbackBatch.get(
-								Integer.parseInt(feedbackErrorId));
-						errorFeedback.setStatus(this.message);
-						// add conflict list
-						try {
-							errorFeedback.getConflictList().add(trueDocFbId);
-						} catch(NullPointerException e) {
-							errorFeedback.setConflictList(new ArrayList<String>());
-							errorFeedback.getConflictList().add(trueDocFbId);
-						}
-						try {
-							docFeedback.getConflictList().add(feedbackErrorId);
-						} catch(NullPointerException e) {
-							docFeedback.setConflictList(new ArrayList<String>());
-							docFeedback.getConflictList().add(feedbackErrorId);
-						}
-						// add error msg
-		    			Map<String,String> errorMsg = new HashMap<>();
-		    			errorMsg.put("docId", reportID);
-		    			errorMsg.put("variable", varID);
-		    			errorMsg.put("span1", errorFeedback.getSelected());
-		    			errorMsg.put("type", "errorDocSpan");
-		    			errorMsgComponentList.add(errorMsg);
-					}
-    		}
-    		if(falseDocFbId != null && trueList != null) { // doc level feedback conflicts with true list
-				Feedback_WordTree_JSON_Model docFeedback = feedbackBatch.get(
-						Integer.parseInt(falseDocFbId));
-				docFeedback.setStatus(this.message);
-				for(Map<String,String> feedbackError : trueList) {
+			if (trueDocFbId != null && falseList != null) {
+				// all span in the false list conflict with this doc level feedback
+				
+			// Feedback_WordTree_JSON_Model docFeedback = feedbackBatch.get(
+			// Integer.parseInt(trueDocFbId));
+			// docFeedback.setStatus(this.message);
+				feedbackReturnStructure.get(Integer.parseInt(trueDocFbId)).put(
+						"status", message);
+				for (Map<String, String> feedbackError : falseList) {
 					String feedbackErrorId = feedbackError.get("fbId");
-					Feedback_WordTree_JSON_Model errorFeedback = feedbackBatch.get(
-							Integer.parseInt(feedbackErrorId));
-					errorFeedback.setStatus(this.message);
+					Feedback_WordTree_JSON_Model errorFeedback = feedbackBatch
+							.get(Integer.parseInt(feedbackErrorId));
+//					errorFeedback.setStatus(this.message);
+					feedbackReturnStructure.get(Integer.parseInt(feedbackErrorId)).put(
+							"status", message);
 					// add conflict list
 					try {
-						errorFeedback.getConflictList().add(falseDocFbId);
-					} catch(NullPointerException e) {
-						errorFeedback.setConflictList(new ArrayList<String>());
-						errorFeedback.getConflictList().add(falseDocFbId);
+//						errorFeedback.getConflictList().add(trueDocFbId);
+						List<String> conflictList = (List<String>) feedbackReturnStructure
+								.get(Integer.parseInt(feedbackErrorId)).get("conflictList");
+						conflictList.add(trueDocFbId);
+					} catch (NullPointerException e) {
+//						errorFeedback.setConflictList(new ArrayList<String>());
+//						errorFeedback.getConflictList().add(trueDocFbId);
+						List<String> conflictList = new ArrayList<>();
+						conflictList.add(trueDocFbId);
+						feedbackReturnStructure.get(Integer.parseInt(feedbackErrorId))
+							.put("conflictList", conflictList);
 					}
 					try {
-						docFeedback.getConflictList().add(feedbackErrorId);
-					} catch(NullPointerException e) {
-						docFeedback.setConflictList(new ArrayList<String>());
-						docFeedback.getConflictList().add(feedbackErrorId);
+//						docFeedback.getConflictList().add(feedbackErrorId);
+						List<String> conflictList = (List<String>) feedbackReturnStructure
+								.get(Integer.parseInt(trueDocFbId)).get("conflictList");
+						conflictList.add(feedbackErrorId);
+					} catch (NullPointerException e) {
+//						docFeedback.setConflictList(new ArrayList<String>());
+//						docFeedback.getConflictList().add(feedbackErrorId);
+						List<String> conflictList = new ArrayList<>();
+						conflictList.add(feedbackErrorId);
+						feedbackReturnStructure.get(Integer.parseInt(trueDocFbId))
+							.put("conflictList", conflictList);
 					}
 					// add error msg
-	    			Map<String,String> errorMsg = new HashMap<>();
-	    			errorMsg.put("docId", reportID);
-	    			errorMsg.put("variable", varID);
-	    			errorMsg.put("span1", errorFeedback.getSelected());
-	    			errorMsg.put("type", "errorDocSpan");
-	    			errorMsgComponentList.add(errorMsg);
+					Map<String, String> errorMsg = new HashMap<>();
+					errorMsg.put("docId", reportID);
+					errorMsg.put("variable", varID);
+					errorMsg.put("span1", errorFeedback.getSelected());
+					errorMsg.put("type", "errorDocSpan");
+					errorMsgComponentList.add(errorMsg);
 				}
 			}
-			
-			
+			if (falseDocFbId != null && trueList != null) {
+				// doc level feedback conflicts with true list
+//				Feedback_WordTree_JSON_Model docFeedback = feedbackBatch
+//						.get(Integer.parseInt(falseDocFbId));
+//				docFeedback.setStatus(this.message);
+				feedbackReturnStructure.get(Integer.parseInt(falseDocFbId))
+					.put("status", message);
+				for (Map<String, String> feedbackError : trueList) {
+					String feedbackErrorId = feedbackError.get("fbId");
+					Feedback_WordTree_JSON_Model errorFeedback = feedbackBatch
+							.get(Integer.parseInt(feedbackErrorId));
+//					errorFeedback.setStatus(this.message);
+					feedbackReturnStructure.get(Integer.parseInt(feedbackErrorId))
+						.put("status", message);
+					// add conflict list
+					try {
+//						errorFeedback.getConflictList().add(falseDocFbId);
+						List<String> conflictList = (List<String>) feedbackReturnStructure
+								.get(Integer.parseInt(feedbackErrorId)).get("conflictList");
+						conflictList.add(falseDocFbId);
+					} catch (NullPointerException e) {
+//						errorFeedback.setConflictList(new ArrayList<String>());
+//						errorFeedback.getConflictList().add(falseDocFbId);
+						List<String> conflictList = new ArrayList<>();
+						conflictList.add(falseDocFbId);
+						feedbackReturnStructure.get(Integer.parseInt(feedbackErrorId))
+							.put("conflictList", conflictList);
+					}
+					try {
+//						docFeedback.getConflictList().add(feedbackErrorId);
+						List<String> conflictList = (List<String>) feedbackReturnStructure
+								.get(Integer.parseInt(falseDocFbId)).get("conflictList");
+						conflictList.add(feedbackErrorId);
+					} catch (NullPointerException e) {
+//						docFeedback.setConflictList(new ArrayList<String>());
+//						docFeedback.getConflictList().add(feedbackErrorId);
+						List<String> conflictList = new ArrayList<>();
+						conflictList.add(feedbackErrorId);
+						feedbackReturnStructure.get(Integer.parseInt(falseDocFbId))
+							.put("conflictList", conflictList);
+					}
+					// add error msg
+					Map<String, String> errorMsg = new HashMap<>();
+					errorMsg.put("docId", reportID);
+					errorMsg.put("variable", varID);
+					errorMsg.put("span1", errorFeedback.getSelected());
+					errorMsg.put("type", "errorDocSpan");
+					errorMsgComponentList.add(errorMsg);
+				}
+			}
+
 			// each feedback in this list will conflict with all feedback in the
 			// other list
 			if (trueList != null && falseList != null) {
@@ -190,32 +253,50 @@ public class FeedbackErrorException extends Exception {
 					Feedback_WordTree_JSON_Model errorFeedback = feedbackBatch
 							.get(Integer.parseInt(feedbackErrorId));
 					// set status = ERROR
-					errorFeedback.setStatus(this.message);
+//					errorFeedback.setStatus(this.message);
+					feedbackReturnStructure.get(Integer.parseInt(feedbackErrorId))
+						.put("status", message);
 					// cross reference with the other list
 					for (Map<String, String> conflictError : falseList) {
 						String conflictErrorId = conflictError.get("fbId");
 						Feedback_WordTree_JSON_Model conflictFeedback = feedbackBatch
 								.get(Integer.parseInt(conflictErrorId));
 						// set status = ERROR
-						conflictFeedback.setStatus(this.message);
+//						conflictFeedback.setStatus(this.message);
+						feedbackReturnStructure.get(Integer.parseInt(conflictErrorId))
+							.put("status", message);
 						// add conflict list
 						try {
-							errorFeedback.getConflictList()
-									.add(conflictErrorId);
+//							errorFeedback.getConflictList()
+//									.add(conflictErrorId);
+							List<String> conflictList = (List<String>) feedbackReturnStructure.get(
+									Integer.parseInt(feedbackErrorId)).get("conflictList");
+							conflictList.add(conflictErrorId);
 						} catch (NullPointerException e) {
-							errorFeedback
-									.setConflictList(new ArrayList<String>());
-							errorFeedback.getConflictList()
-									.add(conflictErrorId);
+//							errorFeedback
+//									.setConflictList(new ArrayList<String>());
+//							errorFeedback.getConflictList()
+//									.add(conflictErrorId);
+							List<String> conflictList = new ArrayList<>();
+							conflictList.add(conflictErrorId);
+							feedbackReturnStructure.get(Integer.parseInt(feedbackErrorId))
+								.put("conflictList", conflictList);
 						}
 						try {
-							conflictFeedback.getConflictList().add(
-									feedbackErrorId);
+//							conflictFeedback.getConflictList().add(
+//									feedbackErrorId);
+							List<String> conflictList = (List<String>) feedbackReturnStructure.get(
+									Integer.parseInt(conflictErrorId)).get("conflictList");
+							conflictList.add(feedbackErrorId);
 						} catch (NullPointerException e) {
-							conflictFeedback
-									.setConflictList(new ArrayList<String>());
-							conflictFeedback.getConflictList().add(
-									feedbackErrorId);
+//							conflictFeedback
+//									.setConflictList(new ArrayList<String>());
+//							conflictFeedback.getConflictList().add(
+//									feedbackErrorId);
+							List<String> conflictList = new ArrayList<>();
+							conflictList.add(feedbackErrorId);
+							feedbackReturnStructure.get(Integer.parseInt(conflictErrorId))
+								.put("conflictList", conflictList);
 						}
 						// add error msg
 						Map<String, String> errorMsg = new HashMap<>();
@@ -229,5 +310,7 @@ public class FeedbackErrorException extends Exception {
 				}
 			}
 		}
+
+		return feedbackReturnStructure;
     }
 }
