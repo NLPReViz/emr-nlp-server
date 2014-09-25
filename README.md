@@ -53,7 +53,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 2. You need to build libsvm before you may run the server for the first time. To do that run `make` inside _data/libsvm_ directory or follow the instructions in the README file present there.
 
-3. Start the Tomcat server (eg. using `$ catalina run` or `$ catalina start`). Note that the _data_ directory must reside in the same directory you start the server from. So, if you are using Eclipse to launch the server on build it must be present where the Eclipse executable is running from.
+3. Start the Tomcat server (eg. using `$ catalina run` or `# service tomcat start` etc.). Note that the _data_ directory must reside in the same directory you start the server from. So, if you are using Eclipse to launch the server on build it must be present where the Eclipse executable is running from.
 
 ### Cleaning model files
 Receiving and handling feedbacks from the front-end ([emr-vis-web](https://github.com/trivedigaurav/emr-vis-web)) will modify the feedback management and model files contained in the _data_ directory. If you wish to reset these management files, e.g. to restart a new experiment, follow the following steps:
