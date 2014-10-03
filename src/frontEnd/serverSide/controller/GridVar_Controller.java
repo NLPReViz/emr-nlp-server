@@ -62,11 +62,9 @@ public class GridVar_Controller {
 				classifierController.loadClassifierMapFromList(	modelFnList, topKwords);
 
 		// get reportID list
-		
 		List<String> reportIDList = XMLUtil
 				.getReportIDFromXMLList(Util.getOSPath(new String[] {
 						m_documentListFolder, fn_reportIDList }));
-		System.out.println("In getPrediction: reportIDListFN=" + fn_reportIDList + ", reportIDList.length=" + reportIDList.size());
 		Report_Controller report_Controller = new Report_Controller();
 		List<FeatureWeight>[] topGlobalPositive = new ArrayList[modelFnList.size()];
 		List<FeatureWeight>[] topGlobalNegative = new ArrayList[modelFnList.size()];

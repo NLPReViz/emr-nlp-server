@@ -60,7 +60,6 @@ public class Report_Controller {
 			List<String> modelFnList, int topKwords, 
 			List<FeatureWeight>[] globalTopPositive,
 			List<FeatureWeight>[] globalTopNegative, boolean biasFeature) throws Exception {
-		System.out.println("In getReport_Model, reportIDList.length=" + reportIDList.size());
 		String positiveClassification = "positive";
 		String negativeClassification = "negative";
 		String unclassified = "unclassified";
