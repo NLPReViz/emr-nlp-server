@@ -17,24 +17,24 @@ public class AuthFilter implements ContainerRequestFilter {
 //        String method = containerRequest.getMethod();
 //        String path = containerRequest.getPath(true);
  
-//        String auth = containerRequest.getHeaderValue("authorization");
-//        if(auth == null){
-//            throw new WebApplicationException(Status.UNAUTHORIZED);
-//        }
-// 
-//        String[] credentials = decode(auth);
-// 
-//        if(credentials == null || credentials.length != 2){
-//            throw new WebApplicationException(Status.UNAUTHORIZED);
-//        }
-// 
-//        String uid = UserAuthentication.authenticate(credentials[0], credentials[1]);
-// 
-//        if(uid == null){
-//            throw new WebApplicationException(Status.UNAUTHORIZED);
-//        }
-// 
-//        containerRequest.getRequestHeaders().add("uid", uid);
+        String auth = containerRequest.getHeaderValue("authorization");
+        if(auth == null){
+            throw new WebApplicationException(Status.UNAUTHORIZED);
+        }
+ 
+        String[] credentials = decode(auth);
+ 
+        if(credentials == null || credentials.length != 2){
+            throw new WebApplicationException(Status.UNAUTHORIZED);
+        }
+ 
+        String uid = UserAuthentication.authenticate(credentials[0], credentials[1]);
+ 
+        if(uid == null){
+            throw new WebApplicationException(Status.UNAUTHORIZED);
+        }
+ 
+        containerRequest.getRequestHeaders().add("uid", uid);
         
         return containerRequest;
     }
