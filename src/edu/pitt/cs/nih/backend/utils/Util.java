@@ -200,7 +200,7 @@ public class Util {
      * @throws Exception
      */
     public static String getExecutingPath() throws Exception {    	
-        return System.getProperty("user.dir");
+        return System.getProperty("catalina.base");
     }
     
     /**
