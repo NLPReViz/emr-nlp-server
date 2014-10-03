@@ -63,6 +63,15 @@ public class WSInterface {
 	UriInfo uriInfo;
 	@Context
 	Request request;
+	
+	@GET
+	@Path("getCWD")
+//	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})	
+	@Produces(MediaType.TEXT_PLAIN)	
+	public String getCWD() throws Exception {
+		return Storage_Controller.getBaseFolder();
+//		return Dataset_MLModel_Controller.instance.getAllDataSetModel(); 
+	}
 
 	@GET
 	@Path("getVarDatasetList")
