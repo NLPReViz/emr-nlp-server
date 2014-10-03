@@ -79,6 +79,7 @@ public class Report_Controller {
 		String fn_featureVector = Storage_Controller.getTempLearningFeatureFn();
 		String fn_index = Storage_Controller.getTempLearningIndexFn();
 		createLibSVMLearningFile(reportIDList, fn_featureVector, fn_index);
+		System.out.println("Temp learning file length = " + Util.loadList(fn_featureVector).length);
 		// get predictions of each classifier
 		double[][][] predictionList = new double[modelFnList.size()][][];
 		for (int i = 0; i < modelFnList.size(); i++) {
