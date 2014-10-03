@@ -124,9 +124,7 @@ public class Report_Controller {
 			report.put("id", testIndexTable[iInstance][0]); // att starts from 0
 			for (int iModel = 0; iModel < predictionList.length; iModel++)
 			{
-				reportPrediction = new ReportPrediction_Model();
-				System.out.print("Debug: predictionList length=" + predictionList[iModel].length + "\t");
-				System.out.println("iInstance=" + iInstance + ", iModel=" + iModel);
+				reportPrediction = new ReportPrediction_Model();	
 				if(predictionList[iModel][iInstance][0] == 0.0 ||
 						predictionList[iModel][iInstance][0] == 1.0 ||
 						predictionList[iModel][iInstance][0] == 0.5 ||
