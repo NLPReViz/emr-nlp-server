@@ -38,6 +38,7 @@ public class WordTree_Controller {
 		List<String> reportIDList = XMLUtil
 				.getReportIDFromXMLList(Util.getOSPath(new String[] {
 						m_documentListFolder, fn_reportIDList }));
+//		System.out.println(String.format("Filename=" + fn_reportIDList + ", %d reports", reportIDList.size()));
 		
 		return getWordTree(reportIDList, rootWord);
 	}
@@ -55,7 +56,7 @@ public class WordTree_Controller {
 		int matchCount = 0;
 		List<String> matchedList = new ArrayList<>();
 		
-		int docCount = 0;
+//		int docCount = 0;
 		for (int i = 0; i < reportIDList.size(); i++) {
 			reportID = reportIDList.get(i);
 
@@ -69,7 +70,7 @@ public class WordTree_Controller {
 			matchCount = parseWordTree(reportText, sentencePattern,
 					tokenPattern, leftList, rightList, reportID, rootWord,
 					matchCount);
-			docCount++;
+//			docCount++;
 			// find within the pathology report
 			if (Util.fileExists(Util.getOSPath(new String[] { m_docsFolder,
 					reportID, Storage_Controller.getPathologyReportFn() }))) {
@@ -82,7 +83,7 @@ public class WordTree_Controller {
 				matchCount = parseWordTree(reportText, sentencePattern,
 						tokenPattern, leftList, rightList, reportID, rootWord,
 						matchCount);
-				docCount++;
+//				docCount++;
 			}
 			
 			if(matchCount > oldCount) {
@@ -97,7 +98,7 @@ public class WordTree_Controller {
 		Map<String, Object> treeMap = new HashMap<>();
 		treeMap.put("matches", matchCount);
 		treeMap.put("matchedList", matchedList);
-		treeMap.put("total", docCount);
+		treeMap.put("total", matchedList.size());
 		treeMap.put("query", rootWord);
 		treeMap.put("lefts", leftList);
 		treeMap.put("rights", rightList);
