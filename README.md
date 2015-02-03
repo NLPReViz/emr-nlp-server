@@ -49,14 +49,14 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 ### Run the server
 
-1. Navigate to the folder containing the _data_ directory (not in the repository). This folder may reside anywhere on your file-system and doesn't have to be present in one of the project folders.
+1. Make sure you have the _data_ directory (not in the repository; contact devs for information) inside *$CATALINA_BASE*.
 
 2. You need to build libsvm before you may run the server for the first time. To do that run `make` inside _data/libsvm_ directory or follow the instructions in the README file present there.
 
-3. Start the Tomcat server (eg. using `$ catalina run` or `# service tomcat start` etc.). Note that the _data_ directory must reside in the same directory you start the server from. So, if you are using Eclipse to launch the server on build it must be present where the Eclipse executable is running from.
+3. Start the Tomcat server (eg. using `$ catalina run` or `# service tomcat start` etc.). Note that the _data_ directory must reside in the catalina's base directory. You should be able to figure this path from the print messages you see after launching the server. Example path: _/usr/local/Cellar/tomcat/8.0.9/libexec/_ 
 
 ### Cleaning model files
-Receiving and handling feedbacks from the front-end ([emr-vis-web](https://github.com/trivedigaurav/emr-vis-web)) will modify the feedback management and model files contained in the _data_ directory. If you wish to reset these management files, e.g. to restart a new experiment, follow the following steps:
+Receiving and handling feedbacks from the front-end ([emr-vis-web](https://github.com/trivedigaurav/emr-vis-web)) will modify the feedback management and model files contained in the *CATALINA_base/data* directory. If you wish to reset these management files, e.g. to restart a new experiment, follow the following steps:
 
 1. Copy the _ResetDB.jar_ file into your _data_ directory. 
 2. Run the command `java -jar ResetDB.jar` from the _data_ directory.
@@ -64,6 +64,9 @@ Receiving and handling feedbacks from the front-end ([emr-vis-web](https://githu
 --
 
 Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) to setup the front-end application.
+
+### Login
+The defualt login credentials are _"username"_ and _"password"_. You are encouraged to change them from https://github.com/trivedigaurav/emr-nlp-server/blob/master/src/frontEnd/serverSide/UserAuthentication.java when running the app on a publicly accessible server.
 
 [homebrew]: http://brew.sh/
 [git]: http://git-scm.com/
