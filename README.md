@@ -66,7 +66,7 @@ Receiving and handling feedbacks from the front-end ([emr-vis-web](https://githu
 Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) to setup the front-end application.
 
 ### Login
-The defualt login credentials are _"username"_ and _"password"_. You are encouraged to change them from https://github.com/trivedigaurav/emr-nlp-server/blob/master/src/frontEnd/serverSide/UserAuthentication.java when running the app on a publicly accessible server.
+The default login credentials are _"username"_ and _"password"_. You are encouraged to change them from https://github.com/trivedigaurav/emr-nlp-server/blob/master/src/frontEnd/serverSide/UserAuthentication.java when running the app on a publicly accessible server.
 
 [homebrew]: http://brew.sh/
 [git]: http://git-scm.com/
