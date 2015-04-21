@@ -59,7 +59,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 Receiving and handling feedbacks from the front-end ([emr-vis-web](https://github.com/trivedigaurav/emr-vis-web)) will modify the feedback management and model files contained in the *CATALINA_base/data* directory. If you wish to reset these management files, e.g. to restart a new experiment, follow the following steps:
 
 1. Copy the _ResetDB.jar_ file into your _data_ directory. 
-2. Run the command `java -jar ResetDB.jar` from the _data_ directory.
+2. Run the command `java -jar ResetDB.jar 1` from the _data_ directory.
 
 --
 
