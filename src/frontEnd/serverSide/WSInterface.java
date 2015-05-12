@@ -12,6 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -191,6 +198,30 @@ public class WSInterface {
 //		System.out.println("There are " + feedbackBatch.size() + " feedback");		
 //		return new Feedback_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList);
 		return new Feedback_OverrideConflictLabel_Controller().getFeedback(feedbackBatch, fn_modelFnList, fn_reportIDList, uid);
+	}
+	
+	@PUT
+	@Path("logEvent/{event}/{message}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void logEvent(@HeaderParam("uid") String uid,
+			@PathParam("event") String event,
+			@PathParam("message") String message)
+			throws Exception {
+				File dir = new File(Storage_Controller.getModelListFolder());
+				File log = new File(dir, "log.txt");
+				
+				if(!log.exists()){
+	    			log.createNewFile();
+	    		}
+				
+				SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+				String time  = dateFormat.format(new Date());
+				
+				BufferedWriter output = new BufferedWriter(new FileWriter(log, true));
+				
+				System.out.println("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
+				output.write("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
+	            output.close();
 	}
 	
 	/**
