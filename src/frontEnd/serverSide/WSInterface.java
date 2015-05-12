@@ -207,7 +207,7 @@ public class WSInterface {
 			@PathParam("event") String event,
 			@PathParam("message") String message)
 			throws Exception {
-				File dir = new File(Storage_Controller.getModelListFolder());
+				File dir = new File(Storage_Controller.getBaseFolder());
 				File log = new File(dir, "log.txt");
 				
 				if(!log.exists()){
