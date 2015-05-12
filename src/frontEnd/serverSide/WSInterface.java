@@ -221,7 +221,7 @@ public class WSInterface {
 				
 				System.out.println("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
 				output.write("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
-	            output.close();
+	            output.flush();
 	}
 	
 	/**
