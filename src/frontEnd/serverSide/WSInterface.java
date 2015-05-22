@@ -201,11 +201,10 @@ public class WSInterface {
 	}
 	
 	@PUT
-	@Path("logEvent/{event}/{message}")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("logEvent/{fn_event}/{fn_message}")
 	public void logEvent(@HeaderParam("uid") String uid,
-			@PathParam("event") String event,
-			@PathParam("message") String message)
+			@PathParam("fn_event") String event,
+			@PathParam("fn_message") String message)
 			throws Exception {
 				File dir = new File(Storage_Controller.getBaseFolder());
 				File log = new File(dir, "log.txt");
@@ -219,8 +218,8 @@ public class WSInterface {
 				
 				BufferedWriter output = new BufferedWriter(new FileWriter(log, true));
 				
-				System.out.println("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
-				output.write("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
+				System.out.println("["+time+"]\t["+uid+"]\t["+fn_event+"]\t"+fn_message+"\n");
+				output.write("["+time+"]\t["+uid+"]\t["+fn_event+"]\t"+fn_message+"\n");
 	            output.flush();
 	}
 	
