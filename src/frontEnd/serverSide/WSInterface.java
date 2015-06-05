@@ -218,7 +218,7 @@ public class WSInterface {
 				
 				BufferedWriter output = new BufferedWriter(new FileWriter(log, true));
 				
-				System.out.println("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
+//				System.out.println("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
 				output.write("["+time+"]\t["+uid+"]\t["+event+"]\t"+message+"\n");
 	            output.flush();
 	}
