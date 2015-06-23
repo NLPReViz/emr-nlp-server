@@ -177,67 +177,71 @@ public class Preprocess {
          */
 	public static String[] separateReportHeaderFooter(String input) throws Exception {
 		String[] text = new String[3];
-                StringBuilder sb;
-		String[] lines = input.split("\n");
-		int allLines = lines.length;
-		int iLine = 0;
-		// header starts from the beginning to E_O_H
-                sb = new StringBuilder();
-		while(iLine < allLines && lines[iLine].indexOf("E_O_H") == -1) {
-                        sb.append(lines[iLine].trim());
-                        sb.append("\n");
-			iLine++;
-		}
-                // append the E_O_H line
-                sb.append(lines[iLine++]);
-                sb.append("\n");
-                // append the de-identifier signature
-                sb.append(lines[iLine++]);
-                // make the header
-                text[0] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
+        text[0] = "";
+        text[1] = input;
+        text[2] = "";
+        
+//                 StringBuilder sb;
+// 		String[] lines = input.split("\n");
+// 		int allLines = lines.length;
+// 		int iLine = 0;
+// 		// header starts from the beginning to E_O_H
+//                 sb = new StringBuilder();
+// 		while(iLine < allLines && lines[iLine].indexOf("E_O_H") == -1) {
+//                         sb.append(lines[iLine].trim());
+//                         sb.append("\n");
+// 			iLine++;
+// 		}
+//                 // append the E_O_H line
+//                 sb.append(lines[iLine++]);
+//                 sb.append("\n");
+//                 // append the de-identifier signature
+//                 sb.append(lines[iLine++]);
+//                 // make the header
+//                 text[0] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
                 
-                // the content starts from here until meet E_O_R or the last ____________________
-                sb = new StringBuilder();
-		if(iLine < allLines - 1) {                        
-			iLine++;
-//			text += lines[iLine].trim() + "\n";
-                        sb.append(lines[iLine].trim());
-                        sb.append("\n");
-		}
-		else {
-			iLine = -1;
-		}                
-		iLine++;
-		while(iLine < allLines && lines[iLine].indexOf("E_O_R") == -1 &&
-                        lines[iLine].indexOf("____________________") == -1) {
-                    // skip any line that has **NAME
-			if(!lines[iLine].trim().equals("") &&
-                                lines[iLine].trim().indexOf("**NAME") == -1) {
-//				text += lines[iLine].trim() + "\n";
-                            sb.append(lines[iLine].trim());
-                            sb.append("\n");
-			}
-			iLine++;
-		}
-                // make the content
-                text[1] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
-		// remove stop words
-		// and **ID-NUM
-                // should use StringBuilder instead of String here
-		text[1] = text[1].replaceAll("\\*\\*ID\\-NUM", "");
-                text[1] = text[1].replaceAll("id\\-num", "");
-		text[1] = text[1].replaceAll("\\*\\*\\S+", "");
-		text[1] = text[1].replaceAll("={3,}", "");
-		text[1] = text[1].replaceAll("_{3,}", "");
+//                 // the content starts from here until meet E_O_R or the last ____________________
+//                 sb = new StringBuilder();
+// 		if(iLine < allLines - 1) {                        
+// 			iLine++;
+// //			text += lines[iLine].trim() + "\n";
+//                         sb.append(lines[iLine].trim());
+//                         sb.append("\n");
+// 		}
+// 		else {
+// 			iLine = -1;
+// 		}                
+// 		iLine++;
+// 		while(iLine < allLines && lines[iLine].indexOf("E_O_R") == -1 &&
+//                         lines[iLine].indexOf("____________________") == -1) {
+//                     // skip any line that has **NAME
+// 			if(!lines[iLine].trim().equals("") &&
+//                                 lines[iLine].trim().indexOf("**NAME") == -1) {
+// //				text += lines[iLine].trim() + "\n";
+//                             sb.append(lines[iLine].trim());
+//                             sb.append("\n");
+// 			}
+// 			iLine++;
+// 		}
+//                 // make the content
+//                 text[1] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
+// 		// remove stop words
+// 		// and **ID-NUM
+//                 // should use StringBuilder instead of String here
+// 		text[1] = text[1].replaceAll("\\*\\*ID\\-NUM", "");
+//                 text[1] = text[1].replaceAll("id\\-num", "");
+// 		text[1] = text[1].replaceAll("\\*\\*\\S+", "");
+// 		text[1] = text[1].replaceAll("={3,}", "");
+// 		text[1] = text[1].replaceAll("_{3,}", "");
                 
-		// footer starts from here to the end
-                sb = new StringBuilder();
-                while(iLine < allLines) {
-                    sb.append(lines[iLine++].trim());
-                    sb.append("\n");
-                }
-                // make the footer
-                text[2] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
+// 		// footer starts from here to the end
+//                 sb = new StringBuilder();
+//                 while(iLine < allLines) {
+//                     sb.append(lines[iLine++].trim());
+//                     sb.append("\n");
+//                 }
+//                 // make the footer
+//                 text[2] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
                 
 		return text;
 	}
