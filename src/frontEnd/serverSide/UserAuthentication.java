@@ -40,9 +40,10 @@ public class UserAuthentication {
     	
 //    	SHA for "password" is 5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8
     	
-    	if (user.equals("username") && getHash(password).equals("5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8"))
-    		uid = "1";
+//    	if (user.equals("study") && getHash(password).equals("483dadf227b7b2d8a838b820b2c0a8f63dcd6149"))
+//    		uid = "1";
         
-    	return uid;
+//    	return uid;
+	return "1";
     }
 }

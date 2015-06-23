@@ -44,7 +44,7 @@ public class Preprocess {
                 if(removeStopWord) {
                     try
                     {
-                        String[] paths = {Util.getExecutingPath(), "data", "stop.en"};
+                        String[] paths = {Util.getExecutingPath(), "alaska-data", "stop.en"};
                         String stopWordFilename = Util.getOSPath(paths);
                         m_stopWordList = new ArrayList<>(Arrays.asList(Util.loadList(stopWordFilename, " ")));
                     }

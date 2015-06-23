@@ -48,11 +48,14 @@ public class PlotLearningCurve {
 			
 			// plot the learning curve
 			List<String> testIDList = XMLUtil.getReportIDFromXMLList(fn_test);
-			String[] varIDList = new String[]{
-					"any-adenoma", "appendiceal-orifice", "asa", "biopsy", "cecum",
-					"ileo-cecal-valve", "indication-type", "informed-consent",
-					"nursing-report", "prep-adequateNo", "prep-adequateNot",
-					"prep-adequateYes", "proc-aborted", "withdraw-time"};
+			//String[] varIDList = new String[]{
+			//		"any-adenoma", "appendiceal-orifice", "asa", "biopsy", "cecum",
+			//		"ileo-cecal-valve", "indication-type", "informed-consent",
+			//		"nursing-report", "prep-adequateNo", "prep-adequateNot",
+			//		"prep-adequateYes", "proc-aborted", "withdraw-time"};
+			
+			String[] varIDList = new String[]{"public-health"};
+
 			for(String varID : varIDList) {
 				// generate perf for all points on the curve (300 points)
 				runLearningCurve(varID, fn_train, testIDList);

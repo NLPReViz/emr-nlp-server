@@ -11,7 +11,7 @@ import edu.pitt.cs.nih.backend.utils.Util;
  */
 public class Storage_Controller {
 	public static String getBaseFolder() throws Exception {
-		return Util.getOSPath(new String[]{Util.getExecutingPath(), "data"});
+		return Util.getOSPath(new String[]{Util.getExecutingPath(), "alaska-data"});
 	}
 	
 	public static String getDocumentListFolder() throws Exception {

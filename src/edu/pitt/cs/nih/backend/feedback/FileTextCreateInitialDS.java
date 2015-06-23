@@ -46,10 +46,7 @@ import java.util.regex.Pattern;
 public class FileTextCreateInitialDS {
 	
 	public static String[] varIDList = new String[]{
-			"any-adenoma", "appendiceal-orifice", "asa", "biopsy", "cecum",
-			"ileo-cecal-valve", "indication-type", "informed-consent",
-			"nursing-report", "prep-adequateNo", "prep-adequateNot",
-			"prep-adequateYes", "proc-aborted", "withdraw-time"};
+			"public-health"};
 	
 	/**
 	 * Initialize session management file and feedback file from the default initial list
