@@ -41,6 +41,8 @@ public abstract class LibSVMFileFormat {
             String fn_featureVector, String fn_index, boolean includeBiasFeature,
             String fn_globalFeatureVector) throws Exception {
 
+        System.out.println("createLearningFileFromFeatureVector entry");
+
         HashMap<String, List<String>> instanceRationaleMap = new HashMap<>();
         // create instance feature vector (sparse format)
         // create contrastive feature vector = instance feature vector - rationale feature vector
@@ -53,15 +55,20 @@ public abstract class LibSVMFileFormat {
         for (int i = 0; i < unNormalizedFeatureVector.m_InstanceID.length; i++) {
             instanceID = unNormalizedFeatureVector.m_InstanceID[i];
             if (isRationaleInstance(instanceID)) {
+                System.out.println("FeatureVector for rationale " + instanceID);
                 instanceIndex = getOriginalInstanceIndex(instanceID,
                         normalizedFeatureVector);
+                System.out.println("instanceIndex got");
                 sparseInstanceFeature = normalizedFeatureVector.get(instanceIndex).getValue();
+                System.out.println("sparseFeature got");
                 item = new AbstractMap.SimpleEntry<>(instanceID,
                         getContrastFeature(unNormalizedFeatureVector.m_FeatureVector[i],
                             sparseInstanceFeature, includeBiasFeature));
+                System.out.println("contrastFeature got");
                 if (item.getValue().size() > 0) { // only add if x_ij \neq 0
                     instanceRationaleMap.get(
                             normalizedFeatureVector.get(instanceIndex).getKey()).add(instanceID);
+                    System.out.println("instanceRationale got");
                     normalizedFeatureVector.add(item);
                 }
                 else {
@@ -69,6 +76,7 @@ public abstract class LibSVMFileFormat {
                 }
 
             } else {
+                // System.out.println("FeatureVector for " + instanceID);
                 instanceRationaleMap.put(instanceID, new ArrayList<String>());
                 item = new AbstractMap.SimpleEntry<>(instanceID,
                         getInstanceFeature(unNormalizedFeatureVector.m_FeatureVector[i],
@@ -99,7 +107,7 @@ public abstract class LibSVMFileFormat {
 ////                        false);
 //            }
 //        }
-        
+        System.out.println("begin create libsvm format");
         // save the index file and the feature vector file
         // using LibSVM format
         StringBuilder indexSB = new StringBuilder();
@@ -108,6 +116,7 @@ public abstract class LibSVMFileFormat {
         int featureIndex;
         for(int i = 0; i < normalizedFeatureVector.size(); i++) {
             instanceID = normalizedFeatureVector.get(i).getKey();
+            System.out.println("FeatureVector for " + instanceID);
             // index file
             indexSB.append(instanceID);
             indexSB.append(",");
@@ -145,6 +154,8 @@ public abstract class LibSVMFileFormat {
         Util.saveTextFile(fn_index, indexSB.toString());
         // save feature vector file
         Util.saveTextFile(fn_featureVector, featureVectorSB.toString());
+
+        System.out.println("createLearningFileFromFeatureVector exit");
     }
     
     /**

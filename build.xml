@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="build" name="emr-nlp-server">
+<project basedir="." default="build" name="server">
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../../../../../Applications/eclipse kepler"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
-    <property name="warfile" value="emr-nlp-server"/>
+    <property name="warfile" value="alaska-server"/>
     <property name='deploydir' value='${env.CATALINA_HOME}/webapps' />  
     
     <path id="Apache Tomcat v7.0 [Apache Tomcat v7.0].libraryclasspath"/>

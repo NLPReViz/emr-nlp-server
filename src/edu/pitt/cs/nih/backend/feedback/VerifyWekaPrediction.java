@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  */
 public class VerifyWekaPrediction {
     public static void runExp() throws Exception {
-        String dataFolder = Util.getOSPath(new String[] {Util.getExecutingPath(), "data"});
+        String dataFolder = Util.getOSPath(new String[] {Util.getExecutingPath(), "alaska-data"});
         String docsFolder = Util.getOSPath(new String[] {dataFolder,
             "emr-vis-nlp_colonoscopy2", "docs"});
         String labelsFolder = Util.getOSPath(new String[] {dataFolder,

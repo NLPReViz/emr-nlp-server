@@ -32,6 +32,8 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     protected String varID;
 //	MLInstanceType reportType = MLInstanceType.COLONREPORTONLY;
 	MLInstanceType reportType = MLInstanceType.COLONREPORTANDPATHOLOGYREPORT;
+    // remember to change this with new dataset
+    protected int reportIDLen = 8; 
     
     public ColonoscopyDS_SVMLightFormat() {
     	try {
@@ -89,6 +91,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     public void createFullDS(String dataFolder, String _fn_feedback, String _sessionID,
             String _userID, String _varID, String fn_featureVector, String fn_index,
             boolean includeBiasFeature, String fn_globalFeatureVector) throws Exception {
+        System.out.println("createFullDS entry");
         fn_feedback = _fn_feedback;
         sessionID = _sessionID;
         userID = _userID;
@@ -98,6 +101,8 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 //        // load class value table before create training file
 //        classValueTable = _classValueTable;
         
+        System.out.println("getFullDSFeatureVector done");
+
         createLearningFileFromFeatureVector(unNormalizedDenseFeatureVector,
                 fn_featureVector, fn_index, includeBiasFeature, fn_globalFeatureVector);
     }
@@ -116,6 +121,8 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     @Override
     protected FeatureVector getFullDSFeatureVector(String fn_globalFeatureVector,
             String dataFolder) throws Exception {
+        // System.out.println("getFullDSFeatureVector entry");
+
     	String fileName, instanceID, instanceText;
     	int start, end;
         String[] instanceTextList = new String[2];
@@ -125,12 +132,18 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     	List<String> deletedSessionIDList = TextFileSessionManager.getDeletedSessionIDList(
     			userID, fn_session);
     	FeatureSetNGram featureSet = FeatureSetNGram.createFeatureSetNGram();
+
+        // System.out.println("FeatureSetNGram created");
+
+
     	// instanceID, <<start, end,> classValue>
     	HashMap<String, Map<Map.Entry<Integer, Integer>, String>> feedbackSpanDocList = 
                 new HashMap<>();
         Map<Map.Entry<Integer, Integer>, String> spanLabelMap;
         
         classValueTable = new HashMap<String,String>(); 
+
+        // System.out.println("Total feedback " + Integer.toString(feedbackTable.length));
 
         for(int iFeedback = 0; iFeedback < feedbackTable.length; iFeedback++) {
         	if(!deletedSessionIDList.contains(feedbackTable[iFeedback][1]) && // this session has not been deleted
@@ -156,17 +169,18 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 						instanceTextList[0] = Preprocess
 								.separateReportHeaderFooter(instanceTextList[0])[1];
 
-						fileName = Util.getOSPath(new String[] { dataFolder,
-								instanceID,
-								Storage_Controller.getPathologyReportFn() });
-						if (Util.fileExists(fileName)) {
-							instanceTextList[1] = Util.loadTextFile(fileName);
-							// remove header and footer
-							instanceTextList[1] = Preprocess
-									.separatePathologyHeaderFooter(instanceTextList[1])[1];
-						} else {
-							instanceTextList[1] = "";
-						}
+						instanceTextList[1] = "";
+      //                   fileName = Util.getOSPath(new String[] { dataFolder,
+						// 		instanceID,
+						// 		Storage_Controller.getPathologyReportFn() });
+						// if (Util.fileExists(fileName)) {
+						// 	instanceTextList[1] = Util.loadTextFile(fileName);
+						// 	// remove header and footer
+						// 	instanceTextList[1] = Preprocess
+						// 			.separatePathologyHeaderFooter(instanceTextList[1])[1];
+						// } else {
+						// 	instanceTextList[1] = "";
+						// }
 
 						featureSet.addInstance(instanceID, instanceTextList,
 								reportType);
@@ -195,7 +209,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
         		}
         	}
         }
-        
+
         // extract text spans from span feedbacks
         StringBuilder rawTextColon, rawTextPathology;
 //        int totalFeedback = 0;
@@ -203,21 +217,23 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
         for(String report_ID : feedbackSpanDocList.keySet()) {
             rawTextColon = new StringBuilder(Util.loadTextFile(Util.getOSPath(new String[] {dataFolder,
                     report_ID, Storage_Controller.getColonoscopyReportFn()})));
-//            // remove header footer
-//            rawTextColon = new StringBuilder(Preprocess.separateReportHeaderFooter(
-//            		rawTextColon.toString())[1]);
+           // remove header footer
+           rawTextColon = new StringBuilder(Preprocess.separateReportHeaderFooter(
+           		rawTextColon.toString())[1]);
 
-			if (Util.fileExists(Util.getOSPath(new String[] {
-					dataFolder, report_ID, Storage_Controller.getPathologyReportFn() }))) {
-				rawTextPathology = new StringBuilder(Util.loadTextFile(Util
-						.getOSPath(new String[] { dataFolder, report_ID,
-								Storage_Controller.getPathologyReportFn() })));
-//				rawTextPathology = new StringBuilder(Preprocess.separatePathologyHeaderFooter(
-//						rawTextPathology.toString())[1]);
-			}
-            else {
-            	rawTextPathology = new StringBuilder();
-            }
+// 			if (Util.fileExists(Util.getOSPath(new String[] {
+// 					dataFolder, report_ID, Storage_Controller.getPathologyReportFn() }))) {
+// 				rawTextPathology = new StringBuilder(Util.loadTextFile(Util
+// 						.getOSPath(new String[] { dataFolder, report_ID,
+// 								Storage_Controller.getPathologyReportFn() })));
+// //				rawTextPathology = new StringBuilder(Preprocess.separatePathologyHeaderFooter(
+// //						rawTextPathology.toString())[1]);
+// 			}
+//             else {
+//             	rawTextPathology = new StringBuilder();
+//             }
+
+            rawTextPathology = new StringBuilder();
             
             spanLabelMap = feedbackSpanDocList.get(report_ID);
             
@@ -241,8 +257,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 //            // can't merge like this, take the isntance feedback instead
 //            classValueTable.put(report_ID + "_000", classValueTable.get(report_ID));
 //            ++totalFeedback;
-            
-            
+
             // second approach (single rationale)
             // use each highlight span to create a pseudo span, not use all 
             // as in the first approach above
@@ -252,6 +267,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 //	            start = spanList.get(i).getKey();
 //	            end = spanList.get(i).getValue();
             int i = 0;
+
 			for (Map.Entry<Integer, Integer> span : spanLabelMap.keySet()) {
 				// only get spans agree with the report label
 				if (spanLabelMap.get(span).equals(classValueTable.get(report_ID))) {
@@ -324,7 +340,6 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
         
 //        System.out.println("There are " + totalFeedback + " over " + totalInstance + " reports. On average, there are " + (totalFeedback * 1.0 / totalInstance) + " feedback per report");
         String[] globalFeatureVector = Util.loadList(fn_globalFeatureVector);
-
         return featureSet.getFeatureVectorFromGlobalFeatureVector(globalFeatureVector);
     }    
     
@@ -376,7 +391,8 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
      */
     @Override
     public boolean isRationaleInstance(String instanceID) {
-        return instanceID.length() > 4; // "0000_000".length()
+        // return instanceID.length() > 4; // "0000_000".length()
+        return instanceID.length() > reportIDLen; // "00000000_000".length()
     }
     
 //    /**
@@ -738,7 +754,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 //        
 //        return instanceClassValue;
     	
-    	String _instanceID = instanceID.substring(0, 4); //"0000"_000
+    	String _instanceID = instanceID.substring(0, reportIDLen); //"0000"_000
     	String classValue = classValueTable.get(_instanceID).toLowerCase();
     	
     	return classValue.toLowerCase().equals("false") || classValue.equals("0")? "-1" : "+1";
@@ -830,6 +846,8 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
      */
     public void createLearningFileSet(String sessionID, String userID, String varID)
     		throws Exception {
+        System.out.println("createLearningFileSet entry");
+
     	String dataFolder = Storage_Controller.getDocsFolder();
     	String fn_featureVector = Storage_Controller.getLearningFeatureFn(sessionID,
     			userID, varID);
@@ -850,6 +868,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     	createFullDS(dataFolder, fn_feedback, sessionID, userID, varID,
     			fn_featureVector, fn_index, includeBiasFeature, fn_globalFeatureVector);
     	// create weight file
+        System.out.println("createFullDS entry");
     	// update feature vector (divide pseudo instance to \mu)
     	mergeCostList(fn_index, fn_featureVector, fn_weight, C, C_contrast, mu);
     }

@@ -33,15 +33,19 @@ public class Feedback_Controller {
 //		userID = modelListArgMap.get("userID");
 		userID = uid; // current setting
 		
+		System.out.println("Begin process feedback");
 		// auto add feedbackID
 		Feedback_WordTree_JSON_Model.autoSetFeedbackID(feedbackBatch);
+		System.out.println("FeedbackID set");
 
 		Map<String, Object> feedbackResult = new HashMap<>();
 		String returnMsg = "";
 		try {
 			 returnMsg = processFeedback(feedbackBatch,
 					userID);
+			 System.out.println("processed feedback");
 		} catch(FeedbackErrorException e) {
+			System.out.println("Some errors");
 			List<Map<String,Object>> feedbackList = e.injectFeedbackError(feedbackBatch);
 			feedbackResult.put("errorList", e.getErrorMsgComponentList());
 			feedbackResult.put("feedbackList", feedbackList);
@@ -59,6 +63,7 @@ public class Feedback_Controller {
 				System.out.println("]");
 			}
 		} catch(FeedbackWarningException e) {
+			System.out.println("Some warnings");
 			List<Map<String,Object>> feedbackList = e.injectFeedbackError(feedbackBatch);
 			feedbackResult.put("warningList", e.getErrorMsgComponentList());
 			feedbackResult.put("feedbackList", feedbackList);
@@ -75,6 +80,9 @@ public class Feedback_Controller {
 					System.out.println("]");
 				}
 			}
+		} 
+		catch(Exception e) {
+			System.out.println("Other errors");
 		}
 		
 		
@@ -190,7 +198,7 @@ public class Feedback_Controller {
 		// because "." is a dummy character we add to show in the wordtree https://github.com/trivedigaurav/emr-wordtree/issues/1
 		List<Feedback_Abstract_Model> feedbackBatchBackEnd = Feedback_WordTree_JSON_Model
 				.toFeedbackModelList(feedbackBatch);
-		
+		System.out.println("Hello errors");
 		String feedbackMsg = manager.processFeedback(feedbackBatchBackEnd);
 
 		return feedbackMsg;

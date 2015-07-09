@@ -38,6 +38,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import weka.core.Instances;
 import edu.pitt.cs.nih.backend.featureVector.ColonoscopyDS_SVMLightFormat;
 import edu.pitt.cs.nih.backend.featureVector.FeatureSet.MLInstanceType;
+import edu.pitt.cs.nih.backend.featureVector.FeatureSet;
 import edu.pitt.cs.nih.backend.featureVector.FeatureSetNGram;
 import edu.pitt.cs.nih.backend.featureVector.FeatureVector;
 import edu.pitt.cs.nih.backend.featureVector.Preprocess;
@@ -48,6 +49,7 @@ import edu.pitt.cs.nih.backend.utils.XMLUtil;
 import emr_vis_nlp.ml.LibLinearPredictor;
 import emr_vis_nlp.ml.LibSVMPredictor;
 import emr_vis_nlp.ml.SVMPredictor;
+import emr_vis_nlp.ml.ALearner;
 import frontEnd.serverSide.controller.Dataset_MLModel_Controller;
 import frontEnd.serverSide.controller.Feedback_Controller;
 import frontEnd.serverSide.controller.Feedback_OverrideConflictLabel_Controller;
@@ -59,6 +61,8 @@ import frontEnd.serverSide.controller.WordTree_Controller;
 import frontEnd.serverSide.model.Feedback_Abstract_Model;
 import frontEnd.serverSide.model.Feedback_WordTree_JSON_Model;
 import frontEnd.serverSide.model.ReportPrediction_Model;
+import edu.pitt.cs.nih.backend.simpleWS.model.Report;
+import edu.pitt.cs.nih.backend.simpleWS.ReportDAO;
 
 /**
  * @author Phuong Pham
@@ -232,6 +236,8 @@ public class WSInterface {
 	@Path("resetDB")
 	public String resetDB()
 			throws Exception {
+		createGlobalFeatureVector();
+
 		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
 		// re-create the data set files
     	String fn_modelList = Util.getOSPath(new String[] {
@@ -242,6 +248,45 @@ public class WSInterface {
 		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
 		
 		return "resetDB: OK";
+	}
+
+	protected void createGlobalFeatureVector () throws Exception {
+		// create global feature vector
+		FeatureSetNGram featureSet = FeatureSetNGram.createFeatureSetNGram();
+		// load all documents
+		// String fn_fullIDList = Util.getOSPath(new String[]{
+		// 		Storage_Controller.getDocumentListFolder(), });
+		List<Report> documentList = ReportDAO.instance.getReportFromListFile(
+				"fullIDList.xml", null);
+		// System.out.println("Loading all reports for global feature creating");
+
+		FeatureSet.MLInstanceType instanceType = MLInstanceType.COLONREPORTANDPATHOLOGYREPORT;
+		for(int i = 0; i < documentList.size(); i++) {
+            Report document = documentList.get(i);
+            
+            String instanceID = document.getId();
+            String[] instanceTextList = new String[2];
+            // the first string is colonocopy report
+            // get content only, skip header and footer
+            instanceTextList[0] = Preprocess.separateReportHeaderFooter(
+            		document.getColonoscopyReport())[1];
+            instanceTextList[1] = "";
+            // if(document.getPathologyReport().length() > 0) {
+            // 	instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
+            // 			document.getPathologyReport())[1];
+            // }
+            // else {
+            // 	instanceTextList[1] = "";
+            // }
+            
+            featureSet.addInstance(instanceID, instanceTextList, instanceType);
+        }
+		// get the global feature vector only
+		// System.out.println("Start extracting");
+		String[] globalFeatureVector = featureSet.getGlobalFeatureVector();
+		// save the global feature vector
+		Util.saveList(ALearner.getGlobalFeatureVectorFn(), globalFeatureVector);
+		System.out.println("File is saved at " + ALearner.getGlobalFeatureVectorFn());
 	}
 	
 	

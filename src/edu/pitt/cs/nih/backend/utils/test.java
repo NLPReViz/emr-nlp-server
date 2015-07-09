@@ -23,10 +23,14 @@ public class test {
         try {t.runTest();} catch (Exception e) {System.out.println(e.getMessage());}
     }
     
-    public static String[] varNameList = new String[] {"any-adenoma",
-        "appendiceal-orifice", "asa", "biopsy", "cecum", "ileo-cecal-valve",
-        "indication-type", "informed-consent", "nursing-report", "prep-adequateNo",
-        "prep-adequateNot", "prep-adequateYes", "proc-aborted", "withdraw-time"};
+    //public static String[] varNameList = new String[] {"any-adenoma",
+    //    "appendiceal-orifice", "asa", "biopsy", "cecum", "ileo-cecal-valve",
+    //    "indication-type", "informed-consent", "nursing-report", "prep-adequateNo",
+    //    "prep-adequateNot", "prep-adequateYes", "proc-aborted", "withdraw-time"};
+
+    public static String[] varNameList = new String[]{
+                        "public-health"};
+
     public static int[] foldList = new int[] {0, 1, 2, 3, 4};
 //    public static String[] varNameList = new String[] {"any-adenoma"};
 //    public static int[] foldList = new int[] {0};
@@ -89,7 +93,7 @@ public class test {
     
     protected static void testSaveFeatureWeight() throws Exception {
         String folder = Util.getOSPath(new String[] {Util.getExecutingPath(),
-                "data", "emr-vis-nlp_colonoscopy2", "modelsWeights"});
+                "alaska-data", "emr-vis-nlp_colonoscopy2", "modelsWeights"});
         String fn_featureWeight;
         String fn_featureWeightDist;
         String[][] featureWeightTable;

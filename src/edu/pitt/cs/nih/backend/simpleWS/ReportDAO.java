@@ -34,7 +34,7 @@ public enum ReportDAO {
 	 */
 	private ReportDAO() {
 		try {
-			m_baseFolder = Util.getOSPath(new String[]{Util.getExecutingPath(), "data"});
+			m_baseFolder = Util.getOSPath(new String[]{Util.getExecutingPath(), "alaska-data"});
 			m_documentListFolder = Util.getOSPath(new String[]{m_baseFolder, "documentList"});
 			m_modelListFolder = Util.getOSPath(new String[]{m_baseFolder, "modelList"});
 			m_docsFolder = Util.getOSPath(new String[]{m_baseFolder, "docs"});

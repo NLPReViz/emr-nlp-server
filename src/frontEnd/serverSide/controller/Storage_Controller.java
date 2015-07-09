@@ -11,7 +11,7 @@ import edu.pitt.cs.nih.backend.utils.Util;
  */
 public class Storage_Controller {
 	public static String getBaseFolder() throws Exception {
-		return Util.getOSPath(new String[]{Util.getExecutingPath(), "data"});
+		return Util.getOSPath(new String[]{Util.getExecutingPath(), "alaska-data"});
 	}
 	
 	public static String getDocumentListFolder() throws Exception {
@@ -192,6 +192,12 @@ public class Storage_Controller {
 	public static String[] parseModelListFn(String modelListFn) throws Exception {
 		String[] parseResult = new String[2];
 		String[] tokenList = modelListFn.split("\\.");
+
+		System.out.println(modelListFn);
+		for(String token : tokenList) {
+			System.out.println("Token: " + token);
+		}
+
 		parseResult[0] = tokenList[1]; // sessionID
 		if(tokenList.length > 2) {
 			parseResult[1] = tokenList[2]; // userID

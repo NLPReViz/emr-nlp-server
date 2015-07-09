@@ -46,10 +46,7 @@ import java.util.regex.Pattern;
 public class FileTextCreateInitialDS {
 	
 	public static String[] varIDList = new String[]{
-			"any-adenoma", "appendiceal-orifice", "asa", "biopsy", "cecum",
-			"ileo-cecal-valve", "indication-type", "informed-consent",
-			"nursing-report", "prep-adequateNo", "prep-adequateNot",
-			"prep-adequateYes", "proc-aborted", "withdraw-time"};
+			"public-health"};
 	
 	/**
 	 * Initialize session management file and feedback file from the default initial list
@@ -1181,6 +1178,7 @@ public class FileTextCreateInitialDS {
     		List<String> instanceIDList) throws Exception {
     	// reset the feedback file
     	Util.saveTextFile(Storage_Controller.getFeedbackFn(), "");
+        System.out.println("feedbackFN reset");
 
     	// clear modelList folder
     	Util.clearFolder(Storage_Controller.getModelListFolder());
@@ -1195,6 +1193,7 @@ public class FileTextCreateInitialDS {
     	XMLUtil.createXMLPredictor(sessionIDList, userIDList, varIDList,
     			Storage_Controller.getModelListFolder(), "0", "",
     			fn_initialModelList);
+        System.out.println("modeList reset");
     	
     	// reset session file
     	Util.saveTextFile(Storage_Controller.getSessionManagerFn(), "");
@@ -1243,6 +1242,7 @@ public class FileTextCreateInitialDS {
             	batch.add(feedback);
         	}
         }
+        System.out.println("feedback initialized");
 
         // create initial dataset
         String fn_modelList = "modelList.0..xml";
@@ -1250,6 +1250,7 @@ public class FileTextCreateInitialDS {
 		String uid = "1";
 		Map<String, Object> map = new Feedback_Controller().getFeedback(batch,
 				fn_modelList, fn_reportIDList, uid);
+        System.out.println("dataset intialized");
 //    	// add verify result here
 //		Map<String,Map<String,String>> labelMap = new HashMap<>();
 //		for(String varID : varIDList) {

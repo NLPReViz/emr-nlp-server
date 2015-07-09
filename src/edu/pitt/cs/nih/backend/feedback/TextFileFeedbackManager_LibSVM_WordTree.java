@@ -62,12 +62,15 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	 */
 	@Override
 	public String processFeedback(List<Feedback_Abstract_Model> batch) throws Exception {
+
+		System.out.println("processFeedback entry");
 		String feedbackMsg = "";
 		try {
 			// save Feedback_Abstract_Model objects in wordtree-feedback.txt
 			// then convert feedbacks in wordtree-feedback.txt into 
 			// final feedback format in feedback.txt for the new sessionID
 			saveFeedbackBatch(batch);
+			System.out.println("SavedFeedbackBatch done.");
 			// from feedback.txt, extract all instance / span feedback 
 			// of previous to current feedback of the userID
 			// independent of previous session
@@ -76,8 +79,10 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 			// only span feedback having the same latest document label value
 			// will be used in this learning
 			createLearningFiles();
+			System.out.println("createLearningFiles done.");
 			// generate models and weights directly from learning files
 			updateModels();
+			System.out.println("updateModels done.");
 			// get the current sessionIDs of all varID
 			// the modelList ID is the max sessionID
 			feedbackMsg = createXMLPredictorFile();
@@ -105,9 +110,13 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		// matched is the real span that matched in the text
 		// from selected and matched, we can get the skipped n-gram patterns (skipped position, n words to be skipped)
 		Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>>
-			feedbackMap = validateFeedbackBatch(feedbackBatch);		
+			feedbackMap = validateFeedbackBatch(feedbackBatch);	
+
+		// System.out.println("validateFeedbackBatch done.");
+
 		// save wordTree stand off annotation
 		String sessionID = saveWordTreeAnnotationFile(feedbackBatch);
+		// System.out.println("saveWordTreeAnnotationFile done.");
 
 		// convert wordTree stand off annotation to final annotation and update the session manager file
 		// it seems to be redundant when converting word tree annotation from file to 
@@ -226,11 +235,13 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 	 */
 	protected Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>> validateFeedbackBatch(
 			List<Feedback_Abstract_Model> feedbackBatch) throws Exception {
-		
+		// System.out.println("validateFeedbackBatch entry");
 		// structure Map<varID, Map<reportID, Map<<value,fbId>, List<Map<String,String>> selected, matched spans, fbId>>
 		Map<String, Map<String, Map<Entry<String,String>, List<Map<String,String>>>>>
 			feedbackMap = new HashMap<>();
+		// int count = 0;
 		for (Feedback_Abstract_Model abstractFeedback : feedbackBatch) {
+			// System.out.println(String.format("feedback %d", ++count));
 			if (abstractFeedback instanceof FeedbackSpan_WordTree_Model) { // span level feedback
 				FeedbackSpan_WordTree_Model feedback = 
 						(FeedbackSpan_WordTree_Model) abstractFeedback;
@@ -317,10 +328,11 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 				}
 			}
 		}
-		
+		// System.out.println("feedbackMap created");
 		// extract error feedback (if any)
 		Map<Entry<String,String>, Map<Entry<String,String>, List<Map<String,String>>>>
 			errorMap =  extractErrorMap(feedbackMap);
+		// System.out.println("ErrorMap created");
 		if(errorMap.size() > 0) {
 			throw new FeedbackErrorException("Error", errorMap);
 		}

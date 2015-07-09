@@ -325,6 +325,7 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
      */
     @Override
     public void createLearningFiles() throws Exception {
+        System.out.println("createLearningFiles entry");
         // get the current state of each model
         String[][] currentSessionList = sessionManager.getCurrentState(userID);
         ColonoscopyDS_SVMLightFormat libSVMFile = new ColonoscopyDS_SVMLightFormat();
@@ -336,9 +337,11 @@ public class TextFileFeedbackManagerLibSVM extends FeedbackManager {
             	sessionID = currentSession[0];
             	userID = currentSession[1];
             	varID = currentSession[2];
+                System.out.println("Before createLearningFilesSet");
             	libSVMFile.createLearningFileSet(sessionID, userID, varID);
             }
         }
+        System.out.println("createLearningFiles exit");
     }
     
     /**
