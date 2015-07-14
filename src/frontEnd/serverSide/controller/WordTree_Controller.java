@@ -47,9 +47,14 @@ public class WordTree_Controller {
 		String reportID, reportText;
 		List<Map<String, Object>> leftList = new ArrayList<>();
 		List<Map<String, Object>> rightList = new ArrayList<>();
-		
+
+		String searchText = rootWord.replaceAll(" ", "\\\\s*");
 //		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
-		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\\b" + rootWord + "\\b[^\n.?!]*)", Pattern.CASE_INSENSITIVE);
+		System.out.println("New search is: " + searchText);
+
+		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\\b" + searchText + "\\b[^\n.?!]*)", Pattern.CASE_INSENSITIVE);
+//		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
+		
 		Pattern tokenPattern = Pattern.compile("[\\w']+|[.,!?;]");
 		
 		
@@ -68,7 +73,7 @@ public class WordTree_Controller {
 			reportText = TextUtil.reconstructSentences(reportText);
 			int oldCount = matchCount;
 			matchCount = parseWordTree(reportText, sentencePattern,
-					tokenPattern, leftList, rightList, reportID, rootWord,
+					tokenPattern, leftList, rightList, reportID, searchText,
 					matchCount);
 //			docCount++;
 			// find within the pathology report
@@ -81,7 +86,7 @@ public class WordTree_Controller {
 				// use heuristic merging sentences
 				reportText = TextUtil.reconstructSentences(reportText);
 				matchCount = parseWordTree(reportText, sentencePattern,
-						tokenPattern, leftList, rightList, reportID, rootWord,
+						tokenPattern, leftList, rightList, reportID, searchText,
 						matchCount);
 //				docCount++;
 			}
@@ -138,11 +143,24 @@ public class WordTree_Controller {
 			// left branch
 			tokenList = new ArrayList<>();
 			
+			System.out.println(matchedSentence);
+			Pattern pattern = Pattern.compile(rootWord);
+			Matcher matcher = pattern.matcher(matchedSentence);
+
+			Integer start = 0;
+			Integer end = 0;
+
+			if(matcher.find()){
+				start = matcher.start();
+				end = matcher.end();
+			}
+
 			branchMatch = tokenPattern.matcher(matchedSentence.substring(0,
-					matchedSentence.indexOf(rootWord)).trim());
+					start).trim());
 			while (branchMatch.find()) {
 				tokenList.add(branchMatch.group());
 			}
+
 			matchedItem = new HashMap<>();
 			matchedItem.put("doc", reportID);
 			matchedItem.put("id", Integer.toString(matchCount));
@@ -152,8 +170,8 @@ public class WordTree_Controller {
 			// right branch
 			tokenList = new ArrayList<>();
 			branchMatch = tokenPattern.matcher(matchedSentence.substring(
-					matchedSentence.indexOf(rootWord) + rootWord.length())
-					.trim());
+					end).trim());
+
 			while (branchMatch.find()) {
 				tokenList.add(branchMatch.group());
 			}
