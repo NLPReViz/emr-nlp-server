@@ -48,7 +48,7 @@ public class WordTree_Controller {
 		List<Map<String, Object>> leftList = new ArrayList<>();
 		List<Map<String, Object>> rightList = new ArrayList<>();
 
-		String searchText = rootWord.replaceAll(" ", "\\\\s*");
+		String searchText = rootWord.replaceAll(" ", "\\\\s+");
 //		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
 		System.out.println("New search is: " + searchText);
 
