@@ -834,6 +834,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		String fn_pathology = Storage_Controller.getPathologyReportFn();
 		String docText;
 		Pattern pattern = getSearchPatternFromSpanMap(spanMap);
+		System.out.println(pattern);
 		Matcher m;
 		// search text in colonoscopy text, remove header footer
 //		docText = Preprocess.separateReportHeaderFooter( 
@@ -939,6 +940,8 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		String[] matchedTokenList = TextUtil.escapeRegex(spanMap.get("matched")).split(" ");
 		
 		
+		System.out.println("Received span map: " + spanMap);
+
 		StringBuilder sb = new StringBuilder();
 		// matchedTokenList.length >= selectedTokenList.length
 		int skippedN = 0;
@@ -978,7 +981,7 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		patternStr = sb.toString().trim().replaceAll(whiteSpaceBeforePunc, "\\\\s{0,1}");
 		// in case the first skipped n-gram is a punctuation
 		// there would be no white space before the n-gram
-		patternStr = patternStr.replaceAll(" (?=(\\(\\\\S\\+))", "\\\\s{0,1}");
+		patternStr = patternStr.replaceAll(" (?=(\\(\\\\S\\+))", "\\\\s*");
 //		// quote the string
 //		patternStr = TextUtil.escapeRegex(patternStr);
 		// reverse 's
