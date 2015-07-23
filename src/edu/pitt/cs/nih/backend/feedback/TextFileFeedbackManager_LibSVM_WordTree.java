@@ -981,13 +981,13 @@ public class TextFileFeedbackManager_LibSVM_WordTree extends TextFileFeedbackMan
 		patternStr = sb.toString().trim().replaceAll(whiteSpaceBeforePunc, "\\\\s{0,1}");
 		// in case the first skipped n-gram is a punctuation
 		// there would be no white space before the n-gram
-		patternStr = patternStr.replaceAll(" (?=(\\(\\\\S\\+))", "\\\\s*");
+		patternStr = patternStr.replaceAll(" (?=(\\(\\\\S\\+))", "\\\\W*");
 //		// quote the string
 //		patternStr = TextUtil.escapeRegex(patternStr);
 		// reverse 's
 		patternStr = patternStr.replaceAll("'s", "' {0,1}s");
 		// replace whitespace by \s
-		patternStr = patternStr.replaceAll("\\s(?!\\{)", "\\\\s+");
+		patternStr = patternStr.replaceAll("\\s(?!\\{)", "\\\\W+");
 
 //		System.out.println("Search pattern: " + patternStr);
 		

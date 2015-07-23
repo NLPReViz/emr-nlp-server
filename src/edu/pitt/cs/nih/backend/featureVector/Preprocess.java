@@ -267,40 +267,42 @@ public class Preprocess {
                         sb.append("\n");
 			iLine++;
 		}
-                // make header
-                text[0] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
+        
+        // make header
+        text[0] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
                 
-                // content starts from here until meet Pathologist (beginning of a sentence)
-                sb = new StringBuilder();
-		if(iLine < allLines - 1) {
-			iLine++;
-//			text += lines[iLine].trim() + "\n";
-                        sb.append(lines[iLine].trim());
-                        sb.append("\n");
-		}
-		else {
-			iLine = -1;
-		}
-		iLine++;
+//                 // content starts from here until meet Pathologist (beginning of a sentence)
+//                 sb = new StringBuilder();
+// 		if(iLine < allLines - 1) {
+// 			iLine++;
+// //			text += lines[iLine].trim() + "\n";
+//                         sb.append(lines[iLine].trim());
+//                         sb.append("\n");
+// 		}
+// 		else {
+// 			iLine = -1;
+// 		}
+// 		iLine++;
 		
-		Pattern p = Pattern.compile("^\\s*Pathologist");
-		Matcher m = p.matcher(lines[iLine]);
-		while(iLine < allLines && !m.find()) {
-			if(!lines[iLine].trim().equals("")) {
-//				text += lines[iLine].trim() + "\n";
-                                sb.append(lines[iLine].trim());
-                                sb.append("\n");
-			}
-			iLine++;
-			m = p.matcher(lines[iLine]);
-		}
-		// skip until meet GROSS DESCRIPTION
-		p = Pattern.compile("^GROSS DESCRIPTION");
-		m = p.matcher(lines[iLine]);
-		while(iLine < allLines && !m.find()) {
-			iLine++;
-			m = p.matcher(lines[iLine]);
-		}
+// 		Pattern p = Pattern.compile("^\\s*Pathologist");
+// 		Matcher m = p.matcher(lines[iLine]);
+// 		while(iLine < allLines && !m.find()) {
+// 			if(!lines[iLine].trim().equals("")) {
+// //				text += lines[iLine].trim() + "\n";
+//                                 sb.append(lines[iLine].trim());
+//                                 sb.append("\n");
+// 			}
+// 			iLine++;
+// 			m = p.matcher(lines[iLine]);
+// 		}
+// 		// skip until meet GROSS DESCRIPTION
+// 		p = Pattern.compile("^GROSS DESCRIPTION");
+// 		m = p.matcher(lines[iLine]);
+// 		while(iLine < allLines && !m.find()) {
+// 			iLine++;
+// 			m = p.matcher(lines[iLine]);
+// 		}
+
 		// keep contain until meet E_O_R
 		while(iLine < allLines && lines[iLine].indexOf("E_O_R") == -1) {
 			if(!lines[iLine].trim().equals("")) {
@@ -310,22 +312,23 @@ public class Preprocess {
 			}
 			iLine++;
 		}
-                // make content
+        
+        // make content
 		// remove stop word
-                // and **ID-NUM
-                text[1] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
+        // and **ID-NUM
+        text[1] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
 		text[1] = text[1].replaceAll("\\*\\*ID\\-NUM", "");
 		text[1] = text[1].replaceAll("\\*\\*INITIALS", "");
 		text[1] = text[1].replaceAll("_{3,}", "");
                 
-                // footer starts from here to the end
-                sb = new StringBuilder();
-                while(iLine < allLines) {
-                    sb.append(lines[iLine++].trim());
-                    sb.append("\n");
-                }
-                // make the footer
-                text[2] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
+        // footer starts from here to the end
+        sb = new StringBuilder();
+        while(iLine < allLines) {
+            sb.append(lines[iLine++].trim());
+            sb.append("\n");
+        }
+        // make the footer
+        text[2] = TextUtil.removeDuplicatedSpace(sb.toString().trim());
                 
 		return text;
 	}
