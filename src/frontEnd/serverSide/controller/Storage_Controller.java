@@ -190,6 +190,8 @@ public class Storage_Controller {
 	}
 	
 	public static String[] parseModelListFn(String modelListFn) throws Exception {
+		System.out.println("Modellist: " + modelListFn);
+
 		String[] parseResult = new String[2];
 		String[] tokenList = modelListFn.split("\\.");
 

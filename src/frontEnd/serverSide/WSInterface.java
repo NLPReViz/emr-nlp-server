@@ -245,6 +245,10 @@ public class WSInterface {
 		String fn_reportIDList = Util.getOSPath(new String[]{
 				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
 		// re-create the whole dataset
+
+
+		System.out.println("Starting out from ResetDB: " + fn_modelList + " " + fn_reportIDList);
+
 		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
 		
 		return "resetDB: OK";

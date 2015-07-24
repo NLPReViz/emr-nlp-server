@@ -69,7 +69,6 @@ public class TopFeature_Controller {
 		Morphology morph = new Morphology();
 		
 //		Set<String> unigramList = new TreeSet<>();
-		
 		for(int iSentence = 0; iSentence < allTokenList.get(0).size(); iSentence++) {
 			String[] wordList = new String[allTokenList.get(0).get(iSentence).length];
 			for(int iWord = 0; iWord < wordList.length; iWord++) {

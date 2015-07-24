@@ -158,6 +158,8 @@ public class Report_Controller {
 									Storage_Controller
 											.convertModelFn2FeatureWeightFn(modelFnList
 													.get(iModel)) }));
+
+					// System.out.println("Stemming file - " + (String) report.get("id"));
 					allTokenList = topFeatureController
 							.getStemmedTokenList(getReportText((String) report
 									.get("id")));

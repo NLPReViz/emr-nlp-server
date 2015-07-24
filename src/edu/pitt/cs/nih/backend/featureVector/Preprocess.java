@@ -371,6 +371,9 @@ public class Preprocess {
                 tokenPerSentence = tokenPerSentenceList.get(iSentence);
                 for (int iToken = 0; iToken < tokenPerSentence.length; iToken++) {
                     token = tokenPerSentence[iToken];
+                    
+                    // System.out.println("Before: " + token);
+
                     if (!token.equals("") && m_removePunctuation) {
                         token = filterPunctuation(token);
                     }
@@ -384,7 +387,10 @@ public class Preprocess {
                             token = stemWord(token, morph);
 
                     // add if it is not an empty token
-                    if(!token.equals("")) {
+                    // System.out.println(token);
+
+                    if(token != null && !token.equals("")) {
+                        token = token.replaceAll(",", "");
                         processedTokenList.add(token);
                     }
                 }
