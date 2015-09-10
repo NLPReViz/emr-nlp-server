@@ -6,29 +6,30 @@
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
     <property name="warfile" value="emr-nlp-server"/>
-    <property name='deploydir' value='${env.CATALINA_HOME}/webapps' />  
+    <property name='deploydir' value='${env.CATALINA_HOME}/webapps' />
+    <property name="web-inf.lib.dir" value="WebContent/WEB-INF/lib"/>
     
     <path id="Apache Tomcat v7.0 [Apache Tomcat v7.0].libraryclasspath"/>
     <path id="Web App Libraries.libraryclasspath">
-        <pathelement location="WebContent/WEB-INF/lib/PPWeka.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/asm-3.1.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/ejml-0.23.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jackson-core-asl-1.9.2.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jackson-jaxrs-1.9.2.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jackson-mapper-asl-1.9.2.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jackson-xc-1.9.2.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jersey-client-1.18.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jersey-core-1.18.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jersey-json-1.18.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jersey-server-1.18.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jersey-servlet-1.18.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jettison-1.1.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/joda-time-2.1-sources.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jollyday-0.4.7-sources.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jsr311-api-1.1.1.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/libsvm.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/stanford-corenlp-3.3.1.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/xom-1.2.10-src.jar"/>
+        <pathelement location="${web-inf.lib.dir}/weka.jar"/>
+        <pathelement location="${web-inf.lib.dir}/asm-3.1.jar"/>
+        <pathelement location="${web-inf.lib.dir}/ejml-0.23.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jackson-core-asl-1.9.2.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jackson-jaxrs-1.9.2.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jackson-mapper-asl-1.9.2.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jackson-xc-1.9.2.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jersey-client-1.18.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jersey-core-1.18.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jersey-json-1.18.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jersey-server-1.18.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jersey-servlet-1.18.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jettison-1.1.jar"/>
+        <pathelement location="${web-inf.lib.dir}/joda-time-2.1-sources.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jollyday-0.4.7-sources.jar"/>
+        <pathelement location="${web-inf.lib.dir}/jsr311-api-1.1.1.jar"/>
+        <pathelement location="${web-inf.lib.dir}/libsvm-3.17.jar"/>
+        <pathelement location="${web-inf.lib.dir}/stanford-corenlp-3.3.1.jar"/>
+        <pathelement location="${web-inf.lib.dir}/xom-1.2.10-sources.jar"/>
     </path>
     <path id="EAR Libraries.libraryclasspath"/>
     <path id="emr-nlp-server.classpath">
@@ -37,6 +38,28 @@
         <path refid="Web App Libraries.libraryclasspath"/>
         <path refid="EAR Libraries.libraryclasspath"/>
     </path>
+    <target name="resolve" description="Resolve dependencies">
+        <!-- TODO: Convert the project to maven or find a better solution -->
+        <get src="http://repo1.maven.org/maven2/asm/asm/3.1/asm-3.1.jar" dest="${web-inf.lib.dir}/asm-3.1.jar" />
+        <get src="http://repo1.maven.org/maven2/com/googlecode/efficient-java-matrix-library/ejml/0.23/ejml-0.23.jar" dest="${web-inf.lib.dir}/ejml-0.23.jar" />
+        <get src="http://repo1.maven.org/maven2/org/codehaus/jackson/jackson-core-asl/1.9.2/jackson-core-asl-1.9.2.jar" dest="${web-inf.lib.dir}/jackson-core-asl-1.9.2.jar" />
+        <get src="http://repo1.maven.org/maven2/org/codehaus/jackson/jackson-jaxrs/1.9.2/jackson-jaxrs-1.9.2.jar" dest="${web-inf.lib.dir}/jackson-jaxrs-1.9.2.jar" />
+        <get src="http://repo1.maven.org/maven2/org/codehaus/jackson/jackson-mapper-asl/1.9.2/jackson-mapper-asl-1.9.2.jar" dest="${web-inf.lib.dir}/jackson-mapper-asl-1.9.2.jar" />
+        <get src="http://repo1.maven.org/maven2/org/codehaus/jackson/jackson-xc/1.9.2/jackson-xc-1.9.2.jar" dest="${web-inf.lib.dir}/jackson-xc-1.9.2.jar" />
+        <get src="http://repo1.maven.org/maven2/com/sun/jersey/jersey-client/1.18/jersey-client-1.18.jar" dest="${web-inf.lib.dir}/jersey-client-1.18.jar" />
+        <get src="http://repo1.maven.org/maven2/com/sun/jersey/jersey-core/1.18/jersey-core-1.18.jar" dest="${web-inf.lib.dir}/jersey-core-1.18.jar" />
+        <get src="http://repo1.maven.org/maven2/com/sun/jersey/jersey-json/1.18/jersey-json-1.18.jar" dest="${web-inf.lib.dir}/jersey-json-1.18.jar" />
+        <get src="http://repo1.maven.org/maven2/com/sun/jersey/jersey-server/1.18/jersey-server-1.18.jar" dest="${web-inf.lib.dir}/jersey-server-1.18.jar" />
+        <get src="http://repo1.maven.org/maven2/com/sun/jersey/jersey-servlet/1.18/jersey-servlet-1.18.jar" dest="${web-inf.lib.dir}/jersey-servlet-1.18.jar" />
+        <get src="http://repo1.maven.org/maven2/org/codehaus/jettison/jettison/1.1/jettison-1.1.jar" dest="${web-inf.lib.dir}/jettison-1.1.jar" />
+        <get src="http://repo1.maven.org/maven2/joda-time/joda-time/2.1/joda-time-2.1-sources.jar" dest="${web-inf.lib.dir}/joda-time-2.1-sources.jar" />
+        <get src="http://repo1.maven.org/maven2/de/jollyday/jollyday/0.4.7/jollyday-0.4.7-sources.jar" dest="${web-inf.lib.dir}/jollyday-0.4.7-sources.jar" />
+        <get src="http://repo1.maven.org/maven2/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1.jar" dest="${web-inf.lib.dir}/jsr311-api-1.1.1.jar" />
+        <get src="http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.1/stanford-corenlp-3.3.1.jar" dest="${web-inf.lib.dir}/stanford-corenlp-3.3.1.jar" />
+        <get src="http://repo1.maven.org/maven2/com/io7m/xom/xom/1.2.10/xom-1.2.10-sources.jar" dest="${web-inf.lib.dir}/xom-1.2.10-sources.jar" />
+        <get src="http://repo1.maven.org/maven2/tw/edu/ntu/csie/libsvm/3.17/libsvm-3.17.jar" dest="${web-inf.lib.dir}" />
+        <get src="https://github.com/trivedigaurav/weka/releases/download/3.6.10-libsvm/weka.jar" dest="${web-inf.lib.dir}"/>
+    </target>
     <target name="init">
         <mkdir dir="build/classes"/>
         <copy includeemptydirs="false" todir="build/classes">
@@ -49,6 +72,9 @@
         <delete dir="build/classes"/>
         <delete file="${warfile}.war"/>
         <delete dir="${warfile}.war"/>
+        <delete includeemptydirs="true">
+            <fileset dir="${web-inf.lib.dir}" includes="**/*"/>
+        </delete>
         <antcall target="delete"/>
     </target>
     <target depends="clean" name="cleanall"/>

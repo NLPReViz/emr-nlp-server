@@ -20,8 +20,26 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with [homebrew][homebrew] you may use `$ brew install tomcat` to install the server on your machine.
 
-3. To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed (Option B). Otherwise, the project also contains a _build.xml_ to be used with [Apache Ant][ant] (Option A).
+3. Our project depends on the following external dependencies which can be downloaded using [Apache Ant][ant]:
 
+- Java [Jersey](http://jersey.java.net/) is [dual licensed](https://jersey.java.net/license.html):
+COMMON DEVELOPMENT AND DISTRIBUTION LICENSE and GPL 2.
+
+- [Weka](http://www.cs.waikato.ac.nz/ml/weka/) is licensed under GPL 3.
+
+- [libsvm](http://www.csie.ntu.edu.tw/~cjlin/libsvm/) with a license compatible with GPL.
+
+- [Stanford CoreNLP](http://nlp.stanford.edu/software/corenlp.shtml) is licensed under the GNU General Public License (v3 or later; Stanford NLP code is GPL v2+, but the composite with external libraries is v3+).
+
+To download and resolve these dependencies from their respective repositories use:
+
+    ```
+    ant resolve
+    ```
+
+### Building the project
+    
+To build the project, we recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.org/downloads/) with the [EGit plugin](http://www.eclipse.org/egit/download/) installed (Option B). Otherwise, the project also contains a _build.xml_ to be used with [Apache Ant][ant] (Option A).
 
 #### _Option A:_ Use ant to build the project
 
@@ -47,7 +65,7 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 3. Export the project into a .war file: **File** > **Export** > Web > WAR File to the Tomcat's _webapps/_ directory.
 
-### Run the server
+### Running the server
 
 1. Make sure you have the _data_ directory (not in the repository; contact devs for information) inside *$CATALINA_BASE*. You should be able to figure this path from the print messages you see after launching the server. Example path: _/usr/local/Cellar/tomcat/8.0.9/libexec/_.
 
@@ -55,18 +73,10 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 
 3. Start the Tomcat server (eg. using `$ catalina run` or `# service tomcat start` etc.).
 
-### Cleaning model files
-Receiving and handling feedbacks from the front-end ([emr-vis-web](https://github.com/trivedigaurav/emr-vis-web)) will modify the feedback management and model files contained in the *CATALINA_base/data* directory. If you wish to reset these management files, e.g. to restart a new experiment, follow the following steps:
-
-1. Copy [ResetDB.jar](ResetDB.jar) file into your _data_ directory. 
-2. Run the command `java -jar ResetDB.jar 1` from the _data_ directory.
-
---
-
 Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) to setup the front-end application.
 
 ### Login
-The default login credentials are _"username"_ and _"password"_. You are encouraged to change them from https://github.com/trivedigaurav/emr-nlp-server/blob/master/src/frontEnd/serverSide/UserAuthentication.java when running the app on a publicly accessible server.
+The the rest calls to the server are protected with a [basic access http authentication](https://en.wikipedia.org/wiki/Basic_access_authentication). The default login credentials are _"username"_ and _"password"_. You are encouraged to change them from https://github.com/trivedigaurav/emr-nlp-server/blob/master/src/frontEnd/serverSide/UserAuthentication.java when running the app on a publicly accessible server.
 
 [homebrew]: http://brew.sh/
 [git]: http://git-scm.com/
