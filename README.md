@@ -21,16 +21,17 @@ To get started, install the pre-requisites, get the emr-nlp-server application a
 2. We use the [Apache Tomcat](http://tomcat.apache.org/) server to deploy the app. On a Mac with [homebrew][homebrew] you may use `$ brew install tomcat` to install the server on your machine.
 
 3. Our project depends on the following external dependencies which can be downloaded using [Apache Ant][ant]:
-    - Java [Jersey](http://jersey.java.net/) which is [dual licensed](https://jersey.java.net/license.html):
+    - [Java Jersey](http://jersey.java.net/) which is [dual licensed](https://jersey.java.net/license.html):
     COMMON DEVELOPMENT AND DISTRIBUTION LICENSE and GPL 2.
     - [Weka](http://www.cs.waikato.ac.nz/ml/weka/) licensed under GPL 3.
     - [Libsvm](http://www.csie.ntu.edu.tw/~cjlin/libsvm/) with a license compatible with GPL.
     - [Stanford CoreNLP](http://nlp.stanford.edu/software/corenlp.shtml) licensed under the GNU General Public License (v3 or later; Stanford NLP code is GPL v2+, but the composite with external libraries is v3+).
 
     To download and resolve these dependencies from their respective repositories use:
-```
+    
+    ```
     ant resolve
-```
+    ```
 
 ### Building the project
     
