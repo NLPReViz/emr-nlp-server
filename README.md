@@ -77,3 +77,6 @@ The the rest calls to the server are protected with a [basic access http authent
 [homebrew]: http://brew.sh/
 [git]: http://git-scm.com/
 [ant]: http://ant.apache.org/
+
+## License 
+This project is released under the GPL 3 license. Take a look at the [LICENSE](LICENSE.md) file in the source for more information.
