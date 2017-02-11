@@ -63,7 +63,7 @@ To build the project, we recommend using the [Eclipse IDE for Java EE Developers
 
 ### Running the server
 
-1. Make sure you have the _data_ directory (not in the repository; contact devs for information) inside *$CATALINA_BASE*. You should be able to figure this path from the print messages you see after launching the server. Example path: _/usr/local/Cellar/tomcat/8.0.9/libexec/_.
+1. We have included some "dummy" data with our release so that you can run the tool and play with the interface. These are not actual medical records and and your models will not be useful. Download and copy the [_data_](https://github.com/trivedigaurav/emr-nlp-server/releases/download/empirical-study/data.zip) directory inside *$CATALINA_BASE*. You should be able to figure this path from the print messages you see after launching the server. Example path: _/usr/local/Cellar/tomcat/8.0.9/libexec/data_. Contact the devs if you need more information about real datasets.
 
 2. You need to build libsvm before you may run the server for the first time. To do that run `make` inside _data/libsvm_ directory or follow the instructions in the README file present there.
 
