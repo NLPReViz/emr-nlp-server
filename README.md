@@ -1,6 +1,6 @@
 # NLPReViz: emr-nlp-server 
 
-emr-nlp-server provides the backend service for the [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) project.
+emr-nlp-server provides the backend service for the [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) project.
 
 ## Getting Started
 
@@ -42,7 +42,7 @@ To build the project, we recommend using the [Eclipse IDE for Java EE Developers
 1. Clone the emr-nlp-server repository using [git][git]:
 
     ```
-    git clone https://github.com/trivedigaurav/emr-nlp-server.git
+    git clone https://github.com/NLPReViz/emr-nlp-server.git
     cd emr-nlp-server
     ```
 
@@ -65,13 +65,13 @@ To build the project, we recommend using the [Eclipse IDE for Java EE Developers
 
 We have included some "dummy" data with our release so that you can run the tool and play with the interface. These are not actual medical records and and your models will not be useful. Contact the devs if you need more information about real datasets. 
 
-1. Download and copy the [_data_](https://github.com/trivedigaurav/emr-nlp-server/releases/download/empirical-study/data.zip) directory inside *$CATALINA_BASE*. You should be able to figure this path from the print messages you see after launching the server. Example path: _/usr/local/Cellar/tomcat/8.0.9/libexec/data_. 
+1. Download and copy the [_data_](https://github.com/NLPReViz/emr-nlp-server/releases/download/empirical-study/data.zip) directory inside *$CATALINA_BASE*. You should be able to figure this path from the print messages you see after launching the server. Example path: _/usr/local/Cellar/tomcat/8.0.9/libexec/data_. 
 
 2. You need to build libsvm before you may run the server for the first time. To do that run `make` inside _data/libsvm_ directory or follow the instructions in the README file present there.
 
 3. Start the Tomcat server (eg. using `$ catalina run` or `# service tomcat start` etc.).
 
-Now follow the steps on [emr-vis-web](https://github.com/trivedigaurav/emr-vis-web) to setup the front-end application.
+Now follow the steps on [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) to setup the front-end application.
 
 ### Login
 The the rest calls to the server are protected with a [basic access http authentication](https://en.wikipedia.org/wiki/Basic_access_authentication). The default login credentials are _"username"_ and _"password"_. You are encouraged to change them in [UserAuthentication.java](src/frontEnd/serverSide/UserAuthentication.java) when running the app on a publicly accessible server.
