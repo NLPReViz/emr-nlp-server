@@ -63,15 +63,10 @@ We have included some "dummy" data with our release so that you can run the tool
 
 Now follow the steps on [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) to setup the front-end application.
 
-## Defining custom variables
-The tool is currently configured to make predictions for 14 colonoscopy quality variables. To define your own variables, you will need to edit [app/js/controllers.js](app/js/controllers.js) as follows:
+### Defining custom variables
+The tool is currently configured to make predictions for 14 colonoscopy quality variables. It also does specific format parsing for colonoscopy and pathology reports in the data provided with the release. We have a more generic version of the tool in the `alaska` branch of this repository. Refer to the top 3 three commits for the changes [here](https://github.com/NLPReViz/emr-nlp-server/commits/7d0c303c7d0752368fc85dce72ccf4aec39ee44a). This project will be updated to make this configuration easier in the near future.
 
-```
-    $rootScope.config.variables = ["newVar"]
-
-    $rootScope.config.variableMapping = { "newVar": "newVar-display-name" }
-```
-Remember to update [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) as well.
+Remember to update [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) as described in its README as well.
 
 ### Login
 The the rest calls to the server are protected with a [basic access http authentication](https://en.wikipedia.org/wiki/Basic_access_authentication). The default login credentials are _"username"_ and _"password"_. You are encouraged to change them in [UserAuthentication.java](src/io/github/nlpreviz/server/UserAuthentication.java) when running the app on a publicly accessible server.
