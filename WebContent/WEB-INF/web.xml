@@ -6,7 +6,7 @@
     <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>frontEnd.serverSide</param-value>
+      <param-value>io.github.nlpreviz.server</param-value>
     </init-param>
     <init-param>
         <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
@@ -14,7 +14,7 @@
     </init-param>
     <init-param>
     	<param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
-    	<param-value>com.sun.jersey.api.container.filter.LoggingFilter;frontEnd.serverSide.AuthFilter</param-value>
+    	<param-value>com.sun.jersey.api.container.filter.LoggingFilter;io.github.nlpreviz.server.AuthFilter</param-value>
 	</init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
