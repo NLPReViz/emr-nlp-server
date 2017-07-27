@@ -53,7 +53,7 @@ We recommend using the [Eclipse IDE for Java EE Developers](http://www.eclipse.o
 
 ### Running the server
 
-We have included some "dummy" data with our release so that you can run the tool and play with the interface. These are not actual medical records and and your models will not be useful. Contact the devs if you need more information about real datasets. 
+We have included some ["dummy" data](https://github.com/NLPReViz/emr-nlp-server/releases/download/empirical-study/data.zip) with our release so that you can run the tool and play with the interface. These are not actual medical records and and your models will not be useful. Contact the devs if you need more information about real datasets. 
 
 1. Download and copy the [_data_](https://github.com/NLPReViz/emr-nlp-server/releases/download/empirical-study/data.zip) directory inside *$CATALINA_BASE*. You should be able to figure this path from the print messages you see after launching the server. Example path: _/usr/local/Cellar/tomcat/8.0.9/libexec/data_. 
 
