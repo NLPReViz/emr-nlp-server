@@ -6,11 +6,13 @@ package io.github.nlpreviz.server;
 import io.github.nlpreviz.ml.LibLinearPredictor;
 import io.github.nlpreviz.ml.LibSVMPredictor;
 import io.github.nlpreviz.ml.SVMPredictor;
+import io.github.nlpreviz.ml.ALearner;
 import io.github.nlpreviz.nlp.featureVector.ColonoscopyDS_SVMLightFormat;
 import io.github.nlpreviz.nlp.featureVector.FeatureSetNGram;
 import io.github.nlpreviz.nlp.featureVector.FeatureVector;
 import io.github.nlpreviz.nlp.featureVector.Preprocess;
 import io.github.nlpreviz.nlp.featureVector.FeatureSet.MLInstanceType;
+import io.github.nlpreviz.nlp.featureVector.FeatureSet;
 import io.github.nlpreviz.nlp.feedback.FileTextCreateInitialDS;
 import io.github.nlpreviz.nlp.feedback.TextFileFeedbackManagerLibSVM;
 import io.github.nlpreviz.nlp.utils.Util;
@@ -26,6 +28,8 @@ import io.github.nlpreviz.server.controller.WordTree_Controller;
 import io.github.nlpreviz.server.model.Feedback_Abstract_Model;
 import io.github.nlpreviz.server.model.Feedback_WordTree_JSON_Model;
 import io.github.nlpreviz.server.model.ReportPrediction_Model;
+import io.github.nlpreviz.nlp.simpleWS.model.Report;
+import io.github.nlpreviz.nlp.simpleWS.ReportDAO;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -232,6 +236,9 @@ public class WSInterface {
 	@Path("resetDB")
 	public String resetDB()
 			throws Exception {
+
+		createGlobalFeatureVector();
+
 		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
 		// re-create the data set files
     	String fn_modelList = Util.getOSPath(new String[] {
@@ -244,6 +251,45 @@ public class WSInterface {
 		return "resetDB: OK";
 	}
 	
+
+	protected void createGlobalFeatureVector () throws Exception {
+		// create global feature vector
+		FeatureSetNGram featureSet = FeatureSetNGram.createFeatureSetNGram();
+		// load all documents
+		// String fn_fullIDList = Util.getOSPath(new String[]{
+		// 		Storage_Controller.getDocumentListFolder(), });
+		List<Report> documentList = ReportDAO.instance.getReportFromListFile(
+				"fullIDList.xml", null);
+		// System.out.println("Loading all reports for global feature creating");
+
+		FeatureSet.MLInstanceType instanceType = MLInstanceType.COLONREPORTANDPATHOLOGYREPORT;
+		for(int i = 0; i < documentList.size(); i++) {
+            Report document = documentList.get(i);
+            
+            String instanceID = document.getId();
+            String[] instanceTextList = new String[2];
+            // the first string is colonocopy report
+            // get content only, skip header and footer
+            instanceTextList[0] = Preprocess.separateReportHeaderFooter(
+            		document.getColonoscopyReport())[1];
+            instanceTextList[1] = "";
+            // if(document.getPathologyReport().length() > 0) {
+            // 	instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
+            // 			document.getPathologyReport())[1];
+            // }
+            // else {
+            // 	instanceTextList[1] = "";
+            // }
+            
+            featureSet.addInstance(instanceID, instanceTextList, instanceType);
+        }
+		// get the global feature vector only
+		// System.out.println("Start extracting");
+		String[] globalFeatureVector = featureSet.getGlobalFeatureVector();
+		// save the global feature vector
+		Util.saveList(ALearner.getGlobalFeatureVectorFn(), globalFeatureVector);
+		System.out.println("File is saved at " + ALearner.getGlobalFeatureVectorFn());
+	}
 	
 	/**
 	 * Create an empty data set with no initial models and no initial training instances
@@ -254,6 +300,9 @@ public class WSInterface {
 	@Path("resetDBEmpty")
 	public String resetDBEmpty()
 			throws Exception {
+
+		createGlobalFeatureVector();
+
 		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
 		// re-create the whole dataset
 		dataSet.initializeFeedbackFileEmpty();

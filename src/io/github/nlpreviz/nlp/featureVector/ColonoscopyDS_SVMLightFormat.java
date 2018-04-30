@@ -32,6 +32,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
     protected String varID;
 //	MLInstanceType reportType = MLInstanceType.COLONREPORTONLY;
 	MLInstanceType reportType = MLInstanceType.COLONREPORTANDPATHOLOGYREPORT;
+    protected int reportIDLen = 4;
     
     public ColonoscopyDS_SVMLightFormat() {
     	try {
@@ -146,27 +147,29 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 				if (!isSpanFeedback(feedbackTable[iFeedback])) { // instance feedback
 					// add text content if the instance is a new instance
 					if (!featureSet.m_Instances.containsKey(instanceID)) {
-						fileName = Util.getOSPath(new String[] { dataFolder,
-								instanceID,
-								Storage_Controller.getColonoscopyReportFn() });
+						// fileName = Util.getOSPath(new String[] { dataFolder,
+						// 		instanceID,
+						// 		Storage_Controller.getColonoscopyReportFn() });
 
-						// the first string is colonocopy report
-						instanceTextList[0] = Util.loadTextFile(fileName);
-						// remove header and footer
-						instanceTextList[0] = Preprocess
-								.separateReportHeaderFooter(instanceTextList[0])[1];
+						// // the first string is colonocopy report
+						// instanceTextList[0] = Util.loadTextFile(fileName);
+						// // remove header and footer
+						// instanceTextList[0] = Preprocess
+						// 		.separateReportHeaderFooter(instanceTextList[0])[1];
 
-						fileName = Util.getOSPath(new String[] { dataFolder,
-								instanceID,
-								Storage_Controller.getPathologyReportFn() });
-						if (Util.fileExists(fileName)) {
-							instanceTextList[1] = Util.loadTextFile(fileName);
-							// remove header and footer
-							instanceTextList[1] = Preprocess
-									.separatePathologyHeaderFooter(instanceTextList[1])[1];
-						} else {
-							instanceTextList[1] = "";
-						}
+						// fileName = Util.getOSPath(new String[] { dataFolder,
+						// 		instanceID,
+						// 		Storage_Controller.getPathologyReportFn() });
+						// if (Util.fileExists(fileName)) {
+						// 	instanceTextList[1] = Util.loadTextFile(fileName);
+						// 	// remove header and footer
+						// 	instanceTextList[1] = Preprocess
+						// 			.separatePathologyHeaderFooter(instanceTextList[1])[1];
+						// } else {
+						// 	instanceTextList[1] = "";
+						// }
+
+                        instanceTextList[1] = "";
 
 						featureSet.addInstance(instanceID, instanceTextList,
 								reportType);
@@ -204,21 +207,22 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
             rawTextColon = new StringBuilder(Util.loadTextFile(Util.getOSPath(new String[] {dataFolder,
                     report_ID, Storage_Controller.getColonoscopyReportFn()})));
 //            // remove header footer
-//            rawTextColon = new StringBuilder(Preprocess.separateReportHeaderFooter(
-//            		rawTextColon.toString())[1]);
+           rawTextColon = new StringBuilder(Preprocess.separateReportHeaderFooter(
+           		rawTextColon.toString())[1]);
 
-			if (Util.fileExists(Util.getOSPath(new String[] {
-					dataFolder, report_ID, Storage_Controller.getPathologyReportFn() }))) {
-				rawTextPathology = new StringBuilder(Util.loadTextFile(Util
-						.getOSPath(new String[] { dataFolder, report_ID,
-								Storage_Controller.getPathologyReportFn() })));
-//				rawTextPathology = new StringBuilder(Preprocess.separatePathologyHeaderFooter(
-//						rawTextPathology.toString())[1]);
-			}
-            else {
-            	rawTextPathology = new StringBuilder();
-            }
+// 			if (Util.fileExists(Util.getOSPath(new String[] {
+// 					dataFolder, report_ID, Storage_Controller.getPathologyReportFn() }))) {
+// 				rawTextPathology = new StringBuilder(Util.loadTextFile(Util
+// 						.getOSPath(new String[] { dataFolder, report_ID,
+// 								Storage_Controller.getPathologyReportFn() })));
+// //				rawTextPathology = new StringBuilder(Preprocess.separatePathologyHeaderFooter(
+// //						rawTextPathology.toString())[1]);
+// 			}
+//             else {
+//             	rawTextPathology = new StringBuilder();
+//             }
             
+            rawTextPathology = new StringBuilder();
             spanLabelMap = feedbackSpanDocList.get(report_ID);
             
 //            // first approach (merge all) & (merge all + flip)
@@ -376,7 +380,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
      */
     @Override
     public boolean isRationaleInstance(String instanceID) {
-        return instanceID.length() > 4; // "0000_000".length()
+        return instanceID.length() > reportIDLen; // "0000_000".length()
     }
     
 //    /**
@@ -738,7 +742,7 @@ public class ColonoscopyDS_SVMLightFormat extends LibSVMFileFormat {
 //        
 //        return instanceClassValue;
     	
-    	String _instanceID = instanceID.substring(0, 4); //"0000"_000
+    	String _instanceID = instanceID.substring(0, reportIDLen); //"0000"_000
     	String classValue = classValueTable.get(_instanceID).toLowerCase();
     	
     	return classValue.toLowerCase().equals("false") || classValue.equals("0")? "-1" : "+1";

@@ -52,7 +52,7 @@ public class WordTree_Controller {
 //		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
 		System.out.println("New search is: " + searchText);
 
-		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\\b" + searchText + "\\b[^\n.?!]*)", Pattern.CASE_INSENSITIVE);
+		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\\b" + searchText + "\\b[^\n.?!]*)");
 //		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
 		
 		Pattern tokenPattern = Pattern.compile("[\\w']+|[.,!?;]");
@@ -123,7 +123,7 @@ public class WordTree_Controller {
 		// preprocess
 		reportText = reportText.replaceAll("\r\n", "\n");
 		sentenceMatch = sentencePattern.matcher(reportText);
-		rootWord = rootWord.toLowerCase();
+		// rootWord = rootWord.toLowerCase();
 
 		while (sentenceMatch.find()) {
 			matchCount++;
@@ -137,7 +137,7 @@ public class WordTree_Controller {
 						matchedSentence.length() - 1);
 			}
 
-			matchedSentence = matchedSentence.toLowerCase();
+			// matchedSentence = matchedSentence.toLowerCase();
 			//System.out.println(matchedSentence);
 
 			// left branch
