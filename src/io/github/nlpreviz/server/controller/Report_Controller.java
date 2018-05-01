@@ -150,36 +150,45 @@ public class Report_Controller {
 //				sb.append(report.get("id") + "," + Storage_Controller.getVarIdFromFn(modelFnList.get(iModel)) + "," + reportPrediction.getClassification().toUpperCase() + "," + predictionList[iModel][iInstance][1] + "\n");
 				
 				if(Util.fileExists(Util.getOSPath(new String[]{m_weightFolder,
-						Storage_Controller.convertModelFn2FeatureWeightFn(
-								modelFnList.get(iModel))}))) {
-					
-					featureWeightTable = Util
-							.loadTable(Util.getOSPath(new String[] {
-									m_weightFolder,
-									Storage_Controller
-											.convertModelFn2FeatureWeightFn(modelFnList
-													.get(iModel)) }));
-					allTokenList = topFeatureController
-							.getStemmedTokenList(getReportText((String) report
-									.get("id")));
-					
-					// get top negative features
-					topFeatureList = getTopNegativeLibSVMFeaturesInReport(
-							sparsedIndexData[iInstance], featureIndexMap,
-							featureWeightTable, topKwords, biasFeature);
+					Storage_Controller.convertModelFn2FeatureWeightFn(
+						modelFnList.get(iModel))}))) {
 
-					topFeatureController.extractMatchedUnigram(topFeatureList,
-							allTokenList);
-					reportPrediction.setTopNegative(topFeatureList);
+					try{
+						featureWeightTable = Util
+								.loadTable(Util.getOSPath(new String[] {
+										m_weightFolder,
+										Storage_Controller
+												.convertModelFn2FeatureWeightFn(modelFnList
+														.get(iModel)) }));
 
-					// get top positive features
-					topFeatureList = getTopPositiveLibSVMFeaturesInReport(
-							sparsedIndexData[iInstance], featureIndexMap,
-							featureWeightTable, topKwords, biasFeature);
+						allTokenList = topFeatureController
+								.getStemmedTokenList(getReportText((String) report
+										.get("id")));
 
-					topFeatureController.extractMatchedUnigram(topFeatureList,
-							allTokenList);
-					reportPrediction.setTopPositive(topFeatureList);
+						System.out.println(getReportText((String) report.get("id")));
+						
+						// get top negative features
+						topFeatureList = getTopNegativeLibSVMFeaturesInReport(
+								sparsedIndexData[iInstance], featureIndexMap,
+								featureWeightTable, topKwords, biasFeature);
+
+						topFeatureController.extractMatchedUnigram(topFeatureList,
+								allTokenList);
+						reportPrediction.setTopNegative(topFeatureList);
+
+						// get top positive features
+						topFeatureList = getTopPositiveLibSVMFeaturesInReport(
+								sparsedIndexData[iInstance], featureIndexMap,
+								featureWeightTable, topKwords, biasFeature);
+
+						topFeatureController.extractMatchedUnigram(topFeatureList,
+								allTokenList);
+						reportPrediction.setTopPositive(topFeatureList);
+					}
+					catch (Exception e){
+						reportPrediction.setTopNegative(new ArrayList<FeatureWeight>());
+						reportPrediction.setTopPositive(new ArrayList<FeatureWeight>());
+					}
 				}
 				else {
 					reportPrediction.setTopNegative(new ArrayList<FeatureWeight>());
