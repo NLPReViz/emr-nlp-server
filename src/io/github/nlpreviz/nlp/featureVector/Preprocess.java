@@ -181,6 +181,9 @@ public class Preprocess {
         text[1] = input;
         text[2] = "";
 
+        // should use StringBuilder instead of String here
+        text[1] = text[1].replaceAll("_{3,}", "");
+
 //         StringBuilder sb;
 // 		String[] lines = input.split("\n");
 // 		int allLines = lines.length;
