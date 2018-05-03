@@ -52,7 +52,7 @@ public class WordTree_Controller {
 //		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
 		System.out.println("New search is: " + searchText);
 
-		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\\b" + searchText + "\\b[^\n.?!]*)");
+		Pattern sentencePattern = Pattern.compile(" ([^.:]*?\\b" + searchText + "\\b[^\n.?!]*)", Pattern.CASE_INSENSITIVE);
 //		Pattern sentencePattern = Pattern.compile("([^.:]*?" + rootWord + "[^.\n]*\\.)");
 		
 		Pattern tokenPattern = Pattern.compile("[\\w']+|[.,!?;]");
