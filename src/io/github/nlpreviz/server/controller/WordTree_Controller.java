@@ -123,7 +123,7 @@ public class WordTree_Controller {
 		// preprocess
 		reportText = reportText.replaceAll("\r\n", "\n");
 		sentenceMatch = sentencePattern.matcher(reportText);
-		// rootWord = rootWord.toLowerCase();
+		rootWord = rootWord.toLowerCase();
 
 		while (sentenceMatch.find()) {
 			matchCount++;
