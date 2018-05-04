@@ -137,7 +137,7 @@ public class WordTree_Controller {
 						matchedSentence.length() - 1);
 			}
 
-			// matchedSentence = matchedSentence.toLowerCase();
+			matchedSentence = matchedSentence.toLowerCase();
 			//System.out.println(matchedSentence);
 
 			// left branch
