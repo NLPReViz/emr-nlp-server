@@ -182,7 +182,12 @@ public class Preprocess {
         text[2] = "";
 
         // should use StringBuilder instead of String here
+        text[1] = text[1].replaceAll("\\*\\*ID\\-NUM", "");
+        text[1] = text[1].replaceAll("id\\-num", "");
+        text[1] = text[1].replaceAll("\\*\\*\\S+", "");
+        text[1] = text[1].replaceAll("={3,}", "");
         text[1] = text[1].replaceAll("_{3,}", "");
+        text[1] = text[1].replaceAll(" +", " ");
 
 //         StringBuilder sb;
 // 		String[] lines = input.split("\n");
