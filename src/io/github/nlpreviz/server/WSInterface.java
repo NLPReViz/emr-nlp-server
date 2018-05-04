@@ -234,61 +234,30 @@ public class WSInterface {
 	 */
 	@GET
 	@Path("resetDB")
-	public String resetDB()
+	public String resetDB(@HeaderParam("uid") String uid)
 			throws Exception {
 
-		createGlobalFeatureVector();
+		ResetController reset = new ResetController();
 
-		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
-		// re-create the data set files
-    	String fn_modelList = Util.getOSPath(new String[] {
-				Storage_Controller.getModelListFolder(), "modelList.0..xml" });
-		String fn_reportIDList = Util.getOSPath(new String[]{
+		// FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
+		// // re-create the data set files
+  //   	String fn_modelList = Util.getOSPath(new String[] {
+		// 		Storage_Controller.getModelListFolder(), "modelList.0..xml" });
+		// String fn_reportIDList = Util.getOSPath(new String[]{
+		// 		Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
+		// // re-create the whole dataset
+		// dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
+
+		// String fn_instanceIDList = Util.getOSPath(new String[] { "documentList", "initialIDList.xml" });
+
+		String fn_instanceIDList = Util.getOSPath(new String[]{
 				Storage_Controller.getDocumentListFolder(), "initialIDList.xml"});
-		// re-create the whole dataset
-		dataSet.initializeFeedbackFile(fn_modelList, fn_reportIDList);
+
+        String fn_modelFnList = "modelList.0..xml";
+        reset.initializeFeedbackFile(fn_modelFnList, fn_instanceIDList, uid);
+        System.out.println("DB reset for uid " + uid + ".");
 		
 		return "resetDB: OK";
-	}
-	
-
-	protected void createGlobalFeatureVector () throws Exception {
-		// create global feature vector
-		FeatureSetNGram featureSet = FeatureSetNGram.createFeatureSetNGram();
-		// load all documents
-		// String fn_fullIDList = Util.getOSPath(new String[]{
-		// 		Storage_Controller.getDocumentListFolder(), });
-		List<Report> documentList = ReportDAO.instance.getReportFromListFile(
-				"fullIDList.xml", null);
-		// System.out.println("Loading all reports for global feature creating");
-
-		FeatureSet.MLInstanceType instanceType = MLInstanceType.COLONREPORTANDPATHOLOGYREPORT;
-		for(int i = 0; i < documentList.size(); i++) {
-            Report document = documentList.get(i);
-            
-            String instanceID = document.getId();
-            String[] instanceTextList = new String[2];
-            // the first string is colonocopy report
-            // get content only, skip header and footer
-            instanceTextList[0] = Preprocess.separateReportHeaderFooter(
-            		document.getColonoscopyReport())[1];
-            instanceTextList[1] = "";
-            // if(document.getPathologyReport().length() > 0) {
-            // 	instanceTextList[1] = Preprocess.separatePathologyHeaderFooter(
-            // 			document.getPathologyReport())[1];
-            // }
-            // else {
-            // 	instanceTextList[1] = "";
-            // }
-            
-            featureSet.addInstance(instanceID, instanceTextList, instanceType);
-        }
-		// get the global feature vector only
-		// System.out.println("Start extracting");
-		String[] globalFeatureVector = featureSet.getGlobalFeatureVector();
-		// save the global feature vector
-		Util.saveList(ALearner.getGlobalFeatureVectorFn(), globalFeatureVector);
-		System.out.println("File is saved at " + ALearner.getGlobalFeatureVectorFn());
 	}
 	
 	/**
@@ -298,14 +267,15 @@ public class WSInterface {
 	 */
 	@GET
 	@Path("resetDBEmpty")
-	public String resetDBEmpty()
+	public String resetDBEmpty(@HeaderParam("uid") String uid)
 			throws Exception {
 
-		createGlobalFeatureVector();
+		ResetController reset = new ResetController();
+		reset.initializeFeedbackFileEmpty();
 
-		FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
-		// re-create the whole dataset
-		dataSet.initializeFeedbackFileEmpty();
+		// FileTextCreateInitialDS dataSet = new FileTextCreateInitialDS();
+		// // re-create the whole dataset
+		// dataSet.initializeFeedbackFileEmpty();
 		
 		return "resetDBEmpty: OK";
 	}
