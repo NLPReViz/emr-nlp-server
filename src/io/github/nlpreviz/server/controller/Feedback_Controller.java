@@ -96,10 +96,10 @@ public class Feedback_Controller {
 			boolean biasFeature = true;
 			String[] modelListInfo = Storage_Controller.parseModelListFn(returnMsg); 
 			Map<String, Object> gridVarObj = 
-//					GridVar_Controller.instance.getPrediction(fn_reportIDList,
-//							returnMsg + ".xml", topKwords, biasFeature);
-					new GridVar_Controller().getPredictionAfterFeedback(fn_reportIDList,
-							returnMsg + ".xml", topKwords, biasFeature, modelListInfo[0], modelListInfo[1]);
+					new GridVar_Controller().getPrediction(fn_reportIDList,
+							returnMsg + ".xml", topKwords, biasFeature);
+					// new GridVar_Controller().getPredictionAfterFeedback(fn_reportIDList,
+							// returnMsg + ".xml", topKwords, biasFeature, modelListInfo[0], modelListInfo[1]);
 			feedbackResult.put("gridVarData", gridVarObj);
 //			feedbackResult.put("feedbackList", feedbackBatch);
 		}
