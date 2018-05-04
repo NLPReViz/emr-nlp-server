@@ -63,8 +63,8 @@ We have included some ["dummy" data](https://github.com/NLPReViz/emr-nlp-server/
 
 Now follow the steps on [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) to setup the front-end application.
 
-### Defining custom variables
-The tool is currently configured to make predictions for 14 colonoscopy quality variables. It also does specific format parsing for colonoscopy and pathology reports in the data provided with the release. We have a more generic version of the tool in the `alaska` branch of this repository. Refer to the top 3 three commits for the changes [here](https://github.com/NLPReViz/emr-nlp-server/commits/7d0c303c7d0752368fc85dce72ccf4aec39ee44a). This project will be updated to make this configuration easier in the near future.
+### Using your own dataset and defining custom variables
+The tool is currently configured to make predictions for 14 colonoscopy quality variables. It also does specific format parsing for colonoscopy and pathology reports in the data provided with the release. We have a more generic version of the tool in the `general` branch of this repository. Checkout the new branch and refer to the readme [here](https://github.com/NLPReViz/emr-nlp-server/blob/general/README.md). This project will be updated to make this configuration easier in the near future.
 
 Remember to update [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) as described in its README as well.
 
