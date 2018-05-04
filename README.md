@@ -64,9 +64,64 @@ We have included some ["dummy" data](https://github.com/NLPReViz/emr-nlp-server/
 Now follow the steps on [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) to setup the front-end application.
 
 ### Using your own dataset and defining custom variables
-The tool is currently configured to make predictions for 14 colonoscopy quality variables. It also does specific format parsing for colonoscopy and pathology reports in the data provided with the release. We have a more generic version of the tool in the `general` branch of this repository. Checkout the new branch and refer to the readme [here](https://github.com/NLPReViz/emr-nlp-server/blob/general/README.md). This project will be updated to make this configuration easier in the near future.
+The tool is currently configured to make predictions for 14 colonoscopy quality variables. It also does specific format parsing for colonoscopy and pathology reports in the data provided with the release. We have a more generic version of the tool in the `general` branch of this repository. Checkout this experimental branch [here](https://github.com/NLPReViz/emr-nlp-server/blob/general/README.md). 
 
-Remember to update [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) as described in its README as well.
+You will still need to download the sample [_data_](https://github.com/NLPReViz/emr-nlp-server/releases/download/empirical-study/data.zip) directory, and organize your documents in the same structure defined as follows:
+
+```
+|____documentList
+| |____initialIDList.xml
+| |____testIDList.xml
+| |____fullIDList.xml
+| |____feedbackIDList.xml
+|____docs
+| |____0719
+| | |____report.txt
+| |____0973
+| | |____report.txt
+| |____0184
+| | |____report.txt
+| | |____pathology.txt
+| |____0726
+| | |____report.txt
+| | |____pathology.txt
+    |
+    :
+    :
+|____labels
+| |____class-appendiceal-orifice.csv
+| |____class-ileo-cecal-valve.csv
+| |____class-informed-consent.csv
+| |____class-proc-aborted.csv
+| |____class-asa.csv
+| |____class-prep-adequateYes.csv
+| |____class-any-adenoma.csv
+| |____class-cecum.csv
+| |____class-withdraw-time.csv
+| |____class-indication-type.csv
+| |____class-prep-adequateNot.csv
+| |____class-biopsy.csv
+| |____class-prep-adequateNo.csv
+| |____class-nursing-report.csv
+:
+:
+```
+
+`docs` contains the list of documents. Each patient or case is represented by a four digit ID as sub-directories. The ID length is hard-coded in `ColonoscopyDS_SVMLightFormat.java`. These may contain at most 2 files: `report.txt` and `pathology.txt`. `pathology.txt` is optional. If you have more than 2 files, you may concatenate them into one report, or extend our code to support them. :)
+
+`documentList` directory has the following files, with references to the documents described above:
+* `initialIDList.xml` - Used to train the initial model. This is how we boostrap the system.
+* `feedbackIDList.xml` - This is the list of documents you should be working on to give feedback on and improve the models. Used to create the global feature vector.
+* `fullIDList.xml` - Held out test set. There is code to general evaluation metrics but it is not exposed to the front-end at this point. Feel free to contribute ;)
+* `testIDList.xml` - List of all the IDs.
+
+`labels` directory contains the gold standard data; used to train the initial models and run evaluation metrics.
+
+The rest of the files are can be reset by pointing your browser to: <Backend URL>/rest/server/resetDB, for example: http://localhost:8080/emr-nlp-server/rest/server/resetDB. Remember to update [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) to it's general branch.
+    
+The easiest way to configure the tool to use your own variables is to map them to the names of your choice in the front end. Remember to update [emr-vis-web](https://github.com/NLPReViz/emr-vis-web) as described in its README as well.
+    
+This project will be updated to make this configuration easier in the near future.
 
 ### Login
 The the rest calls to the server are protected with a [basic access http authentication](https://en.wikipedia.org/wiki/Basic_access_authentication). The default login credentials are _"username"_ and _"password"_. You are encouraged to change them in [UserAuthentication.java](src/io/github/nlpreviz/server/UserAuthentication.java) when running the app on a publicly accessible server.
