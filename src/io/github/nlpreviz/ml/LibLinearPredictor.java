@@ -236,6 +236,29 @@ public class LibLinearPredictor extends ALearner {
                 }
             }
         }
+	    
+	int rows = predictionMatrix.length;
+    int columns = predictionMatrix[0].length;
+    try {
+      FileWriter writer = new FileWriter("/ext_data/trial.csv");
+      for(int i = 0; i < rows; i++)
+       {
+          int j;
+          for (j=0; j<columns-1; j++)
+           {
+               writer.append(Double.toString(predictionMatrix[i][j]));
+               writer.append(',');
+           }
+             writer.append(Double.toString(predictionMatrix[i][j]));
+             writer.append('\n');
+             writer.flush();
+       }
+       writer.close();
+
+    }
+    catch(IOException e) {
+      e.printStackTrace();
+    }
 
         return predictionMatrix;
     }
